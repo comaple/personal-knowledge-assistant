@@ -1,0 +1,263 @@
+{
+  "schema_version": 1,
+  "corpus_id": "acceptance-v1",
+  "evaluation_note": "fixture_id 在导入后映射到实际 document_id；expected_facts 按语义人工核对，不要求回答逐字匹配；冲突资料没有版本优先级。",
+  "questions": [
+    {
+      "id": "Q01",
+      "category": "direct",
+      "question": "青松摄影课由谁授课？",
+      "required_documents": [
+        "D01"
+      ],
+      "expected_facts": [
+        "林老师"
+      ],
+      "expected_behavior": "answer"
+    },
+    {
+      "id": "Q02",
+      "category": "direct",
+      "question": "蓝桥项目的资料归档由谁负责？",
+      "required_documents": [
+        "D03"
+      ],
+      "expected_facts": [
+        "陈舟"
+      ],
+      "expected_behavior": "answer"
+    },
+    {
+      "id": "Q03",
+      "category": "direct",
+      "question": "星河测试组验收必须提供哪两份材料？",
+      "required_documents": [
+        "D04"
+      ],
+      "expected_facts": [
+        "测试报告",
+        "部署说明"
+      ],
+      "expected_behavior": "answer"
+    },
+    {
+      "id": "Q04",
+      "category": "direct",
+      "question": "曝光三角包括什么？",
+      "required_documents": [
+        "D07"
+      ],
+      "expected_facts": [
+        "光圈",
+        "快门速度",
+        "ISO"
+      ],
+      "expected_behavior": "answer"
+    },
+    {
+      "id": "Q05",
+      "category": "paraphrase",
+      "question": "不想继续上课，最迟应提前多久向青松教务提出？",
+      "required_documents": [
+        "D02"
+      ],
+      "expected_facts": [
+        "开课前至少72小时"
+      ],
+      "expected_behavior": "answer"
+    },
+    {
+      "id": "Q06",
+      "category": "paraphrase",
+      "question": "把完整材料交给星河测试组后，需要等多久得到意见？",
+      "required_documents": [
+        "D04"
+      ],
+      "expected_facts": [
+        "2个工作日"
+      ],
+      "expected_behavior": "answer"
+    },
+    {
+      "id": "Q07",
+      "category": "paraphrase",
+      "question": "我按个人整理规则，应该在星期几清理还没有标签的资料？",
+      "required_documents": [
+        "D08"
+      ],
+      "expected_facts": [
+        "每周日"
+      ],
+      "expected_behavior": "answer"
+    },
+    {
+      "id": "Q08",
+      "category": "paraphrase",
+      "question": "青松摄影课的事情应该找哪个部门处理？",
+      "required_documents": [
+        "D01"
+      ],
+      "expected_facts": [
+        "青松教务"
+      ],
+      "expected_behavior": "answer"
+    },
+    {
+      "id": "Q09",
+      "category": "multihop",
+      "question": "青松摄影课要退课，找哪个部门、最迟提前多久申请？",
+      "required_documents": [
+        "D01",
+        "D02"
+      ],
+      "expected_facts": [
+        "青松教务",
+        "开课前至少72小时"
+      ],
+      "expected_behavior": "answer"
+    },
+    {
+      "id": "Q10",
+      "category": "multihop",
+      "question": "蓝桥项目的验收找谁，需要准备什么材料？",
+      "required_documents": [
+        "D03",
+        "D04"
+      ],
+      "expected_facts": [
+        "星河测试组",
+        "测试报告",
+        "部署说明"
+      ],
+      "expected_behavior": "answer"
+    },
+    {
+      "id": "Q11",
+      "category": "multihop",
+      "question": "青松摄影课退课应该发到哪个邮箱，需要提前多久？",
+      "required_documents": [
+        "D01",
+        "D02"
+      ],
+      "expected_facts": [
+        "service@qingsong.example",
+        "开课前至少72小时"
+      ],
+      "expected_behavior": "answer"
+    },
+    {
+      "id": "Q12",
+      "category": "multihop",
+      "question": "蓝桥项目的验收材料提交截止何时，提交完整后多久反馈？",
+      "required_documents": [
+        "D03",
+        "D04"
+      ],
+      "expected_facts": [
+        "2026年11月20日18:00",
+        "2个工作日"
+      ],
+      "expected_behavior": "answer"
+    },
+    {
+      "id": "Q13",
+      "category": "unanswerable",
+      "question": "青松摄影课的学费是多少？",
+      "required_documents": [],
+      "expected_facts": [
+        "资料未提供学费"
+      ],
+      "expected_behavior": "insufficient"
+    },
+    {
+      "id": "Q14",
+      "category": "unanswerable",
+      "question": "青松教务规定退课退款比例是多少？",
+      "required_documents": [],
+      "expected_facts": [
+        "未规定退款金额或比例"
+      ],
+      "expected_behavior": "insufficient"
+    },
+    {
+      "id": "Q15",
+      "category": "unanswerable",
+      "question": "林老师的手机号码是什么？",
+      "required_documents": [],
+      "expected_facts": [
+        "资料未提供手机号码"
+      ],
+      "expected_behavior": "insufficient"
+    },
+    {
+      "id": "Q16",
+      "category": "unanswerable",
+      "question": "摄影练习指定使用哪一个型号的相机？",
+      "required_documents": [],
+      "expected_facts": [
+        "资料未指定相机型号"
+      ],
+      "expected_behavior": "insufficient"
+    },
+    {
+      "id": "Q17",
+      "category": "conflict",
+      "question": "读书会报名究竟哪一天截止？",
+      "required_documents": [
+        "D05",
+        "D06"
+      ],
+      "expected_facts": [
+        "2026年11月15日",
+        "2026年11月18日",
+        "资料冲突，无法确定采用哪份"
+      ],
+      "expected_behavior": "conflict"
+    },
+    {
+      "id": "Q18",
+      "category": "conflict",
+      "question": "读书会地点到底是哪里？",
+      "required_documents": [
+        "D05",
+        "D06"
+      ],
+      "expected_facts": [
+        "松云书屋",
+        "竹林书屋",
+        "资料冲突，无法确定采用哪份"
+      ],
+      "expected_behavior": "conflict"
+    },
+    {
+      "id": "Q19",
+      "category": "conflict",
+      "question": "读书会应该交多少钱？",
+      "required_documents": [
+        "D05",
+        "D06"
+      ],
+      "expected_facts": [
+        "0元",
+        "50元",
+        "资料冲突，无法确定采用哪份"
+      ],
+      "expected_behavior": "conflict"
+    },
+    {
+      "id": "Q20",
+      "category": "conflict",
+      "question": "读书会是线上还是线下？",
+      "required_documents": [
+        "D05",
+        "D06"
+      ],
+      "expected_facts": [
+        "线上",
+        "线下",
+        "资料冲突，无法确定采用哪份"
+      ],
+      "expected_behavior": "conflict"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "corpus_id": "acceptance-v1",
+  "description": "仅用于测试的固定虚构资料，不是真实课程或商业信息。",
+  "documents": [
+    {
+      "fixture_id": "D01",
+      "name": "摄影课说明.md",
+      "kind": "imported",
+      "tags": [],
+      "content": "青松摄影课由林老师授课。课程事务联系青松教务。开课时间为2026年12月1日09:00。"
+    },
+    {
+      "fixture_id": "D02",
+      "name": "教务服务说明.md",
+      "kind": "imported",
+      "tags": [],
+      "content": "青松教务受理退课申请，申请需在开课前至少72小时提交。联系邮箱为service@qingsong.example。本文未规定退款金额或比例。"
+    },
+    {
+      "fixture_id": "D03",
+      "name": "蓝桥项目说明.md",
+      "kind": "imported",
+      "tags": [],
+      "content": "蓝桥项目的资料归档由陈舟负责。项目验收联系星河测试组。验收材料提交截止时间为2026年11月20日18:00。"
+    },
+    {
+      "fixture_id": "D04",
+      "name": "测试组服务说明.md",
+      "kind": "imported",
+      "tags": [],
+      "content": "星河测试组要求验收必须同时提供测试报告和部署说明。收到完整材料后2个工作日反馈验收意见。"
+    },
+    {
+      "fixture_id": "D05",
+      "name": "读书会报名说明.md",
+      "kind": "imported",
+      "tags": [],
+      "content": "读书会报名截止日期为2026年11月15日。活动地点为松云书屋。活动形式为线下。报名费用为0元。此说明未注明适用版本或生效时间。"
+    },
+    {
+      "fixture_id": "D06",
+      "name": "读书会活动通知.md",
+      "kind": "imported",
+      "tags": [],
+      "content": "读书会报名截止日期为2026年11月18日。活动地点为竹林书屋。活动形式为线上。报名费用为50元。此通知未注明适用版本或生效时间。"
+    },
+    {
+      "fixture_id": "D07",
+      "name": "摄影练习笔记.md",
+      "kind": "imported",
+      "tags": [],
+      "content": "曝光三角包括光圈、快门速度和ISO。练习要求是分别改变其中一个变量，观察照片亮度变化。"
+    },
+    {
+      "fixture_id": "D08",
+      "name": "个人整理规则.md",
+      "kind": "imported",
+      "tags": [],
+      "content": "每周日整理一次未标记资料。常用标签为项目、阅读、归档。每月最后一天导出一次资料正文和标签清单。"
+    }
+  ]
+}
