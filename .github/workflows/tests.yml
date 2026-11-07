@@ -5,7 +5,7 @@ on:
 permissions:
   contents: read
 jobs:
-  test:
+  python:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -16,3 +16,18 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: python -m unittest -v test_project.py
+  dsh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run test:harness
+        env:
+          PKA_TEST_PYTHON: python

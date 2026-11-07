@@ -23,7 +23,7 @@ def load_env(path):
         if not line or line.startswith('#') or '=' not in line:
             continue
         key, value = line.split('=', 1)
-        if key.strip() in ('LLM_API_KEY', 'LLM_BASE_URL', 'LLM_MODEL'):
+        if key.strip() in ('LLM_API_KEY', 'DEEPSEEK_API_KEY', 'DSH_MODEL', 'DSH_BASE_URL'):
             os.environ.setdefault(key.strip(), value.strip().strip('"\''))
 
 
@@ -67,8 +67,11 @@ def make_server(store, port=8501):
             elif route.path == '/api/messages':
                 sid = parse_qs(route.query).get('session_id', [''])[0]
                 self.send(store.messages(sid))
+            elif route.path == '/api/runs':
+                sid = parse_qs(route.query).get('session_id', [''])[0]
+                self.send(store.runs(sid))
             elif route.path == '/api/config':
-                self.send({'model_ready': bool(os.getenv('LLM_API_KEY')), 'mode': 'local'})
+                self.send({'model_ready': bool(os.getenv('LLM_API_KEY') or os.getenv('DEEPSEEK_API_KEY')), 'harness': 'dsh'})
             else:
                 self.send({'error': '未找到资源'}, 404)
 
@@ -98,22 +101,23 @@ def make_server(store, port=8501):
                         self.send({'error': '上一个问题还在处理，请稍后再试。'}, 409)
                         return
                     try:
-                        hits = retrieve(store, question)
-                        status = 'retrieval_only'
-                        if not hits:
-                            answer = '没有检索到相关资料。请补充文档，或使用文档里的关键词重新提问。'
-                            status = 'no_evidence'
-                        elif mode == 'retrieve':
-                            answer = '仅检索模式：找到以下候选片段，尚未调用模型生成答案。\n' + '\n'.join(
+                        run = None
+                        hits = []
+                        if mode == 'retrieve':
+                            hits = retrieve(store, question)
+                            status = 'retrieval_only' if hits else 'no_evidence'
+                            answer = ('仅检索模式：找到以下候选片段，尚未调用模型生成答案。\n' + '\n'.join(
                                 '[' + h['source_id'] + '] ' + h['name'] + ' · 片段 ' + str(h['ordinal']) for h in hits)
+                                if hits else '没有检索到相关资料。请补充文档，或使用文档里的关键词重新提问。')
                         else:
                             try:
-                                answer = generate(question, hits)
-                                status = 'generated'
+                                run = generate(question, store)
+                                answer, hits, status = run['answer'], run['sources'], run['status']
                             except ModelError as exc:
-                                answer = str(exc)
-                                status = 'model_error'
-                        store.save_turn(sid, question, answer, hits, status)
+                                run = exc.run
+                                hits = run.get('sources', []) if run else []
+                                answer, status = str(exc), 'model_error'
+                        store.save_turn(sid, question, answer, hits, status, run=run)
                         self.send({'answer': answer, 'sources': hits, 'status': status})
                     finally:
                         turn_lock.release()

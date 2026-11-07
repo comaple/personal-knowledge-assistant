@@ -1,0 +1,111 @@
+{
+  "note": "真实 DSH 0.2.2-rc.1 + 本地脚本模拟 Messages 模型；使用虚构资料，不是付费模型效果评测。",
+  "command": "npm run test:harness",
+  "model_requests": 3,
+  "answer": "摄影课退款需要在开课前至少72小时申请。[S1]",
+  "sources": [
+    {
+      "chunk_id": 1,
+      "document_id": 1,
+      "ordinal": 1,
+      "content": "摄影课退款需要在开课前至少72小时申请。",
+      "name": "虚构课程.md",
+      "source_id": "S1"
+    }
+  ],
+  "trace": [
+    {
+      "type": "tool/call",
+      "seq": 12,
+      "time": 1794046298879,
+      "data": {
+        "turn": 1,
+        "step": 1,
+        "callId": "call_1",
+        "name": "kb_search",
+        "arguments": "{\"query\":\"量子隧穿\"}"
+      }
+    },
+    {
+      "type": "tool/result",
+      "seq": 13,
+      "time": 1794046299004,
+      "data": {
+        "turn": 1,
+        "step": 1,
+        "message": {
+          "role": "tool",
+          "source": {
+            "kind": "tool",
+            "callId": "call_1"
+          },
+          "toolCallId": "call_1",
+          "content": [
+            {
+              "type": "text",
+              "text": "[]"
+            }
+          ],
+          "isError": false,
+          "id": "bd625fd6-462a-4ba3-9dc8-61bc7b48e9ed"
+        }
+      },
+      "sourceEventSeqs": [
+        12
+      ],
+      "surfaceOp": "append"
+    },
+    {
+      "type": "tool/call",
+      "seq": 18,
+      "time": 1794046299060,
+      "data": {
+        "turn": 1,
+        "step": 2,
+        "callId": "call_2",
+        "name": "kb_search",
+        "arguments": "{\"query\":\"退款\"}"
+      }
+    },
+    {
+      "type": "tool/result",
+      "seq": 19,
+      "time": 1794046299178,
+      "data": {
+        "turn": 1,
+        "step": 2,
+        "message": {
+          "role": "tool",
+          "source": {
+            "kind": "tool",
+            "callId": "call_2"
+          },
+          "toolCallId": "call_2",
+          "content": [
+            {
+              "type": "text",
+              "text": "[{\"chunk_id\":1,\"document_id\":1,\"ordinal\":1,\"content\":\"摄影课退款需要在开课前至少72小时申请。\",\"name\":\"虚构课程.md\",\"source_id\":\"S1\"}]"
+            }
+          ],
+          "isError": false,
+          "id": "cacf66e6-546a-44a1-a1c9-59a75f8706a2"
+        }
+      },
+      "sourceEventSeqs": [
+        18
+      ],
+      "surfaceOp": "append"
+    },
+    {
+      "type": "turn/end",
+      "seq": 25,
+      "time": 1794046299229,
+      "data": {
+        "turn": 1,
+        "reason": {
+          "kind": "completed"
+        }
+      }
+    }
+  ]
+}

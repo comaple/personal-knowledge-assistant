@@ -14,6 +14,11 @@ CREATE TABLE IF NOT EXISTS chunks (
  id INTEGER PRIMARY KEY, document_id INTEGER NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
  ordinal INTEGER NOT NULL, content TEXT NOT NULL, UNIQUE(document_id, ordinal)
 );
+CREATE TABLE IF NOT EXISTS harness_runs (
+ id INTEGER PRIMARY KEY, session_id TEXT NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+ harness_session_id TEXT NOT NULL, finish_reason TEXT, events_json TEXT NOT NULL,
+ created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 CREATE VIRTUAL TABLE IF NOT EXISTS chunk_search USING fts5(tokens, tokenize='unicode61');
 CREATE TABLE IF NOT EXISTS sessions (
  id TEXT PRIMARY KEY, title TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -106,12 +111,22 @@ class Store:
             row['sources'] = json.loads(row.pop('sources_json'))
         return rows
 
-    def save_turn(self, sid, question, answer, sources, status):
+    def save_turn(self, sid, question, answer, sources, status, run=None):
         with self.connect() as db:
             db.execute('INSERT INTO messages(session_id,role,content) VALUES(?,?,?)', (sid, 'user', question))
             db.execute('INSERT INTO messages(session_id,role,content,sources_json,status) VALUES(?,?,?,?,?)',
                        (sid, 'assistant', answer, json.dumps(sources, ensure_ascii=False), status))
+            if run is not None:
+                db.execute('INSERT INTO harness_runs(session_id,harness_session_id,finish_reason,events_json) VALUES(?,?,?,?)',
+                           (sid, run['harness_session_id'], run['finish_reason'], json.dumps(run['events'], ensure_ascii=False)))
             db.execute("UPDATE sessions SET title=? WHERE id=? AND title='新会话'", (question[:28], sid))
+
+    def runs(self, sid):
+        with self.connect() as db:
+            rows = [dict(row) for row in db.execute('SELECT * FROM harness_runs WHERE session_id=? ORDER BY id', (sid,))]
+        for row in rows:
+            row['events'] = json.loads(row.pop('events_json'))
+        return rows
 
     def delete_session(self, sid):
         with self.connect() as db:

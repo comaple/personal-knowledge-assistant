@@ -10,7 +10,7 @@ from unittest.mock import patch
 
 from app import make_server
 from knowledge import import_text, retrieve, split_text, tokenize
-from model_client import ModelError, generate
+from model_client import ModelError, validate_result
 from store import Store
 
 
@@ -94,7 +94,7 @@ class ProjectTest(unittest.TestCase):
         with patch('app.generate') as model:
             result = self.send(base, '/api/ask', {'session_id': sid, 'question': '退款', 'mode': 'retrieve'})
             self.assertEqual(result['status'], 'retrieval_only')
-            miss = self.send(base, '/api/ask', {'session_id': sid, 'question': '量子隧穿', 'mode': 'generate'})
+            miss = self.send(base, '/api/ask', {'session_id': sid, 'question': '量子隧穿', 'mode': 'retrieve'})
             self.assertEqual(miss['status'], 'no_evidence')
             model.assert_not_called()
         with patch('app.generate', side_effect=ModelError('模型超时')):
@@ -109,41 +109,63 @@ class ProjectTest(unittest.TestCase):
             request.urlopen(base + '/.env')
         exc2.exception.close()
 
-    def test_model_wire_format_citations_and_http_error(self):
-        class Mock(BaseHTTPRequestHandler):
-            text = '至少提前72小时。[S1]'
-            status = 200
-            payload = None
-            def do_POST(s):
-                Mock.payload = json.loads(s.rfile.read(int(s.headers['Content-Length'])))
-                s.send_response(Mock.status)
-                s.send_header('Content-Type', 'application/json')
-                s.end_headers()
-                s.wfile.write(json.dumps({'choices': [{'message': {'content': Mock.text}}]}).encode())
-            def log_message(self, *_):
-                pass
-        server = ThreadingHTTPServer(('127.0.0.1', 0), Mock)
-        threading.Thread(target=server.serve_forever, daemon=True).start()
-        self.addCleanup(server.server_close)
-        self.addCleanup(server.shutdown)
-        sources = [{'source_id': 'S1', 'name': 'a.md', 'ordinal': 1, 'content': '退款提前72小时'}]
-        kwargs = {'base_url': 'http://127.0.0.1:' + str(server.server_port), 'api_key': 'test-only-key', 'model': 'test'}
-        self.assertIn('[S1]', generate('退款？', sources, **kwargs))
-        self.assertEqual(Mock.payload['model'], 'test')
-        self.assertEqual(Mock.payload['messages'][0]['role'], 'system')
-        self.assertIn('退款提前72小时', Mock.payload['messages'][1]['content'])
-        for bad in ['没有出处的回答', '错误来源[S9]']:
-            Mock.text = bad
+    @staticmethod
+    def dsh_result(answer='提前72小时。[S1]', hits=None):
+        return {'answer': answer,
+                'sources': hits if hits is not None else [{'source_id': 'S1', 'name': 'a.md', 'ordinal': 1, 'content': '退款提前72小时'}],
+                'finish_reason': 'completed', 'harness_session_id': 'offline-dsh-session',
+                'events': [
+                    {'type': 'tool/call', 'data': {'name': 'kb_search', 'callId': 'c1', 'arguments': '{"query":"退款"}'}},
+                    {'type': 'tool/result', 'data': {'message': {'toolCallId': 'c1', 'content': [], 'isError': False}}},
+                ]}
+
+    def test_dsh_answer_acceptance(self):
+        good = validate_result(self.dsh_result())
+        self.assertEqual(good['status'], 'generated')
+        for text in ['没有引用', '非法引用[S9]', '混合引用[S1][S9]']:
             with self.assertRaises(ModelError):
-                generate('退款？', sources, **kwargs)
-        with patch('model_client.request.urlopen') as remote:
-            remote.return_value.__enter__.return_value.read.return_value = json.dumps({'choices': [{'message': {'content': '提前72小时。[S1]'}}]}).encode()
-            generate('退款？', sources, base_url='https://api.deepseek.com', api_key='test-only-key')
-            sent = json.loads(remote.call_args.args[0].data)
-            self.assertEqual(sent['thinking'], {'type': 'disabled'})
-        Mock.status = 403
-        with self.assertRaisesRegex(ModelError, 'HTTP 403'):
-            generate('退款？', sources, **kwargs)
+                validate_result(self.dsh_result(text))
+        missing = validate_result(self.dsh_result('随便编造的内容', hits=[]))
+        self.assertEqual(missing['status'], 'no_evidence')
+        self.assertNotIn('编造', missing['answer'])
+        for field, value in [('events', []), ('finish_reason', 'error')]:
+            result = self.dsh_result()
+            result[field] = value
+            with self.assertRaises(ModelError):
+                validate_result(result)
+        failed = self.dsh_result()
+        failed['events'][1]['data']['message']['isError'] = True
+        with self.assertRaises(ModelError):
+            validate_result(failed)
+
+    def test_dsh_trace_persist_and_session_delete(self):
+        base = self.start_server()
+        sid = self.send(base, '/api/sessions', {})['session_id']
+        run = validate_result(self.dsh_result())
+        with patch('app.generate', return_value=run) as model:
+            result = self.send(base, '/api/ask', {'session_id': sid, 'question': '退款', 'mode': 'generate'})
+            self.assertEqual(result['status'], 'generated')
+            self.assertEqual(model.call_args.args[1].path, self.path)
+        runs = Store(self.path).runs(sid)
+        self.assertEqual(len(runs), 1)
+        self.assertEqual(runs[0]['harness_session_id'], 'offline-dsh-session')
+        with request.urlopen(base + '/api/runs?session_id=' + sid) as response:
+            self.assertEqual(json.load(response)[0]['events'][0]['type'], 'tool/call')
+        failed = self.dsh_result()
+        failed['finish_reason'] = 'error'
+        with patch('app.generate', side_effect=ModelError('达到步数上限', run=failed)):
+            response = self.send(base, '/api/ask', {'session_id': sid, 'question': '退款', 'mode': 'generate'})
+            self.assertEqual(response['status'], 'model_error')
+        self.assertEqual(len(Store(self.path).runs(sid)), 2)
+        self.send(base, '/api/sessions/' + sid, {}, method='DELETE')
+        self.assertEqual(Store(self.path).runs(sid), [])
+
+    def test_dsh_missing_key_does_not_start_runtime(self):
+        from model_client import generate
+        with patch.dict('os.environ', {'LLM_API_KEY': '', 'DEEPSEEK_API_KEY': ''}), patch('model_client.subprocess.Popen') as child:
+            with self.assertRaisesRegex(ModelError, 'LLM_API_KEY'):
+                generate('退款', self.store)
+            child.assert_not_called()
 
 
 if __name__ == '__main__':

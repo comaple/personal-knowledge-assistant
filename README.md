@@ -1,137 +1,107 @@
-# Personal Knowledge Assistant｜个人资料问答助手
+# Personal Knowledge Assistant｜DSH 个人资料助手
 
-本地、单人、教学用途。只用 Python 标准库，无须 pip 安装依赖。
+从零练习一个有数据库、有小型知识库、能调用工具的 AI 项目。本地单人教学版。
 
-功能：导入 UTF-8 TXT/Markdown；SQLite 保存原文、片段、会话和消息；FTS5 关键词检索；展开来源原文；可选调用模型生成带出处回答；删除文档和会话。
+**Harness 使用 DeepSeek 官方 DSH `0.2.2-rc.1`**：官方 SDK 启动真实 DSH Agent 循环，模型调用知识库工具，工具结果返回模型，再生成带出处的回答。Python 负责网页、资料导入和 SQLite 持久化。
 
+[从零动手](docs/tutorial.md) · **[DSH 接入实战教程与运行记录](docs/dsh-harness-tutorial.md)** · [AI 开发任务书](docs/BUILD_PROMPT.txt) · [真实 DSH 离线运行示例](docs/dsh-run-example.json)
 
-[从零动手教程](docs/tutorial.md) · [AI 开发任务书](docs/BUILD_PROMPT.txt)
-
-![应用运行截图](docs/assets/project-preview.png)
+![DSH 接入架构](docs/assets/dsh-architecture.svg)
 
 ## 1. 启动
 
-安装 Python 3.10 或更新版本（推荐 python.org 的当前稳定版，内置 SQLite 需支持 FTS5）。克隆或下载本仓库后，进入包含 app.py 的仓库根目录。
-
-macOS / Linux：
+需要 Python 3.10+（SQLite 支持 FTS5）；启用 DSH 还需 **Node.js ≥24.9.0**。建议使用 Node 24 LTS。DSH 仍是开发预览版，本仓库同时固定直接依赖版本和 package-lock.json。
 
 ```bash
-python3 --version
 git clone https://github.com/comaple/personal-knowledge-assistant.git
 cd personal-knowledge-assistant
+npm ci
 python3 app.py
 ```
 
-Windows（下载 ZIP 解压后，在仓库文件夹打开终端）：
+浏览器打开 http://127.0.0.1:8501 。Windows 使用 `py` 替换 `python3`。端口冲突时使用 `python3 app.py --port 8502`。
 
-```powershell
-py --version
-py app.py
-```
+不安装 Node / 不执行 npm ci，也可以用 Python 启动并练习默认的“仅检索”模式；该模式不启动 DSH、不调用外部模型。
 
-若目录不在当前文件夹中，用 `cd` 切换到实际解压路径。浏览器打开：
+## 2. 先验证资料，再启用 DSH
 
-http://127.0.0.1:8501
-
-若端口被占用：`python3 app.py --port 8502`，并访问终端打印的新地址。
-
-## 2. 不用 API Key，先验证本地链路
-
-1. 点击“导入示例资料”。两份摄影课程文件均为虚构教学资料。
-2. 提问“摄影课退款需要提前多久申请？”
-3. 默认仅检索，展开来源，应看到“至少 72 小时”。此时没有模型生成答案，也不会请求模型服务。
-4. 提问“量子隧穿的实验数据是多少？”，应提示未检索到资料。
-5. 重复导入同一资料，文档数不应增加。
-6. 按 Ctrl+C 停止服务，再用相同命令启动。文档、会话、消息仍在。
-7. 删除课程说明，再查“退款”，该文档不应参与新检索。历史消息中的证据快照仍保留；若也要清除这些快照，删除对应会话。
-
-## 3. 再接模型（可选，会产生提供商的 API 费用）
-
-把 `.env.example` 复制为 `.env`，使用文本编辑器填写自己的 Key，然后重启应用。
-
-macOS / Linux：
-
-```bash
-cp .env.example .env
-```
-
-Windows PowerShell：
-
-```powershell
-Copy-Item .env.example .env
-```
-
-默认配置（模型名与调用方式依据 2026-11-07 官方文档；若后续变动，以提供商文档为准）：
+1. 点击“导入示例资料”，导入两份虚构摄影课程说明。
+2. 提问“摄影课退款需要提前多久申请？”，展开来源，应看到“至少 72 小时”。
+3. 重复导入相同内容，文档数不增加。停止再启动，资料和消息仍在。
+4. 复制 `.env.example` 为 `.env`，用编辑器填写 Key：
 
 ```dotenv
-LLM_API_KEY=填入你自己的Key
-LLM_BASE_URL=https://api.deepseek.com
-LLM_MODEL=deepseek-flash
+LLM_API_KEY=你的DeepSeekKey
+DSH_MODEL=deepseek-flash
+DSH_BASE_URL=https://api.deepseek.com/anthropic
 ```
 
-默认 DeepSeek 请求显式关闭思考模式，用于短篇资料问答，避免很小的输出预算先消耗在推理过程。也可改为支持 `/chat/completions` 的其他服务地址与对应模型名；其他服务的特殊参数需按其文档调整。
+重启服务，勾选“使用 DSH 智能体检索并回答”，再提问。页面底部可展开“智能体检索过程”。也支持进程环境里的 `DEEPSEEK_API_KEY`，优先使用非空 `LLM_API_KEY`。
 
-在页面勾选“使用模型生成带出处的回答”，再提交问题。应用只发送本次问题和最多 4 个命中片段，不发送整份资料库或历史聊天；Key 保留在服务进程。没有命中片段时不会调用模型。
+**DSH 官方适配器使用 Messages 协议。**地址不是 `/chat/completions`；旧版 `LLM_BASE_URL` / `LLM_MODEL` 不再使用。若使用其他提供商，需要另接 DSH 对应适配器。
 
-注意：引用编号有效，只证明编号存在，不能自动证明回答确实被原文支持。检查展开的原文。外部模型调用未在交付时使用真实付费 Key 验证；已通过本地模拟服务检查请求格式、正常回复、无效出处和 HTTP 错误处理。
+启用 DSH 后，问题、工具返回的文档名和检索片段会发送给模型服务，可能产生 API 费用。没有命中时，模型也已经参与检索决策；可以换词重查。最多 5 次模型请求，每次最多输出 1200 tokens，关闭思考模式，不自动重试，整次进程上限 150 秒。
 
-## 4. 文件与层次
+**本次验证没有使用真实付费 Key。**已验证真实 DSH 运行时、官方模型适配器、本地模拟 Messages 服务、真实工具和数据库的完整链路；尚未验证真实模型的检索策略、回答质量或线上连通性。
 
-- `index.html`：浏览器界面，文件上传、聊天和来源展示。
-- `app.py`：HTTP 路由，导入、提问、会话管理与流程编排。
-- `store.py`：SQLite 事务、持久化、删除与查询。
-- `knowledge.py`：文件校验、切块、中文双字切分、FTS5 检索。
-- `model_client.py`：模型接口调用、超时与出处编号校验。
-- `sample_docs/`：两份虚构练习资料。
-- `test_project.py`：离线验收测试。
-- `inspect_db.py`：查看本地数据库的表记录数。
-- `docs/BUILD_PROMPT.txt`：交给 AI 编码助手的完整项目任务书。
-- `.env.example`：模型配置模板。
-- 运行后生成 `data/knowledge.db`：默认数据库，停止应用后可备份整个 data 目录。
+## 3. 文件分工
 
-## 5. 四张业务表 + 一个检索索引
-
-| 表 | 保存什么 |
+| 文件 | 职责 |
 | --- | --- |
-| documents | 文件名、原文、内容摘要值、导入时间 |
-| chunks | 文档 ID、片段序号、片段正文 |
-| sessions | 会话 ID、标题、创建时间 |
-| messages | 问题、回答、来源快照、运行状态和时间 |
-| chunk_search | FTS5 虚拟表，保存片段的检索词，以片段 ID 对齐 |
+| `index.html` / `app.py` | 页面、HTTP 接口、资料和会话管理 |
+| `store.py` | SQLite 事务、文档、消息与 DSH 事件轨迹 |
+| `knowledge.py` | 校验、去重、切块、FTS5 关键词检索 |
+| `model_client.py` | 启动 Node 适配层、150 秒进程边界、回答验收 |
+| `harness/runner.mjs` | 官方 `DeepSeekHarness` SDK、sdk-minimal profile、配置补丁 |
+| `harness/knowledge-plugin.mjs` | Cordis 插件，向 DSH 注册两个知识库工具及五步限制 |
+| `harness/kb_bridge.py` | 固定参数调用现有知识库，不接收 SQL / shell 命令 |
+| `harness/integration.test.mjs` | 无 Key 的真实 DSH 集成测试 |
+| `test_project.py` | 数据库、HTTP、出处验收与轨迹保存测试 |
+| `inspect_db.py` | 查看表记录数 |
 
-数据库层和知识库层是职责分层，第一版物理上共用同一个 SQLite 文件。入库事务同时保存文档、片段和索引；发生异常时回滚。删除文档同时移除片段和检索索引。
+模型可用工具只有 `kb_search(query)` 和 `kb_list_documents()`。前者每次最多返回四个 800 字以内的片段；后者最多返回 100 个文档名和片段数。模型不能通过这些工具上传、删库、执行命令或选择数据库路径。
 
-切块规则：按字符每 800 字一个片段，相邻重叠 120 字。中文连续文字按相邻双字形成检索词，英文按单词处理；使用 OR 查询和 SQLite BM25 排序，返回前 4 个候选片段。
+## 4. 数据和记忆
 
-这是关键词检索，不是向量或语义检索。相同字词可能误匹配，同义表达可能漏检。每次仅根据当前问题检索；历史聊天持久化用于回看，不代表模型拥有跨轮推理记忆。扩展时再考虑语义改写、向量索引和上下文选择。
+默认数据库是 `data/knowledge.db`，旧数据库启动时自动新增 `harness_runs` 表。
 
-## 6. 验收命令
+| 表 | 保存内容 |
+| --- | --- |
+| documents | 文件名、原文、内容摘要值、时间 |
+| chunks | 文档 ID、序号、片段正文 |
+| sessions | 应用会话 |
+| messages | 问答、来源快照、状态 |
+| harness_runs | 应用会话对应的 DSH 会话 ID、结束原因、完整 SDK Session 事件 |
+| chunk_search | FTS5 索引，与片段 ID 对齐 |
 
-在仓库根目录运行：
+每 800 字切块，重叠 120 字；中文相邻双字切分，英文按词；OR 匹配、BM25 排序。**这是关键词检索，同义表达可能漏检。**DSH 可以换词调用工具；测试里的换词由模拟模型脚本指定，不代表真实模型一定会这样做。
+
+每个问题启动一个新的 DSH 会话。DSH 自动使用同一轮里的工具调用历史；应用旧聊天保留用于回看，**不自动传给下一轮模型**。这不等于模型训练或跨轮记忆。
+
+每次使用独立临时 DSH home，避免混入全局插件配置。SDK 运行期间由 DSH 自己生成 Session 日志；进程关闭后，把 SDK 返回的 Session 事件与问答原子写进 SQLite，临时 home 随后清理。`/api/runs?session_id=应用会话ID` 可查看保存的轨迹。
+
+删除文档会删除原文、片段和索引；历史消息及 DSH 轨迹仍包含当时的证据。删除对应会话会一并清除消息、来源快照与轨迹。停止服务后可备份整个 data 目录。
+
+## 5. 验收
 
 ```bash
 python3 -m unittest -v test_project.py
+npm run test:harness
 ```
 
-Windows 把 `python3` 换成 `py`。测试不连接外部模型，不读取你的 .env，也不修改正式数据库；数据库位于临时目录。
+测试只用临时数据库、虚构资料和本地模拟服务，不读取 .env、不请求付费模型。Python 测试共 9 项，DSH 集成测试共 4 项；CI 同时运行。Python 命令不是 `python3` 时，通过 `PKA_TEST_PYTHON` 指定，例如 macOS/Linux：`PKA_TEST_PYTHON=python npm run test:harness`。
 
-## 7. 教学边界
+编号验收会拒绝没有检索、工具全部失败、无出处、非法出处和未正常结束的回答。**编号存在不能证明事实受原文支持**，仍须展开来源核对。
 
-只监听 127.0.0.1，不作为对外生产服务部署。第一版无账号、租户隔离或扫描 PDF/OCR，不处理网页抓取。允许单个文件最大 1 MB，问题最多 1000 字；一次最多 4 个片段；模型请求超时 45 秒，输出上限 900 tokens，不自动重试。这些是项目设计值，不是最优参数或费用保证。
+## 6. 教学范围
+
+只监听 127.0.0.1，无账号和租户隔离，上传 UTF-8 TXT/Markdown（每份 ≤1 MB）、问题 ≤1000 字。模型只获知识库读工具；DSH 的 shell、文件读写和工作目录工具已禁用，并另加工具白名单。这是应用的能力范围，不是对整个 Node/Python 进程的系统级沙箱保证。
+
+无扫描 PDF/OCR、向量数据库、跨轮指代消解、常驻 DSH 进程。本版每问启动一次运行时，便于隔离和讲解，会有启动开销。
 
 ## 官方参考
 
-- https://docs.python.org/3/library/sqlite3.html
+- https://github.com/deepseek-ai/deepseek-harness
+- https://github.com/deepseek-ai/deepseek-harness/tree/master/packages/sdk/client
+- https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/cookbook/adding-a-tool.md
 - https://www.sqlite.org/fts5.html
-- https://api-docs.deepseek.com/
-- https://api-docs.deepseek.com/api/create-chat-completion/
-
-
-## 从零动手的顺序
-
-1. 先运行项目，导入示例并查看来源。
-2. 打开 `store.py`，对照四张业务表理解数据如何保存。
-3. 用自己的小文档练习切块和检索，观察不同问法返回的候选片段。
-4. 重启服务验证持久化，再删除文档验证索引同步。
-5. 最后再配置模型；先验证检索材料，再核对生成答案。
-6. 想从空目录重做，可把 `docs/BUILD_PROMPT.txt` 交给编码助手，逐层实现并运行验收测试。
