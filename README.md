@@ -4,6 +4,11 @@
 
 功能：导入 UTF-8 TXT/Markdown；SQLite 保存原文、片段、会话和消息；FTS5 关键词检索；展开来源原文；可选调用模型生成带出处回答；删除文档和会话。
 
+
+[从零动手教程](docs/tutorial.md) · [AI 开发任务书](docs/BUILD_PROMPT.txt)
+
+![应用运行截图](docs/assets/project-preview.png)
+
 ## 1. 启动
 
 安装 Python 3.10 或更新版本（推荐 python.org 的当前稳定版，内置 SQLite 需支持 FTS5）。克隆或下载本仓库后，进入包含 app.py 的仓库根目录。
