@@ -1,0 +1,95 @@
+test_document_note_tags_pagination_and_conflict_contract (test_project.ApiTest.test_document_note_tags_pagination_and_conflict_contract) ... 127.0.0.1 - - [07/Nov/2026 22:28:47] "POST /api/notes HTTP/1.1" 201 -
+127.0.0.1 - - [07/Nov/2026 22:28:47] "PUT /api/documents/1/tags HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:28:47] "PATCH /api/documents/1 HTTP/1.1" 409 -
+127.0.0.1 - - [07/Nov/2026 22:28:47] "GET /api/documents?tag=%E9%A1%B9%E7%9B%AE&page_size=1 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:28:47] "PATCH /api/documents/1 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:28:47] "DELETE /api/documents/1 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:28:47] "DELETE /api/documents/1 HTTP/1.1" 404 -
+ok
+test_evaluation_refuses_missing_key_before_import (test_project.ApiTest.test_evaluation_refuses_missing_key_before_import) ... 127.0.0.1 - - [07/Nov/2026 22:28:48] "GET /api/config HTTP/1.1" 200 -
+ok
+test_generation_concurrent_edit_preserves_trace_and_rejects_old_sources (test_project.ApiTest.test_generation_concurrent_edit_preserves_trace_and_rejects_old_sources) ... 127.0.0.1 - - [07/Nov/2026 22:28:48] "POST /api/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [07/Nov/2026 22:28:48] "POST /api/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [07/Nov/2026 22:28:48] "DELETE /api/sessions/71be551f-8bb3-40b1-b18a-7859550bbdb7 HTTP/1.1" 409 -
+127.0.0.1 - - [07/Nov/2026 22:28:48] "DELETE /api/sessions/4ea8abff-8b33-4e11-8bf7-e89a9c0fbb58 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:28:48] "PATCH /api/documents/1 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:28:48] "POST /api/ask HTTP/1.1" 200 -
+ok
+test_index_graph_export_and_instance_lock_contract (test_project.ApiTest.test_index_graph_export_and_instance_lock_contract) ... 127.0.0.1 - - [07/Nov/2026 22:28:49] "POST /api/notes HTTP/1.1" 201 -
+127.0.0.1 - - [07/Nov/2026 22:28:49] "GET /api/index HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:28:49] "GET /api/graph HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:28:49] "GET /api/config HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:28:49] "GET /api/tags HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:28:49] "GET /api/export HTTP/1.1" 200 -
+ok
+test_input_origin_host_and_missing_provider (test_project.ApiTest.test_input_origin_host_and_missing_provider) ... 127.0.0.1 - - [07/Nov/2026 22:28:49] "POST /api/notes HTTP/1.1" 400 -
+127.0.0.1 - - [07/Nov/2026 22:28:49] "POST /api/notes HTTP/1.1" 403 -
+127.0.0.1 - - [07/Nov/2026 22:28:49] "GET /api/config HTTP/1.1" 403 -
+127.0.0.1 - - [07/Nov/2026 22:28:49] "GET /api/chunks?ids=1%20OR%201 HTTP/1.1" 400 -
+127.0.0.1 - - [07/Nov/2026 22:28:49] "GET /api/documents?page_size=101 HTTP/1.1" 400 -
+127.0.0.1 - - [07/Nov/2026 22:28:49] "GET /.env HTTP/1.1" 404 -
+127.0.0.1 - - [07/Nov/2026 22:28:49] "POST /api/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [07/Nov/2026 22:28:49] "POST /api/ask HTTP/1.1" 200 -
+ok
+test_local_mode_and_history_contract (test_project.ApiTest.test_local_mode_and_history_contract) ... 127.0.0.1 - - [07/Nov/2026 22:28:50] "POST /api/documents HTTP/1.1" 201 -
+127.0.0.1 - - [07/Nov/2026 22:28:50] "POST /api/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [07/Nov/2026 22:28:50] "POST /api/ask HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:28:50] "GET /api/messages?session_id=84e6de8f-25f0-4a22-b7aa-5dc635c5c180 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:28:50] "GET /api/runs?session_id=84e6de8f-25f0-4a22-b7aa-5dc635c5c180 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:28:50] "POST /api/ask HTTP/1.1" 200 -
+ok
+test_zero_hits_provider_error_is_not_no_evidence (test_project.ApiTest.test_zero_hits_provider_error_is_not_no_evidence) ... 127.0.0.1 - - [07/Nov/2026 22:28:51] "POST /api/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [07/Nov/2026 22:28:51] "POST /api/ask HTTP/1.1" 200 -
+ok
+test_no_tool_and_invalid_citation_are_rejected (test_project.HarnessResultTest.test_no_tool_and_invalid_citation_are_rejected) ... ok
+test_timeout_cleanup_terminates_descendant_session (test_project.HarnessResultTest.test_timeout_cleanup_terminates_descendant_session) ... ok
+test_bad_legacy_migration_keeps_original (test_project.MigrationTest.test_bad_legacy_migration_keeps_original) ... ok
+test_legacy_copy_preserves_snapshots_and_high_water_mark (test_project.MigrationTest.test_legacy_copy_preserves_snapshots_and_high_water_mark) ... ok
+test_atomic_import_failure (test_project.StoreTest.test_atomic_import_failure) ... ok
+test_atomic_turn_rollback_and_revision_guard (test_project.StoreTest.test_atomic_turn_rollback_and_revision_guard) ... ok
+test_byte_and_capacity_boundaries (test_project.StoreTest.test_byte_and_capacity_boundaries) ... ok
+test_chunk_coverage_and_overlap (test_project.StoreTest.test_chunk_coverage_and_overlap) ... ok
+test_duplicate_edit_and_invalid_tag_set_roll_back (test_project.StoreTest.test_duplicate_edit_and_invalid_tag_set_roll_back) ... ok
+test_edit_tags_versions_and_permanent_sources (test_project.StoreTest.test_edit_tags_versions_and_permanent_sources) ... ok
+test_export_and_backup_restore (test_project.StoreTest.test_export_and_backup_restore) ... ok
+test_import_deduplicate_restart_and_retrieve (test_project.StoreTest.test_import_deduplicate_restart_and_retrieve) ... ok
+test_invalid_text_and_tag_boundaries (test_project.StoreTest.test_invalid_text_and_tag_boundaries) ... ok
+test_new_schema_failure_is_atomic_and_retryable (test_project.StoreTest.test_new_schema_failure_is_atomic_and_retryable) ... ok
+test_readonly_bridge_and_database_lock (test_project.StoreTest.test_readonly_bridge_and_database_lock) ... ok
+test_corrupted_generation_is_not_used (test_rag.LightRagTest.test_corrupted_generation_is_not_used) ... ok
+test_delete_invalidates_both_graph_and_vectors (test_rag.LightRagTest.test_delete_invalidates_both_graph_and_vectors) ... ok
+test_edit_during_build_cannot_publish_a_stale_graph (test_rag.LightRagTest.test_edit_during_build_cannot_publish_a_stale_graph) ... ok
+test_failed_rebuild_cannot_replace_published_generation (test_rag.LightRagTest.test_failed_rebuild_cannot_replace_published_generation) ... ok
+test_http_background_build_and_graph_sources (test_rag.LightRagTest.test_http_background_build_and_graph_sources) ... 127.0.0.1 - - [07/Nov/2026 22:29:05] "POST /api/index HTTP/1.1" 202 -
+127.0.0.1 - - [07/Nov/2026 22:29:05] "GET /api/index HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:29:06] "GET /api/index HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:29:06] "GET /api/index HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:29:06] "GET /api/index HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:29:06] "GET /api/index HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:29:06] "GET /api/index HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:29:07] "GET /api/index HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:29:07] "GET /api/index HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:29:07] "GET /api/index HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:29:07] "GET /api/index HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:29:07] "GET /api/index HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:29:08] "GET /api/index HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:29:08] "GET /api/graph HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:29:08] "GET /api/chunks?ids=1,2 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Nov/2026 22:29:08] "GET /api/chunks?ids=1%20OR%201 HTTP/1.1" 400 -
+ok
+test_identical_chunks_keep_all_sqlite_sources (test_rag.LightRagTest.test_identical_chunks_keep_all_sqlite_sources) ... ok
+test_lexical_ready_index_never_calls_model_providers (test_rag.LightRagTest.test_lexical_ready_index_never_calls_model_providers) ... ok
+test_provider_failure_is_visible_and_falls_back (test_rag.LightRagTest.test_provider_failure_is_visible_and_falls_back) ... ok
+test_real_dsh_explores_executes_repairs_and_persists_witness (test_rag.LightRagTest.test_real_dsh_explores_executes_repairs_and_persists_witness) ... 127.0.0.1 - - [07/Nov/2026 22:29:20] "POST /api/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [07/Nov/2026 22:29:25] "POST /api/ask HTTP/1.1" 200 -
+ok
+test_real_graph_vector_recall_and_persistent_provenance (test_rag.LightRagTest.test_real_graph_vector_recall_and_persistent_provenance) ... ok
+test_schema_plan_execution_and_empty_plan_repair (test_rag.LightRagTest.test_schema_plan_execution_and_empty_plan_repair) ... ok
+test_candidate_collection_is_balanced_and_deduplicated (test_rag.RetrievalUnitTest.test_candidate_collection_is_balanced_and_deduplicated) ... ok
+test_rerank_rejects_invented_evidence_ids (test_rag.RetrievalUnitTest.test_rerank_rejects_invented_evidence_ids) ... ok
+test_revision_guard_and_explicit_fallback (test_rag.RetrievalUnitTest.test_revision_guard_and_explicit_fallback) ... ok
+
+----------------------------------------------------------------------
+Ran 36 tests in 45.803s
+
+OK

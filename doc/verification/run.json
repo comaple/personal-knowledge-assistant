@@ -1,0 +1,47 @@
+{
+  "tested_commit": "f22e847cef3f5377883e1084c79c81c3a48f6fde",
+  "run_id": "pka-sdd-clean-f22e847",
+  "recorded_at": "2026-11-07T14:33:36.434747+00:00",
+  "checkout": "/tmp/pka-sdd-clean-f22e847",
+  "checkout_clean_before_install": true,
+  "environment": "Fresh uv Python 3.12.9 venv; npm ci in detached checkout; no editable project install",
+  "python": {
+    "tests": 36,
+    "passed": 36,
+    "skipped": 0,
+    "command": "python -m unittest -v test_project.py test_rag"
+  },
+  "dsh": {
+    "tests": 5,
+    "passed": 5,
+    "skipped": 0,
+    "command": "npm run test:harness"
+  },
+  "node_version": "v25.3.0",
+  "browser": "Real Chrome / Puppeteer; scripted local model and 8D embedding; no paid model requests",
+  "performance_p95_ms": {
+    "list": 21.23,
+    "read": 20.935,
+    "lexical": 30.381
+  },
+  "real_services": {
+    "L3": "BLOCKED",
+    "L4": "BLOCKED",
+    "reason": "Real model credentials / Embedding service not configured",
+    "quality_passed": null
+  },
+  "fixtures_sha256": {
+    "questions.json": "848ba8986c0d4c03ca304b03ff4f70ff8eac74520083f0386232a02f55281056",
+    "knowledge.json": "efb8193888dba8f4fc2ab2e325fbd41c6542ddf420a0d82dc218e8c9ecbeb2a2"
+  },
+  "evidence_sha256": {
+    "dsh-tests.txt": "9ff8e850b78ab0ed9751452cd0c15d69855e3eff3ddafa4644583c7bcf232f6e",
+    "browser-check.txt": "b6195c1b983f35047632357fda727f4c3178f2929df4f12094f64686520f59cd",
+    "python-tests.txt": "01d66e1b793c6a55059fc872ae5871efda8dd885528f24e3924f86f5b37f90c7",
+    "python-install.txt": "7cca92f06c4f0642f59d7762d4c8f499ae1f17bdec288eef6a1057a3089ce130",
+    "npm-install.txt": "50d586ee443cad9203aa53b17cc5e056d1329926210cefa1eff0f1a19ccab797",
+    "ui.json": "c657874bdddbe3e6c94228891347323227046bdb7364d6364a325b6f985cbacd",
+    "performance.json": "4e681982bd1d56e034f72ea3f09a786ec9a87d3d8ac69c6468db2afe0892e69e",
+    "lexical-evaluation.json": "85f34406fdd533ce3666533840d833f99859bf5f5ab20e5d39e615794f1aa319"
+  }
+}

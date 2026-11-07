@@ -3,7 +3,7 @@
 | 项目 | 内容 |
 | --- | --- |
 | 版本 / 日期 | 1.0 / 2026-11-07 |
-| 状态 | 开发中：T00 已完成，T01—T09 集成复核中；真实服务验收缺配置 |
+| 状态 | RC 工程实现与干净检出测试完成；T01—T09 待完整验收结项，T10 缺真实服务配置 |
 | 依据 | [PRD](PRD.md) · [Spec](SPEC.md) · [Verify](VERIFY.md) · [OpenAPI](openapi.json) |
 
 ## 01｜任务执行规则
@@ -80,5 +80,5 @@ uvx --python 3.12 --from openapi-spec-validator openapi-spec-validator doc/opena
 - 本机快照：`/Users/data/proj/x/output/pka-prototype-20261107/prototype-before-sdd.tar.gz`。
 - 快照SHA-256：`9c2c3aee63b985b20cfc2d7eb1aab381c487904f60567a3191fcadda8df95555`。
 - doc/ 与 docs/ 已统一到 doc/，正式规格、教程、资产与验收记录共享同一目录；早期调研/运行记录另置 archive/，不作为开发依据。
-- 当前已实现资料/笔记/标签、schema2迁移、乐观锁、索引分代、三路检索、只读图计划、DSH、响应/引用验收、界面、导出和维护命令。T01—T09待干净检出复核后结项。
+- 当前已实现资料/笔记/标签、schema2迁移、乐观锁、索引分代、三路检索、只读图计划、DSH、响应/引用验收、界面、导出和维护命令。干净检出已完成36项Python与5项DSH测试（无跳过）、Chrome及500片段性能验证，绑定提交f22e847；复合验收用例尚有未覆盖子场景，T01—T09暂不机械改为DONE，见验收报告。
 - T10：实际模型Key及真实Embedding服务未配置，L3/L4为BLOCKED；不能声称正式首版全部验收通过。

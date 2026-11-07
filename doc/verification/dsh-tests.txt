@@ -1,0 +1,17 @@
+
+> personal-knowledge-assistant@1.0.0-rc.1 test:harness
+> node --test harness/integration.test.mjs
+
+✔ real DSH: empty search -> rewrite -> evidence -> cited answer (3396.855909ms)
+✔ real DSH: no evidence stays empty (2589.197571ms)
+✔ real DSH: repeated tools stop after five model requests (3585.673217ms)
+✔ HTTP app -> Python adapter -> DSH -> tools -> SQLite trace (3038.762779ms)
+✔ real DSH: ninth tool call is rejected even when model completes (4334.928317ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 17290.83994
