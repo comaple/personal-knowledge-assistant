@@ -1,0 +1,2 @@
+# Optional graph/vector layer; FTS5-only mode still uses Python's standard library.
+lightrag-hku==1.5.7

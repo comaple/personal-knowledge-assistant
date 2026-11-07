@@ -1,0 +1,2065 @@
+{
+  "created_at": "2026-11-07T13:40:28.340649+00:00",
+  "corpus_sha256": "efb8193888dba8f4fc2ab2e325fbd41c6542ddf420a0d82dc218e8c9ecbeb2a2",
+  "questions_sha256": "848ba8986c0d4c03ca304b03ff4f70ff8eac74520083f0386232a02f55281056",
+  "index": {
+    "status": "not_built",
+    "message": "尚未构建图谱与向量索引",
+    "revision": 8,
+    "catalog_revision": 8,
+    "generation": null,
+    "profile": "2a48d9acb2efab68397d499144408c3d8ee134218ac9f16a3e6f14b8af306c80",
+    "dependency_ready": true,
+    "llm_ready": false,
+    "counts": {
+      "documents": 8,
+      "chunks": 8,
+      "entities": 0,
+      "relations": 0
+    },
+    "job": {
+      "job_id": null,
+      "status": "idle",
+      "message": "",
+      "started_at": null,
+      "finished_at": null
+    }
+  },
+  "results": [
+    {
+      "id": "Q01",
+      "mode": "lexical",
+      "elapsed_seconds": 0.018,
+      "expected_behavior": "answer",
+      "expected_facts": [
+        "林老师"
+      ],
+      "required_documents": [
+        "D01"
+      ],
+      "evidence_complete": true,
+      "response": {
+        "turn_id": "b6ed6451-f0c1-4d5d-9511-c45d2ad7b79e",
+        "answer": "找到以下原文候选，尚未生成回答：\n[S1] 摄影课说明.md · 片段 1\n[S2] 教务服务说明.md · 片段 1",
+        "sources": [
+          {
+            "chunk_id": 1,
+            "document_id": 1,
+            "ordinal": 1,
+            "content": "青松摄影课由林老师授课。课程事务联系青松教务。开课时间为2026年12月1日09:00。",
+            "name": "摄影课说明.md",
+            "document_version": 1,
+            "source_id": "S1",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 1
+            },
+            "rank_position": 1,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 2,
+            "document_id": 2,
+            "ordinal": 1,
+            "content": "青松教务受理退课申请，申请需在开课前至少72小时提交。联系邮箱为service@qingsong.example。本文未规定退款金额或比例。",
+            "name": "教务服务说明.md",
+            "document_version": 1,
+            "source_id": "S2",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 2
+            },
+            "rank_position": 2,
+            "graph_paths": []
+          }
+        ],
+        "status": "retrieval_only",
+        "retrieval": {
+          "revision": 8,
+          "generation": null,
+          "mode": "lexical",
+          "message": "仅本地关键词",
+          "ranking": {
+            "method": "candidate_pool",
+            "status": "not_run",
+            "reason": "保留候选收集顺序"
+          },
+          "routes": [
+            {
+              "name": "bm25",
+              "status": "ok",
+              "candidates": 2,
+              "reason": ""
+            },
+            {
+              "name": "vector",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            },
+            {
+              "name": "graph",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            }
+          ]
+        },
+        "error": null
+      },
+      "human_review": {
+        "complete_answer": null,
+        "correct_abstention_or_conflict": null,
+        "unsupported_facts": null,
+        "reason": null
+      },
+      "api_usage": null,
+      "cost": null
+    },
+    {
+      "id": "Q02",
+      "mode": "lexical",
+      "elapsed_seconds": 0.018,
+      "expected_behavior": "answer",
+      "expected_facts": [
+        "陈舟"
+      ],
+      "required_documents": [
+        "D03"
+      ],
+      "evidence_complete": true,
+      "response": {
+        "turn_id": "0747f491-4a72-48cc-8eff-bd7c1b75b0d0",
+        "answer": "找到以下原文候选，尚未生成回答：\n[S3] 蓝桥项目说明.md · 片段 1\n[S8] 个人整理规则.md · 片段 1",
+        "sources": [
+          {
+            "chunk_id": 3,
+            "document_id": 3,
+            "ordinal": 1,
+            "content": "蓝桥项目的资料归档由陈舟负责。项目验收联系星河测试组。验收材料提交截止时间为2026年11月20日18:00。",
+            "name": "蓝桥项目说明.md",
+            "document_version": 1,
+            "source_id": "S3",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 1
+            },
+            "rank_position": 1,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 8,
+            "document_id": 8,
+            "ordinal": 1,
+            "content": "每周日整理一次未标记资料。常用标签为项目、阅读、归档。每月最后一天导出一次资料正文和标签清单。",
+            "name": "个人整理规则.md",
+            "document_version": 1,
+            "source_id": "S8",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 2
+            },
+            "rank_position": 2,
+            "graph_paths": []
+          }
+        ],
+        "status": "retrieval_only",
+        "retrieval": {
+          "revision": 8,
+          "generation": null,
+          "mode": "lexical",
+          "message": "仅本地关键词",
+          "ranking": {
+            "method": "candidate_pool",
+            "status": "not_run",
+            "reason": "保留候选收集顺序"
+          },
+          "routes": [
+            {
+              "name": "bm25",
+              "status": "ok",
+              "candidates": 2,
+              "reason": ""
+            },
+            {
+              "name": "vector",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            },
+            {
+              "name": "graph",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            }
+          ]
+        },
+        "error": null
+      },
+      "human_review": {
+        "complete_answer": null,
+        "correct_abstention_or_conflict": null,
+        "unsupported_facts": null,
+        "reason": null
+      },
+      "api_usage": null,
+      "cost": null
+    },
+    {
+      "id": "Q03",
+      "mode": "lexical",
+      "elapsed_seconds": 0.018,
+      "expected_behavior": "answer",
+      "expected_facts": [
+        "测试报告",
+        "部署说明"
+      ],
+      "required_documents": [
+        "D04"
+      ],
+      "evidence_complete": true,
+      "response": {
+        "turn_id": "b46e8083-ba3a-481f-bb4f-1a2f208a3fb6",
+        "answer": "找到以下原文候选，尚未生成回答：\n[S4] 测试组服务说明.md · 片段 1\n[S3] 蓝桥项目说明.md · 片段 1",
+        "sources": [
+          {
+            "chunk_id": 4,
+            "document_id": 4,
+            "ordinal": 1,
+            "content": "星河测试组要求验收必须同时提供测试报告和部署说明。收到完整材料后2个工作日反馈验收意见。",
+            "name": "测试组服务说明.md",
+            "document_version": 1,
+            "source_id": "S4",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 1
+            },
+            "rank_position": 1,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 3,
+            "document_id": 3,
+            "ordinal": 1,
+            "content": "蓝桥项目的资料归档由陈舟负责。项目验收联系星河测试组。验收材料提交截止时间为2026年11月20日18:00。",
+            "name": "蓝桥项目说明.md",
+            "document_version": 1,
+            "source_id": "S3",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 2
+            },
+            "rank_position": 2,
+            "graph_paths": []
+          }
+        ],
+        "status": "retrieval_only",
+        "retrieval": {
+          "revision": 8,
+          "generation": null,
+          "mode": "lexical",
+          "message": "仅本地关键词",
+          "ranking": {
+            "method": "candidate_pool",
+            "status": "not_run",
+            "reason": "保留候选收集顺序"
+          },
+          "routes": [
+            {
+              "name": "bm25",
+              "status": "ok",
+              "candidates": 2,
+              "reason": ""
+            },
+            {
+              "name": "vector",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            },
+            {
+              "name": "graph",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            }
+          ]
+        },
+        "error": null
+      },
+      "human_review": {
+        "complete_answer": null,
+        "correct_abstention_or_conflict": null,
+        "unsupported_facts": null,
+        "reason": null
+      },
+      "api_usage": null,
+      "cost": null
+    },
+    {
+      "id": "Q04",
+      "mode": "lexical",
+      "elapsed_seconds": 0.017,
+      "expected_behavior": "answer",
+      "expected_facts": [
+        "光圈",
+        "快门速度",
+        "ISO"
+      ],
+      "required_documents": [
+        "D07"
+      ],
+      "evidence_complete": true,
+      "response": {
+        "turn_id": "5011a822-9a0f-478c-8185-082ac9fca837",
+        "answer": "找到以下原文候选，尚未生成回答：\n[S7] 摄影练习笔记.md · 片段 1",
+        "sources": [
+          {
+            "chunk_id": 7,
+            "document_id": 7,
+            "ordinal": 1,
+            "content": "曝光三角包括光圈、快门速度和ISO。练习要求是分别改变其中一个变量，观察照片亮度变化。",
+            "name": "摄影练习笔记.md",
+            "document_version": 1,
+            "source_id": "S7",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 1
+            },
+            "rank_position": 1,
+            "graph_paths": []
+          }
+        ],
+        "status": "retrieval_only",
+        "retrieval": {
+          "revision": 8,
+          "generation": null,
+          "mode": "lexical",
+          "message": "仅本地关键词",
+          "ranking": {
+            "method": "candidate_pool",
+            "status": "not_run",
+            "reason": "保留候选收集顺序"
+          },
+          "routes": [
+            {
+              "name": "bm25",
+              "status": "ok",
+              "candidates": 1,
+              "reason": ""
+            },
+            {
+              "name": "vector",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            },
+            {
+              "name": "graph",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            }
+          ]
+        },
+        "error": null
+      },
+      "human_review": {
+        "complete_answer": null,
+        "correct_abstention_or_conflict": null,
+        "unsupported_facts": null,
+        "reason": null
+      },
+      "api_usage": null,
+      "cost": null
+    },
+    {
+      "id": "Q05",
+      "mode": "lexical",
+      "elapsed_seconds": 0.018,
+      "expected_behavior": "answer",
+      "expected_facts": [
+        "开课前至少72小时"
+      ],
+      "required_documents": [
+        "D02"
+      ],
+      "evidence_complete": true,
+      "response": {
+        "turn_id": "83889b35-2095-4994-ab10-6dbdee0e1809",
+        "answer": "找到以下原文候选，尚未生成回答：\n[S1] 摄影课说明.md · 片段 1\n[S2] 教务服务说明.md · 片段 1",
+        "sources": [
+          {
+            "chunk_id": 1,
+            "document_id": 1,
+            "ordinal": 1,
+            "content": "青松摄影课由林老师授课。课程事务联系青松教务。开课时间为2026年12月1日09:00。",
+            "name": "摄影课说明.md",
+            "document_version": 1,
+            "source_id": "S1",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 1
+            },
+            "rank_position": 1,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 2,
+            "document_id": 2,
+            "ordinal": 1,
+            "content": "青松教务受理退课申请，申请需在开课前至少72小时提交。联系邮箱为service@qingsong.example。本文未规定退款金额或比例。",
+            "name": "教务服务说明.md",
+            "document_version": 1,
+            "source_id": "S2",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 2
+            },
+            "rank_position": 2,
+            "graph_paths": []
+          }
+        ],
+        "status": "retrieval_only",
+        "retrieval": {
+          "revision": 8,
+          "generation": null,
+          "mode": "lexical",
+          "message": "仅本地关键词",
+          "ranking": {
+            "method": "candidate_pool",
+            "status": "not_run",
+            "reason": "保留候选收集顺序"
+          },
+          "routes": [
+            {
+              "name": "bm25",
+              "status": "ok",
+              "candidates": 2,
+              "reason": ""
+            },
+            {
+              "name": "vector",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            },
+            {
+              "name": "graph",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            }
+          ]
+        },
+        "error": null
+      },
+      "human_review": {
+        "complete_answer": null,
+        "correct_abstention_or_conflict": null,
+        "unsupported_facts": null,
+        "reason": null
+      },
+      "api_usage": null,
+      "cost": null
+    },
+    {
+      "id": "Q06",
+      "mode": "lexical",
+      "elapsed_seconds": 0.018,
+      "expected_behavior": "answer",
+      "expected_facts": [
+        "2个工作日"
+      ],
+      "required_documents": [
+        "D04"
+      ],
+      "evidence_complete": true,
+      "response": {
+        "turn_id": "42f7134d-9dc0-46c9-9485-6424b0ce6d99",
+        "answer": "找到以下原文候选，尚未生成回答：\n[S4] 测试组服务说明.md · 片段 1\n[S3] 蓝桥项目说明.md · 片段 1",
+        "sources": [
+          {
+            "chunk_id": 4,
+            "document_id": 4,
+            "ordinal": 1,
+            "content": "星河测试组要求验收必须同时提供测试报告和部署说明。收到完整材料后2个工作日反馈验收意见。",
+            "name": "测试组服务说明.md",
+            "document_version": 1,
+            "source_id": "S4",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 1
+            },
+            "rank_position": 1,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 3,
+            "document_id": 3,
+            "ordinal": 1,
+            "content": "蓝桥项目的资料归档由陈舟负责。项目验收联系星河测试组。验收材料提交截止时间为2026年11月20日18:00。",
+            "name": "蓝桥项目说明.md",
+            "document_version": 1,
+            "source_id": "S3",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 2
+            },
+            "rank_position": 2,
+            "graph_paths": []
+          }
+        ],
+        "status": "retrieval_only",
+        "retrieval": {
+          "revision": 8,
+          "generation": null,
+          "mode": "lexical",
+          "message": "仅本地关键词",
+          "ranking": {
+            "method": "candidate_pool",
+            "status": "not_run",
+            "reason": "保留候选收集顺序"
+          },
+          "routes": [
+            {
+              "name": "bm25",
+              "status": "ok",
+              "candidates": 2,
+              "reason": ""
+            },
+            {
+              "name": "vector",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            },
+            {
+              "name": "graph",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            }
+          ]
+        },
+        "error": null
+      },
+      "human_review": {
+        "complete_answer": null,
+        "correct_abstention_or_conflict": null,
+        "unsupported_facts": null,
+        "reason": null
+      },
+      "api_usage": null,
+      "cost": null
+    },
+    {
+      "id": "Q07",
+      "mode": "lexical",
+      "elapsed_seconds": 0.018,
+      "expected_behavior": "answer",
+      "expected_facts": [
+        "每周日"
+      ],
+      "required_documents": [
+        "D08"
+      ],
+      "evidence_complete": true,
+      "response": {
+        "turn_id": "5354ec43-c9b6-4459-b78b-bc499ecd0903",
+        "answer": "找到以下原文候选，尚未生成回答：\n[S8] 个人整理规则.md · 片段 1\n[S3] 蓝桥项目说明.md · 片段 1",
+        "sources": [
+          {
+            "chunk_id": 8,
+            "document_id": 8,
+            "ordinal": 1,
+            "content": "每周日整理一次未标记资料。常用标签为项目、阅读、归档。每月最后一天导出一次资料正文和标签清单。",
+            "name": "个人整理规则.md",
+            "document_version": 1,
+            "source_id": "S8",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 1
+            },
+            "rank_position": 1,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 3,
+            "document_id": 3,
+            "ordinal": 1,
+            "content": "蓝桥项目的资料归档由陈舟负责。项目验收联系星河测试组。验收材料提交截止时间为2026年11月20日18:00。",
+            "name": "蓝桥项目说明.md",
+            "document_version": 1,
+            "source_id": "S3",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 2
+            },
+            "rank_position": 2,
+            "graph_paths": []
+          }
+        ],
+        "status": "retrieval_only",
+        "retrieval": {
+          "revision": 8,
+          "generation": null,
+          "mode": "lexical",
+          "message": "仅本地关键词",
+          "ranking": {
+            "method": "candidate_pool",
+            "status": "not_run",
+            "reason": "保留候选收集顺序"
+          },
+          "routes": [
+            {
+              "name": "bm25",
+              "status": "ok",
+              "candidates": 2,
+              "reason": ""
+            },
+            {
+              "name": "vector",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            },
+            {
+              "name": "graph",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            }
+          ]
+        },
+        "error": null
+      },
+      "human_review": {
+        "complete_answer": null,
+        "correct_abstention_or_conflict": null,
+        "unsupported_facts": null,
+        "reason": null
+      },
+      "api_usage": null,
+      "cost": null
+    },
+    {
+      "id": "Q08",
+      "mode": "lexical",
+      "elapsed_seconds": 0.018,
+      "expected_behavior": "answer",
+      "expected_facts": [
+        "青松教务"
+      ],
+      "required_documents": [
+        "D01"
+      ],
+      "evidence_complete": true,
+      "response": {
+        "turn_id": "0c6630a5-06ba-4b54-b90f-405495f87e59",
+        "answer": "找到以下原文候选，尚未生成回答：\n[S1] 摄影课说明.md · 片段 1\n[S2] 教务服务说明.md · 片段 1",
+        "sources": [
+          {
+            "chunk_id": 1,
+            "document_id": 1,
+            "ordinal": 1,
+            "content": "青松摄影课由林老师授课。课程事务联系青松教务。开课时间为2026年12月1日09:00。",
+            "name": "摄影课说明.md",
+            "document_version": 1,
+            "source_id": "S1",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 1
+            },
+            "rank_position": 1,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 2,
+            "document_id": 2,
+            "ordinal": 1,
+            "content": "青松教务受理退课申请，申请需在开课前至少72小时提交。联系邮箱为service@qingsong.example。本文未规定退款金额或比例。",
+            "name": "教务服务说明.md",
+            "document_version": 1,
+            "source_id": "S2",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 2
+            },
+            "rank_position": 2,
+            "graph_paths": []
+          }
+        ],
+        "status": "retrieval_only",
+        "retrieval": {
+          "revision": 8,
+          "generation": null,
+          "mode": "lexical",
+          "message": "仅本地关键词",
+          "ranking": {
+            "method": "candidate_pool",
+            "status": "not_run",
+            "reason": "保留候选收集顺序"
+          },
+          "routes": [
+            {
+              "name": "bm25",
+              "status": "ok",
+              "candidates": 2,
+              "reason": ""
+            },
+            {
+              "name": "vector",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            },
+            {
+              "name": "graph",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            }
+          ]
+        },
+        "error": null
+      },
+      "human_review": {
+        "complete_answer": null,
+        "correct_abstention_or_conflict": null,
+        "unsupported_facts": null,
+        "reason": null
+      },
+      "api_usage": null,
+      "cost": null
+    },
+    {
+      "id": "Q09",
+      "mode": "lexical",
+      "elapsed_seconds": 0.018,
+      "expected_behavior": "answer",
+      "expected_facts": [
+        "青松教务",
+        "开课前至少72小时"
+      ],
+      "required_documents": [
+        "D01",
+        "D02"
+      ],
+      "evidence_complete": true,
+      "response": {
+        "turn_id": "75dc1840-02a9-47e3-ab99-15fd269faa84",
+        "answer": "找到以下原文候选，尚未生成回答：\n[S1] 摄影课说明.md · 片段 1\n[S2] 教务服务说明.md · 片段 1",
+        "sources": [
+          {
+            "chunk_id": 1,
+            "document_id": 1,
+            "ordinal": 1,
+            "content": "青松摄影课由林老师授课。课程事务联系青松教务。开课时间为2026年12月1日09:00。",
+            "name": "摄影课说明.md",
+            "document_version": 1,
+            "source_id": "S1",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 1
+            },
+            "rank_position": 1,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 2,
+            "document_id": 2,
+            "ordinal": 1,
+            "content": "青松教务受理退课申请，申请需在开课前至少72小时提交。联系邮箱为service@qingsong.example。本文未规定退款金额或比例。",
+            "name": "教务服务说明.md",
+            "document_version": 1,
+            "source_id": "S2",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 2
+            },
+            "rank_position": 2,
+            "graph_paths": []
+          }
+        ],
+        "status": "retrieval_only",
+        "retrieval": {
+          "revision": 8,
+          "generation": null,
+          "mode": "lexical",
+          "message": "仅本地关键词",
+          "ranking": {
+            "method": "candidate_pool",
+            "status": "not_run",
+            "reason": "保留候选收集顺序"
+          },
+          "routes": [
+            {
+              "name": "bm25",
+              "status": "ok",
+              "candidates": 2,
+              "reason": ""
+            },
+            {
+              "name": "vector",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            },
+            {
+              "name": "graph",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            }
+          ]
+        },
+        "error": null
+      },
+      "human_review": {
+        "complete_answer": null,
+        "correct_abstention_or_conflict": null,
+        "unsupported_facts": null,
+        "reason": null
+      },
+      "api_usage": null,
+      "cost": null
+    },
+    {
+      "id": "Q10",
+      "mode": "lexical",
+      "elapsed_seconds": 0.018,
+      "expected_behavior": "answer",
+      "expected_facts": [
+        "星河测试组",
+        "测试报告",
+        "部署说明"
+      ],
+      "required_documents": [
+        "D03",
+        "D04"
+      ],
+      "evidence_complete": true,
+      "response": {
+        "turn_id": "4923ae7e-52bd-4714-a8ba-0bb711369fa7",
+        "answer": "找到以下原文候选，尚未生成回答：\n[S3] 蓝桥项目说明.md · 片段 1\n[S4] 测试组服务说明.md · 片段 1\n[S8] 个人整理规则.md · 片段 1",
+        "sources": [
+          {
+            "chunk_id": 3,
+            "document_id": 3,
+            "ordinal": 1,
+            "content": "蓝桥项目的资料归档由陈舟负责。项目验收联系星河测试组。验收材料提交截止时间为2026年11月20日18:00。",
+            "name": "蓝桥项目说明.md",
+            "document_version": 1,
+            "source_id": "S3",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 1
+            },
+            "rank_position": 1,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 4,
+            "document_id": 4,
+            "ordinal": 1,
+            "content": "星河测试组要求验收必须同时提供测试报告和部署说明。收到完整材料后2个工作日反馈验收意见。",
+            "name": "测试组服务说明.md",
+            "document_version": 1,
+            "source_id": "S4",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 2
+            },
+            "rank_position": 2,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 8,
+            "document_id": 8,
+            "ordinal": 1,
+            "content": "每周日整理一次未标记资料。常用标签为项目、阅读、归档。每月最后一天导出一次资料正文和标签清单。",
+            "name": "个人整理规则.md",
+            "document_version": 1,
+            "source_id": "S8",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 3
+            },
+            "rank_position": 3,
+            "graph_paths": []
+          }
+        ],
+        "status": "retrieval_only",
+        "retrieval": {
+          "revision": 8,
+          "generation": null,
+          "mode": "lexical",
+          "message": "仅本地关键词",
+          "ranking": {
+            "method": "candidate_pool",
+            "status": "not_run",
+            "reason": "保留候选收集顺序"
+          },
+          "routes": [
+            {
+              "name": "bm25",
+              "status": "ok",
+              "candidates": 3,
+              "reason": ""
+            },
+            {
+              "name": "vector",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            },
+            {
+              "name": "graph",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            }
+          ]
+        },
+        "error": null
+      },
+      "human_review": {
+        "complete_answer": null,
+        "correct_abstention_or_conflict": null,
+        "unsupported_facts": null,
+        "reason": null
+      },
+      "api_usage": null,
+      "cost": null
+    },
+    {
+      "id": "Q11",
+      "mode": "lexical",
+      "elapsed_seconds": 0.018,
+      "expected_behavior": "answer",
+      "expected_facts": [
+        "service@qingsong.example",
+        "开课前至少72小时"
+      ],
+      "required_documents": [
+        "D01",
+        "D02"
+      ],
+      "evidence_complete": true,
+      "response": {
+        "turn_id": "cc507a7d-bb14-4303-9c01-84715821686b",
+        "answer": "找到以下原文候选，尚未生成回答：\n[S1] 摄影课说明.md · 片段 1\n[S2] 教务服务说明.md · 片段 1",
+        "sources": [
+          {
+            "chunk_id": 1,
+            "document_id": 1,
+            "ordinal": 1,
+            "content": "青松摄影课由林老师授课。课程事务联系青松教务。开课时间为2026年12月1日09:00。",
+            "name": "摄影课说明.md",
+            "document_version": 1,
+            "source_id": "S1",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 1
+            },
+            "rank_position": 1,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 2,
+            "document_id": 2,
+            "ordinal": 1,
+            "content": "青松教务受理退课申请，申请需在开课前至少72小时提交。联系邮箱为service@qingsong.example。本文未规定退款金额或比例。",
+            "name": "教务服务说明.md",
+            "document_version": 1,
+            "source_id": "S2",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 2
+            },
+            "rank_position": 2,
+            "graph_paths": []
+          }
+        ],
+        "status": "retrieval_only",
+        "retrieval": {
+          "revision": 8,
+          "generation": null,
+          "mode": "lexical",
+          "message": "仅本地关键词",
+          "ranking": {
+            "method": "candidate_pool",
+            "status": "not_run",
+            "reason": "保留候选收集顺序"
+          },
+          "routes": [
+            {
+              "name": "bm25",
+              "status": "ok",
+              "candidates": 2,
+              "reason": ""
+            },
+            {
+              "name": "vector",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            },
+            {
+              "name": "graph",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            }
+          ]
+        },
+        "error": null
+      },
+      "human_review": {
+        "complete_answer": null,
+        "correct_abstention_or_conflict": null,
+        "unsupported_facts": null,
+        "reason": null
+      },
+      "api_usage": null,
+      "cost": null
+    },
+    {
+      "id": "Q12",
+      "mode": "lexical",
+      "elapsed_seconds": 0.019,
+      "expected_behavior": "answer",
+      "expected_facts": [
+        "2026年11月20日18:00",
+        "2个工作日"
+      ],
+      "required_documents": [
+        "D03",
+        "D04"
+      ],
+      "evidence_complete": true,
+      "response": {
+        "turn_id": "82a80009-1922-4d9a-99d2-bcf8feb1d4b9",
+        "answer": "找到以下原文候选，尚未生成回答：\n[S3] 蓝桥项目说明.md · 片段 1\n[S4] 测试组服务说明.md · 片段 1\n[S8] 个人整理规则.md · 片段 1\n[S2] 教务服务说明.md · 片段 1",
+        "sources": [
+          {
+            "chunk_id": 3,
+            "document_id": 3,
+            "ordinal": 1,
+            "content": "蓝桥项目的资料归档由陈舟负责。项目验收联系星河测试组。验收材料提交截止时间为2026年11月20日18:00。",
+            "name": "蓝桥项目说明.md",
+            "document_version": 1,
+            "source_id": "S3",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 1
+            },
+            "rank_position": 1,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 4,
+            "document_id": 4,
+            "ordinal": 1,
+            "content": "星河测试组要求验收必须同时提供测试报告和部署说明。收到完整材料后2个工作日反馈验收意见。",
+            "name": "测试组服务说明.md",
+            "document_version": 1,
+            "source_id": "S4",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 2
+            },
+            "rank_position": 2,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 8,
+            "document_id": 8,
+            "ordinal": 1,
+            "content": "每周日整理一次未标记资料。常用标签为项目、阅读、归档。每月最后一天导出一次资料正文和标签清单。",
+            "name": "个人整理规则.md",
+            "document_version": 1,
+            "source_id": "S8",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 3
+            },
+            "rank_position": 3,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 2,
+            "document_id": 2,
+            "ordinal": 1,
+            "content": "青松教务受理退课申请，申请需在开课前至少72小时提交。联系邮箱为service@qingsong.example。本文未规定退款金额或比例。",
+            "name": "教务服务说明.md",
+            "document_version": 1,
+            "source_id": "S2",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 4
+            },
+            "rank_position": 4,
+            "graph_paths": []
+          }
+        ],
+        "status": "retrieval_only",
+        "retrieval": {
+          "revision": 8,
+          "generation": null,
+          "mode": "lexical",
+          "message": "仅本地关键词",
+          "ranking": {
+            "method": "candidate_pool",
+            "status": "not_run",
+            "reason": "保留候选收集顺序"
+          },
+          "routes": [
+            {
+              "name": "bm25",
+              "status": "ok",
+              "candidates": 6,
+              "reason": ""
+            },
+            {
+              "name": "vector",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            },
+            {
+              "name": "graph",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            }
+          ]
+        },
+        "error": null
+      },
+      "human_review": {
+        "complete_answer": null,
+        "correct_abstention_or_conflict": null,
+        "unsupported_facts": null,
+        "reason": null
+      },
+      "api_usage": null,
+      "cost": null
+    },
+    {
+      "id": "Q13",
+      "mode": "lexical",
+      "elapsed_seconds": 0.017,
+      "expected_behavior": "insufficient",
+      "expected_facts": [
+        "资料未提供学费"
+      ],
+      "required_documents": [],
+      "evidence_complete": null,
+      "response": {
+        "turn_id": "4f5a1434-0b59-4c78-a762-d6ce236eda7d",
+        "answer": "找到以下原文候选，尚未生成回答：\n[S1] 摄影课说明.md · 片段 1\n[S2] 教务服务说明.md · 片段 1",
+        "sources": [
+          {
+            "chunk_id": 1,
+            "document_id": 1,
+            "ordinal": 1,
+            "content": "青松摄影课由林老师授课。课程事务联系青松教务。开课时间为2026年12月1日09:00。",
+            "name": "摄影课说明.md",
+            "document_version": 1,
+            "source_id": "S1",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 1
+            },
+            "rank_position": 1,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 2,
+            "document_id": 2,
+            "ordinal": 1,
+            "content": "青松教务受理退课申请，申请需在开课前至少72小时提交。联系邮箱为service@qingsong.example。本文未规定退款金额或比例。",
+            "name": "教务服务说明.md",
+            "document_version": 1,
+            "source_id": "S2",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 2
+            },
+            "rank_position": 2,
+            "graph_paths": []
+          }
+        ],
+        "status": "retrieval_only",
+        "retrieval": {
+          "revision": 8,
+          "generation": null,
+          "mode": "lexical",
+          "message": "仅本地关键词",
+          "ranking": {
+            "method": "candidate_pool",
+            "status": "not_run",
+            "reason": "保留候选收集顺序"
+          },
+          "routes": [
+            {
+              "name": "bm25",
+              "status": "ok",
+              "candidates": 2,
+              "reason": ""
+            },
+            {
+              "name": "vector",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            },
+            {
+              "name": "graph",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            }
+          ]
+        },
+        "error": null
+      },
+      "human_review": {
+        "complete_answer": null,
+        "correct_abstention_or_conflict": null,
+        "unsupported_facts": null,
+        "reason": null
+      },
+      "api_usage": null,
+      "cost": null
+    },
+    {
+      "id": "Q14",
+      "mode": "lexical",
+      "elapsed_seconds": 0.018,
+      "expected_behavior": "insufficient",
+      "expected_facts": [
+        "未规定退款金额或比例"
+      ],
+      "required_documents": [],
+      "evidence_complete": null,
+      "response": {
+        "turn_id": "fa23f682-9fcc-40ba-8e6d-3e762445e9e5",
+        "answer": "找到以下原文候选，尚未生成回答：\n[S2] 教务服务说明.md · 片段 1\n[S1] 摄影课说明.md · 片段 1",
+        "sources": [
+          {
+            "chunk_id": 2,
+            "document_id": 2,
+            "ordinal": 1,
+            "content": "青松教务受理退课申请，申请需在开课前至少72小时提交。联系邮箱为service@qingsong.example。本文未规定退款金额或比例。",
+            "name": "教务服务说明.md",
+            "document_version": 1,
+            "source_id": "S2",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 1
+            },
+            "rank_position": 1,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 1,
+            "document_id": 1,
+            "ordinal": 1,
+            "content": "青松摄影课由林老师授课。课程事务联系青松教务。开课时间为2026年12月1日09:00。",
+            "name": "摄影课说明.md",
+            "document_version": 1,
+            "source_id": "S1",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 2
+            },
+            "rank_position": 2,
+            "graph_paths": []
+          }
+        ],
+        "status": "retrieval_only",
+        "retrieval": {
+          "revision": 8,
+          "generation": null,
+          "mode": "lexical",
+          "message": "仅本地关键词",
+          "ranking": {
+            "method": "candidate_pool",
+            "status": "not_run",
+            "reason": "保留候选收集顺序"
+          },
+          "routes": [
+            {
+              "name": "bm25",
+              "status": "ok",
+              "candidates": 2,
+              "reason": ""
+            },
+            {
+              "name": "vector",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            },
+            {
+              "name": "graph",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            }
+          ]
+        },
+        "error": null
+      },
+      "human_review": {
+        "complete_answer": null,
+        "correct_abstention_or_conflict": null,
+        "unsupported_facts": null,
+        "reason": null
+      },
+      "api_usage": null,
+      "cost": null
+    },
+    {
+      "id": "Q15",
+      "mode": "lexical",
+      "elapsed_seconds": 0.017,
+      "expected_behavior": "insufficient",
+      "expected_facts": [
+        "资料未提供手机号码"
+      ],
+      "required_documents": [],
+      "evidence_complete": null,
+      "response": {
+        "turn_id": "49bba1a0-1dad-4893-a971-4ba676783c07",
+        "answer": "找到以下原文候选，尚未生成回答：\n[S1] 摄影课说明.md · 片段 1",
+        "sources": [
+          {
+            "chunk_id": 1,
+            "document_id": 1,
+            "ordinal": 1,
+            "content": "青松摄影课由林老师授课。课程事务联系青松教务。开课时间为2026年12月1日09:00。",
+            "name": "摄影课说明.md",
+            "document_version": 1,
+            "source_id": "S1",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 1
+            },
+            "rank_position": 1,
+            "graph_paths": []
+          }
+        ],
+        "status": "retrieval_only",
+        "retrieval": {
+          "revision": 8,
+          "generation": null,
+          "mode": "lexical",
+          "message": "仅本地关键词",
+          "ranking": {
+            "method": "candidate_pool",
+            "status": "not_run",
+            "reason": "保留候选收集顺序"
+          },
+          "routes": [
+            {
+              "name": "bm25",
+              "status": "ok",
+              "candidates": 1,
+              "reason": ""
+            },
+            {
+              "name": "vector",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            },
+            {
+              "name": "graph",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            }
+          ]
+        },
+        "error": null
+      },
+      "human_review": {
+        "complete_answer": null,
+        "correct_abstention_or_conflict": null,
+        "unsupported_facts": null,
+        "reason": null
+      },
+      "api_usage": null,
+      "cost": null
+    },
+    {
+      "id": "Q16",
+      "mode": "lexical",
+      "elapsed_seconds": 0.018,
+      "expected_behavior": "insufficient",
+      "expected_facts": [
+        "资料未指定相机型号"
+      ],
+      "required_documents": [],
+      "evidence_complete": null,
+      "response": {
+        "turn_id": "b6eeb7ec-1b2f-46bf-bc70-01ecfe68cf6b",
+        "answer": "找到以下原文候选，尚未生成回答：\n[S7] 摄影练习笔记.md · 片段 1\n[S1] 摄影课说明.md · 片段 1",
+        "sources": [
+          {
+            "chunk_id": 7,
+            "document_id": 7,
+            "ordinal": 1,
+            "content": "曝光三角包括光圈、快门速度和ISO。练习要求是分别改变其中一个变量，观察照片亮度变化。",
+            "name": "摄影练习笔记.md",
+            "document_version": 1,
+            "source_id": "S7",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 1
+            },
+            "rank_position": 1,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 1,
+            "document_id": 1,
+            "ordinal": 1,
+            "content": "青松摄影课由林老师授课。课程事务联系青松教务。开课时间为2026年12月1日09:00。",
+            "name": "摄影课说明.md",
+            "document_version": 1,
+            "source_id": "S1",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 2
+            },
+            "rank_position": 2,
+            "graph_paths": []
+          }
+        ],
+        "status": "retrieval_only",
+        "retrieval": {
+          "revision": 8,
+          "generation": null,
+          "mode": "lexical",
+          "message": "仅本地关键词",
+          "ranking": {
+            "method": "candidate_pool",
+            "status": "not_run",
+            "reason": "保留候选收集顺序"
+          },
+          "routes": [
+            {
+              "name": "bm25",
+              "status": "ok",
+              "candidates": 2,
+              "reason": ""
+            },
+            {
+              "name": "vector",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            },
+            {
+              "name": "graph",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            }
+          ]
+        },
+        "error": null
+      },
+      "human_review": {
+        "complete_answer": null,
+        "correct_abstention_or_conflict": null,
+        "unsupported_facts": null,
+        "reason": null
+      },
+      "api_usage": null,
+      "cost": null
+    },
+    {
+      "id": "Q17",
+      "mode": "lexical",
+      "elapsed_seconds": 0.018,
+      "expected_behavior": "conflict",
+      "expected_facts": [
+        "2026年11月15日",
+        "2026年11月18日",
+        "资料冲突，无法确定采用哪份"
+      ],
+      "required_documents": [
+        "D05",
+        "D06"
+      ],
+      "evidence_complete": true,
+      "response": {
+        "turn_id": "4cf2a28a-4356-4981-8ed3-7c858c6a28e4",
+        "answer": "找到以下原文候选，尚未生成回答：\n[S5] 读书会报名说明.md · 片段 1\n[S6] 读书会活动通知.md · 片段 1\n[S8] 个人整理规则.md · 片段 1\n[S3] 蓝桥项目说明.md · 片段 1",
+        "sources": [
+          {
+            "chunk_id": 5,
+            "document_id": 5,
+            "ordinal": 1,
+            "content": "读书会报名截止日期为2026年11月15日。活动地点为松云书屋。活动形式为线下。报名费用为0元。此说明未注明适用版本或生效时间。",
+            "name": "读书会报名说明.md",
+            "document_version": 1,
+            "source_id": "S5",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 1
+            },
+            "rank_position": 1,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 6,
+            "document_id": 6,
+            "ordinal": 1,
+            "content": "读书会报名截止日期为2026年11月18日。活动地点为竹林书屋。活动形式为线上。报名费用为50元。此通知未注明适用版本或生效时间。",
+            "name": "读书会活动通知.md",
+            "document_version": 1,
+            "source_id": "S6",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 2
+            },
+            "rank_position": 2,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 8,
+            "document_id": 8,
+            "ordinal": 1,
+            "content": "每周日整理一次未标记资料。常用标签为项目、阅读、归档。每月最后一天导出一次资料正文和标签清单。",
+            "name": "个人整理规则.md",
+            "document_version": 1,
+            "source_id": "S8",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 3
+            },
+            "rank_position": 3,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 3,
+            "document_id": 3,
+            "ordinal": 1,
+            "content": "蓝桥项目的资料归档由陈舟负责。项目验收联系星河测试组。验收材料提交截止时间为2026年11月20日18:00。",
+            "name": "蓝桥项目说明.md",
+            "document_version": 1,
+            "source_id": "S3",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 4
+            },
+            "rank_position": 4,
+            "graph_paths": []
+          }
+        ],
+        "status": "retrieval_only",
+        "retrieval": {
+          "revision": 8,
+          "generation": null,
+          "mode": "lexical",
+          "message": "仅本地关键词",
+          "ranking": {
+            "method": "candidate_pool",
+            "status": "not_run",
+            "reason": "保留候选收集顺序"
+          },
+          "routes": [
+            {
+              "name": "bm25",
+              "status": "ok",
+              "candidates": 4,
+              "reason": ""
+            },
+            {
+              "name": "vector",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            },
+            {
+              "name": "graph",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            }
+          ]
+        },
+        "error": null
+      },
+      "human_review": {
+        "complete_answer": null,
+        "correct_abstention_or_conflict": null,
+        "unsupported_facts": null,
+        "reason": null
+      },
+      "api_usage": null,
+      "cost": null
+    },
+    {
+      "id": "Q18",
+      "mode": "lexical",
+      "elapsed_seconds": 0.018,
+      "expected_behavior": "conflict",
+      "expected_facts": [
+        "松云书屋",
+        "竹林书屋",
+        "资料冲突，无法确定采用哪份"
+      ],
+      "required_documents": [
+        "D05",
+        "D06"
+      ],
+      "evidence_complete": true,
+      "response": {
+        "turn_id": "b3c11d01-bfb2-40d7-a0f9-163944b8210e",
+        "answer": "找到以下原文候选，尚未生成回答：\n[S5] 读书会报名说明.md · 片段 1\n[S6] 读书会活动通知.md · 片段 1",
+        "sources": [
+          {
+            "chunk_id": 5,
+            "document_id": 5,
+            "ordinal": 1,
+            "content": "读书会报名截止日期为2026年11月15日。活动地点为松云书屋。活动形式为线下。报名费用为0元。此说明未注明适用版本或生效时间。",
+            "name": "读书会报名说明.md",
+            "document_version": 1,
+            "source_id": "S5",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 1
+            },
+            "rank_position": 1,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 6,
+            "document_id": 6,
+            "ordinal": 1,
+            "content": "读书会报名截止日期为2026年11月18日。活动地点为竹林书屋。活动形式为线上。报名费用为50元。此通知未注明适用版本或生效时间。",
+            "name": "读书会活动通知.md",
+            "document_version": 1,
+            "source_id": "S6",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 2
+            },
+            "rank_position": 2,
+            "graph_paths": []
+          }
+        ],
+        "status": "retrieval_only",
+        "retrieval": {
+          "revision": 8,
+          "generation": null,
+          "mode": "lexical",
+          "message": "仅本地关键词",
+          "ranking": {
+            "method": "candidate_pool",
+            "status": "not_run",
+            "reason": "保留候选收集顺序"
+          },
+          "routes": [
+            {
+              "name": "bm25",
+              "status": "ok",
+              "candidates": 2,
+              "reason": ""
+            },
+            {
+              "name": "vector",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            },
+            {
+              "name": "graph",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            }
+          ]
+        },
+        "error": null
+      },
+      "human_review": {
+        "complete_answer": null,
+        "correct_abstention_or_conflict": null,
+        "unsupported_facts": null,
+        "reason": null
+      },
+      "api_usage": null,
+      "cost": null
+    },
+    {
+      "id": "Q19",
+      "mode": "lexical",
+      "elapsed_seconds": 0.018,
+      "expected_behavior": "conflict",
+      "expected_facts": [
+        "0元",
+        "50元",
+        "资料冲突，无法确定采用哪份"
+      ],
+      "required_documents": [
+        "D05",
+        "D06"
+      ],
+      "evidence_complete": true,
+      "response": {
+        "turn_id": "148baa97-7ac5-4825-a993-7c715bc4d716",
+        "answer": "找到以下原文候选，尚未生成回答：\n[S5] 读书会报名说明.md · 片段 1\n[S6] 读书会活动通知.md · 片段 1",
+        "sources": [
+          {
+            "chunk_id": 5,
+            "document_id": 5,
+            "ordinal": 1,
+            "content": "读书会报名截止日期为2026年11月15日。活动地点为松云书屋。活动形式为线下。报名费用为0元。此说明未注明适用版本或生效时间。",
+            "name": "读书会报名说明.md",
+            "document_version": 1,
+            "source_id": "S5",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 1
+            },
+            "rank_position": 1,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 6,
+            "document_id": 6,
+            "ordinal": 1,
+            "content": "读书会报名截止日期为2026年11月18日。活动地点为竹林书屋。活动形式为线上。报名费用为50元。此通知未注明适用版本或生效时间。",
+            "name": "读书会活动通知.md",
+            "document_version": 1,
+            "source_id": "S6",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 2
+            },
+            "rank_position": 2,
+            "graph_paths": []
+          }
+        ],
+        "status": "retrieval_only",
+        "retrieval": {
+          "revision": 8,
+          "generation": null,
+          "mode": "lexical",
+          "message": "仅本地关键词",
+          "ranking": {
+            "method": "candidate_pool",
+            "status": "not_run",
+            "reason": "保留候选收集顺序"
+          },
+          "routes": [
+            {
+              "name": "bm25",
+              "status": "ok",
+              "candidates": 2,
+              "reason": ""
+            },
+            {
+              "name": "vector",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            },
+            {
+              "name": "graph",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            }
+          ]
+        },
+        "error": null
+      },
+      "human_review": {
+        "complete_answer": null,
+        "correct_abstention_or_conflict": null,
+        "unsupported_facts": null,
+        "reason": null
+      },
+      "api_usage": null,
+      "cost": null
+    },
+    {
+      "id": "Q20",
+      "mode": "lexical",
+      "elapsed_seconds": 0.018,
+      "expected_behavior": "conflict",
+      "expected_facts": [
+        "线上",
+        "线下",
+        "资料冲突，无法确定采用哪份"
+      ],
+      "required_documents": [
+        "D05",
+        "D06"
+      ],
+      "evidence_complete": true,
+      "response": {
+        "turn_id": "f1c4b8eb-f376-4df0-a0af-a49f253e8749",
+        "answer": "找到以下原文候选，尚未生成回答：\n[S5] 读书会报名说明.md · 片段 1\n[S6] 读书会活动通知.md · 片段 1",
+        "sources": [
+          {
+            "chunk_id": 5,
+            "document_id": 5,
+            "ordinal": 1,
+            "content": "读书会报名截止日期为2026年11月15日。活动地点为松云书屋。活动形式为线下。报名费用为0元。此说明未注明适用版本或生效时间。",
+            "name": "读书会报名说明.md",
+            "document_version": 1,
+            "source_id": "S5",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 1
+            },
+            "rank_position": 1,
+            "graph_paths": []
+          },
+          {
+            "chunk_id": 6,
+            "document_id": 6,
+            "ordinal": 1,
+            "content": "读书会报名截止日期为2026年11月18日。活动地点为竹林书屋。活动形式为线上。报名费用为50元。此通知未注明适用版本或生效时间。",
+            "name": "读书会活动通知.md",
+            "document_version": 1,
+            "source_id": "S6",
+            "revision": 8,
+            "generation": null,
+            "channels": [
+              "bm25"
+            ],
+            "channel_ranks": {
+              "bm25": 2
+            },
+            "rank_position": 2,
+            "graph_paths": []
+          }
+        ],
+        "status": "retrieval_only",
+        "retrieval": {
+          "revision": 8,
+          "generation": null,
+          "mode": "lexical",
+          "message": "仅本地关键词",
+          "ranking": {
+            "method": "candidate_pool",
+            "status": "not_run",
+            "reason": "保留候选收集顺序"
+          },
+          "routes": [
+            {
+              "name": "bm25",
+              "status": "ok",
+              "candidates": 2,
+              "reason": ""
+            },
+            {
+              "name": "vector",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            },
+            {
+              "name": "graph",
+              "status": "not_run",
+              "candidates": 0,
+              "reason": "仅本地关键词"
+            }
+          ]
+        },
+        "error": null
+      },
+      "human_review": {
+        "complete_answer": null,
+        "correct_abstention_or_conflict": null,
+        "unsupported_facts": null,
+        "reason": null
+      },
+      "api_usage": null,
+      "cost": null
+    }
+  ],
+  "quality_passed": null,
+  "note": "证据覆盖可自动计算；完整回答、正确拒答、冲突处理及事实支持必须人工逐题复核。用量未提供时为null，不写0。"
+}

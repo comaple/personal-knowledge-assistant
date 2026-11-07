@@ -1,0 +1,11 @@
+{
+  "framework": "Real Chrome + HTTP + DSH + LightRAG; scripted model and 8d embeddings",
+  "checks": [
+    "Current graph click opens source text, including 390px ready graph layout",
+    "DSH answer, source snapshots and real tool traces render",
+    "Create note and tags, filter document list",
+    "Concurrent edit preserves draft; document markup is inert",
+    "390px library/search/graph have no horizontal overflow or page errors"
+  ],
+  "status": "PASS"
+}

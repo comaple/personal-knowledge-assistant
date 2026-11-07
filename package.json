@@ -1,10 +1,14 @@
 {
   "name": "personal-knowledge-assistant",
-  "version": "0.2.0",
+  "version": "1.0.0-rc.1",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=24.9.0" },
-  "scripts": { "test:harness": "node --test harness/integration.test.mjs" },
+  "engines": {
+    "node": ">=24.9.0"
+  },
+  "scripts": {
+    "test:harness": "node --test harness/integration.test.mjs"
+  },
   "dependencies": {
     "@deepseek-ai/dsh": "0.2.2-rc.1",
     "@deepseek-ai/dsh-sdk-client": "0.2.2-rc.1",

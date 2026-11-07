@@ -1,107 +1,111 @@
-# Personal Knowledge Assistant｜DSH 个人资料助手
+# 个人知识管理助手 · Personal Knowledge Assistant
 
-从零练习一个有数据库、有小型知识库、能调用工具的 AI 项目。本地单人教学版。
+本地单人知识管理应用：导入资料、创建和编辑 Markdown 笔记、用标签整理、搜索原文、查看知识图谱，并由 DSH 调用工具完成有出处的问答。
 
-**Harness 使用 DeepSeek 官方 DSH `0.2.2-rc.1`**：官方 SDK 启动真实 DSH Agent 循环，模型调用知识库工具，工具结果返回模型，再生成带出处的回答。Python 负责网页、资料导入和 SQLite 持久化。
+**当前版本：1.0.0-rc.1。**核心工程链路使用真实 DSH、LightRAG 和 SQLite 验证；模型和向量在离线测试中由模拟服务提供。真实模型质量验收尚待配置服务，不能将离线测试等同于实际问答效果。
 
-[从零动手](docs/tutorial.md) · **[DSH 接入实战教程与运行记录](docs/dsh-harness-tutorial.md)** · [AI 开发任务书](docs/BUILD_PROMPT.txt) · [真实 DSH 离线运行示例](docs/dsh-run-example.json)
+[文档入口](doc/README.md) · [PRD](doc/PRD.md) · [Spec](doc/SPEC.md) · [验收](doc/VERIFY.md) · [任务进度](doc/TASKS.md) · [OpenAPI](doc/openapi.json)
 
-![DSH 接入架构](docs/assets/dsh-architecture.svg)
+![资料库实际页面](doc/assets/personal-knowledge-assistant.png)
 
-## 1. 启动
+*真实浏览器和应用页面，使用虚构资料；图谱与 DSH 演示采用本地模拟模型和 8 维测试向量。*
 
-需要 Python 3.10+（SQLite 支持 FTS5）；启用 DSH 还需 **Node.js ≥24.9.0**。建议使用 Node 24 LTS。DSH 仍是开发预览版，本仓库同时固定直接依赖版本和 package-lock.json。
+## 开始使用
+
+参考环境：Python 3.12；DSH 需要 Node.js ≥24.9.0。SQLite 必须支持 FTS5。无 Key 也能导入、记笔记、编辑、加标签、本地关键词检索、回看历史和导出。
 
 ```bash
 git clone https://github.com/comaple/personal-knowledge-assistant.git
 cd personal-knowledge-assistant
-npm ci
-python3 app.py
+python3.12 -m venv .venv
+source .venv/bin/activate
+python app.py
 ```
 
-浏览器打开 http://127.0.0.1:8501 。Windows 使用 `py` 替换 `python3`。端口冲突时使用 `python3 app.py --port 8502`。
+Windows PowerShell：使用 `py -3.12 -m venv .venv` 和 `.venv\Scripts\Activate.ps1`。应用打开 http://127.0.0.1:8501；端口冲突可加 `--port 8502`。`--db` 可指定独立数据库。
 
-不安装 Node / 不执行 npm ci，也可以用 Python 启动并练习默认的“仅检索”模式；该模式不启动 DSH、不调用外部模型。
-
-## 2. 先验证资料，再启用 DSH
-
-1. 点击“导入示例资料”，导入两份虚构摄影课程说明。
-2. 提问“摄影课退款需要提前多久申请？”，展开来源，应看到“至少 72 小时”。
-3. 重复导入相同内容，文档数不增加。停止再启动，资料和消息仍在。
-4. 复制 `.env.example` 为 `.env`，用编辑器填写 Key：
-
-```dotenv
-LLM_API_KEY=你的DeepSeekKey
-DSH_MODEL=deepseek-flash
-DSH_BASE_URL=https://api.deepseek.com/anthropic
-```
-
-重启服务，勾选“使用 DSH 智能体检索并回答”，再提问。页面底部可展开“智能体检索过程”。也支持进程环境里的 `DEEPSEEK_API_KEY`，优先使用非空 `LLM_API_KEY`。
-
-**DSH 官方适配器使用 Messages 协议。**地址不是 `/chat/completions`；旧版 `LLM_BASE_URL` / `LLM_MODEL` 不再使用。若使用其他提供商，需要另接 DSH 对应适配器。
-
-启用 DSH 后，问题、工具返回的文档名和检索片段会发送给模型服务，可能产生 API 费用。没有命中时，模型也已经参与检索决策；可以换词重查。最多 5 次模型请求，每次最多输出 1200 tokens，关闭思考模式，不自动重试，整次进程上限 150 秒。
-
-**本次验证没有使用真实付费 Key。**已验证真实 DSH 运行时、官方模型适配器、本地模拟 Messages 服务、真实工具和数据库的完整链路；尚未验证真实模型的检索策略、回答质量或线上连通性。
-
-## 3. 文件分工
-
-| 文件 | 职责 |
-| --- | --- |
-| `index.html` / `app.py` | 页面、HTTP 接口、资料和会话管理 |
-| `store.py` | SQLite 事务、文档、消息与 DSH 事件轨迹 |
-| `knowledge.py` | 校验、去重、切块、FTS5 关键词检索 |
-| `model_client.py` | 启动 Node 适配层、150 秒进程边界、回答验收 |
-| `harness/runner.mjs` | 官方 `DeepSeekHarness` SDK、sdk-minimal profile、配置补丁 |
-| `harness/knowledge-plugin.mjs` | Cordis 插件，向 DSH 注册两个知识库工具及五步限制 |
-| `harness/kb_bridge.py` | 固定参数调用现有知识库，不接收 SQL / shell 命令 |
-| `harness/integration.test.mjs` | 无 Key 的真实 DSH 集成测试 |
-| `test_project.py` | 数据库、HTTP、出处验收与轨迹保存测试 |
-| `inspect_db.py` | 查看表记录数 |
-
-模型可用工具只有 `kb_search(query)` 和 `kb_list_documents()`。前者每次最多返回四个 800 字以内的片段；后者最多返回 100 个文档名和片段数。模型不能通过这些工具上传、删库、执行命令或选择数据库路径。
-
-## 4. 数据和记忆
-
-默认数据库是 `data/knowledge.db`，旧数据库启动时自动新增 `harness_runs` 表。
-
-| 表 | 保存内容 |
-| --- | --- |
-| documents | 文件名、原文、内容摘要值、时间 |
-| chunks | 文档 ID、序号、片段正文 |
-| sessions | 应用会话 |
-| messages | 问答、来源快照、状态 |
-| harness_runs | 应用会话对应的 DSH 会话 ID、结束原因、完整 SDK Session 事件 |
-| chunk_search | FTS5 索引，与片段 ID 对齐 |
-
-每 800 字切块，重叠 120 字；中文相邻双字切分，英文按词；OR 匹配、BM25 排序。**这是关键词检索，同义表达可能漏检。**DSH 可以换词调用工具；测试里的换词由模拟模型脚本指定，不代表真实模型一定会这样做。
-
-每个问题启动一个新的 DSH 会话。DSH 自动使用同一轮里的工具调用历史；应用旧聊天保留用于回看，**不自动传给下一轮模型**。这不等于模型训练或跨轮记忆。
-
-每次使用独立临时 DSH home，避免混入全局插件配置。SDK 运行期间由 DSH 自己生成 Session 日志；进程关闭后，把 SDK 返回的 Session 事件与问答原子写进 SQLite，临时 home 随后清理。`/api/runs?session_id=应用会话ID` 可查看保存的轨迹。
-
-删除文档会删除原文、片段和索引；历史消息及 DSH 轨迹仍包含当时的证据。删除对应会话会一并清除消息、来源快照与轨迹。停止服务后可备份整个 data 目录。
-
-## 5. 验收
+配置图谱、向量与 DSH：
 
 ```bash
-python3 -m unittest -v test_project.py
+python -m pip install -r requirements-rag.lock
+npm ci
+cp .env.example .env
+```
+
+将 `.env` 中的模型配置填好后重启。PowerShell 用 `Copy-Item .env.example .env`。不要覆盖已有配置文件。
+
+```dotenv
+LLM_API_KEY=你的Key
+DSH_MODEL=deepseek-flash
+DSH_BASE_URL=https://api.deepseek.com/anthropic
+RAG_ENABLED=true
+RAG_LLM_BASE_URL=https://api.deepseek.com
+RAG_LLM_MODEL=deepseek-flash
+RAG_LLM_API_KEY=
+EMBEDDING_BASE_URL=http://127.0.0.1:11434/v1
+EMBEDDING_MODEL=bge-m3
+EMBEDDING_DIM=1024
+EMBEDDING_API_KEY=ollama
+```
+
+本地 Embedding 示例：先安装/启动 Ollama，并运行 `ollama pull bge-m3`。也可配置其他兼容 `/embeddings` 的服务及实际维度。DSH 使用 Messages，图谱/重排使用 Chat Completions，两个地址不能混用；模型别名与服务可用性需要实际验证。
+
+## 使用流程
+
+1. 在资料库导入 TXT/Markdown，或新建笔记；点击标题编辑正文和标签。
+2. 标签筛选仅作用于资料列表，搜索和问答使用全部资料。
+3. 默认“关键词（本地）”不调用模型。多路检索和 DSH 问答可能使用模型/Embedding 服务并产生费用。
+4. 主动点击“构建图谱与向量”，确认数据发送范围后等待完成；正文更新或删除后需重建。
+5. 在知识图谱点击实体/关系回查原文；答案引用显示当时保存的原文快照。
+6. “导出全部”生成 Markdown + metadata.json ZIP，不包含聊天或系统备份。
+
+每份正文 ≤1 MB，全库 ≤500 片段；自动按800字符切块、重叠120。保存有版本冲突时拒绝覆盖并保留输入。删除资料停止当前检索，但历史引用和磁盘旧索引仍可能保留。
+
+## 检索和 Harness
+
+- SQLite FTS5/BM25、LightRAG 文本向量、实体关系三路召回。
+- 每路12候选，合并去重至24，再基于原文重排选4段；失败明确降级，不编造融合分数。
+- DSH 注册 `kb_search`、`kb_list_documents`、`kb_graph_schema`、`kb_graph_query` 四个只读工具。
+- 图计划最多3跳，返回完整路径和原文；图谱由模型抽取，路径存在不代表事实已核验。
+- 每轮独立 DSH 会话，旧聊天不会自动注入下一问；SQLite 保存消息、引用和已返回轨迹。
+- 问答期间资料变化则拒绝旧结果；索引分代构建，成功后才切换指针。
+
+预算：DSH 最多5次模型请求、8次知识工具调用；整轮150秒，索引30分钟。检索内部有额外 API 调用，步数不等于总调用次数或金额上限。服务仅监听本机，不提供多用户认证和公网部署。
+
+## 备份、恢复和清理
+
+先停止应用；维护进程与应用共享数据库独占锁。以下操作拒绝覆盖已有目标：
+
+```bash
+python maintain.py backup --db data/knowledge.db --output backups/2026-11-07
+python maintain.py restore --backup backups/2026-11-07 --db data/restored.db
+python app.py --db data/restored.db
+```
+
+备份包含资料、标签、会话、消息、引用及轨迹；恢复后图谱/向量需重建。首次打开旧版本数据库会保存 `.pre-v2-*.db` 原库备份并迁移，未知格式拒绝升级。
+
+彻底清除该数据库的旧派生索引：停服后执行 `python maintain.py clean-index --db data/knowledge.db`。它不删除聊天历史。数据库与索引没有加密，按个人本机应用管理文件访问权限。
+
+## 开发与验收
+
+```bash
+python -m pip install -r requirements-dev.lock
+python -m unittest -v test_project.py test_rag
 npm run test:harness
 ```
 
-测试只用临时数据库、虚构资料和本地模拟服务，不读取 .env、不请求付费模型。Python 测试共 9 项，DSH 集成测试共 4 项；CI 同时运行。Python 命令不是 `python3` 时，通过 `PKA_TEST_PYTHON` 指定，例如 macOS/Linux：`PKA_TEST_PYTHON=python npm run test:harness`。
+完整图谱测试还需安装 `requirements-rag.lock`，并安装 Node/DSH。缺 LightRAG 时集成测试会明确 skipped，不能视为完整通过。自动化通过数和验证范围以 [验收报告](doc/verification/REPORT.md) 为准。
 
-编号验收会拒绝没有检索、工具全部失败、无出处、非法出处和未正常结束的回答。**编号存在不能证明事实受原文支持**，仍须展开来源核对。
+可选浏览器检查：配置 `PKA_PUPPETEER_PATH`、`PKA_CHROME_PATH` 后运行 `python scripts/run_ui_check.py`。本地500片段性能检查：`python scripts/benchmark_local.py`，仅使用临时数据库。
 
-## 6. 教学范围
+真实质量验证先启动**隔离空数据库**，配置真实模型与 Embedding，再运行：
 
-只监听 127.0.0.1，无账号和租户隔离，上传 UTF-8 TXT/Markdown（每份 ≤1 MB）、问题 ≤1000 字。模型只获知识库读工具；DSH 的 shell、文件读写和工作目录工具已禁用，并另加工具白名单。这是应用的能力范围，不是对整个 Node/Python 进程的系统级沙箱保证。
+```bash
+python app.py --db data/acceptance.db --port 8502
+# 另一个终端：会导入固定8份虚构资料、构建索引并产生模型调用
+python evaluate.py --url http://127.0.0.1:8502 --mode all
+```
 
-无扫描 PDF/OCR、向量数据库、跨轮指代消解、常驻 DSH 进程。本版每问启动一次运行时，便于隔离和讲解，会有启动开销。
+评估器自动记录证据覆盖、耗时和响应；完整回答、正确拒答、冲突与事实支持需按20题人工复核，不会自动编造质量分数或未提供的费用。缺 Key 时先拒绝智能评估，不向日常资料库混入测试数据。
 
-## 官方参考
-
-- https://github.com/deepseek-ai/deepseek-harness
-- https://github.com/deepseek-ai/deepseek-harness/tree/master/packages/sdk/client
-- https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/cookbook/adding-a-tool.md
-- https://www.sqlite.org/fts5.html
+所有正式文档、教程、图片、固定语料与验收记录统一在 `doc/`；不再使用 `docs/`。

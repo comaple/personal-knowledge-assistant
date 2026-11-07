@@ -1,77 +1,113 @@
-import { spawn } from 'node:child_process';
-import { defineTool } from '@deepseek-ai/dsh-tools';
+import { spawn } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { defineTool } from "@deepseek-ai/dsh-tools";
 
-export const name = 'personal-knowledge-tools';
-export const inject = ['tools'];
+export const name = "personal-knowledge-tools";
+export const inject = ["tools"];
+const api = JSON.parse(
+  readFileSync(
+    fileURLToPath(new URL("../doc/openapi.json", import.meta.url)),
+    "utf8",
+  ),
+);
+
+// DSH's schema DSL supports a checked subset; Python independently enforces bounds.
+function sdkSchema(input) {
+  if (input.$ref)
+    return sdkSchema(api.components.schemas[input.$ref.split("/").at(-1)]);
+  if (input.anyOf) return { oneOf: input.anyOf.map(sdkSchema) };
+  const out = { type: input.type || "json" };
+  if (input.enum) out.enum = input.enum;
+  if (input.type === "array") out.items = sdkSchema(input.items || {});
+  if (input.type === "object") {
+    out.additionalProperties = input.additionalProperties !== false;
+    out.properties = Object.fromEntries(
+      Object.entries(input.properties || {}).map(([key, value]) => [
+        key,
+        {
+          ...sdkSchema(value),
+          ...(input.required?.includes(key) ? { required: true } : {}),
+        },
+      ]),
+    );
+  }
+  return out;
+}
 
 function invoke(config, operation, args, signal) {
   return new Promise((resolve, reject) => {
-    const child = spawn(config.python, [config.bridge, config.database, operation], {
-      stdio: ['pipe', 'pipe', 'pipe'], signal,
-    });
-    const chunks = [];
+    const child = spawn(
+      config.python,
+      [config.bridge, config.database, operation],
+      { stdio: ["pipe", "pipe", "pipe"], signal },
+    );
     let bytes = 0;
-    const timer = setTimeout(() => child.kill(), 10_000);
-    child.stdout.on('data', part => {
+    const chunks = [];
+    const timer = setTimeout(() => child.kill("SIGTERM"), 75_000);
+    child.stdout.on("data", (part) => {
       bytes += part.length;
-      if (bytes > 100_000) child.kill();
+      if (bytes > 100_000) child.kill("SIGTERM");
       else chunks.push(part);
     });
     child.stderr.resume();
-    child.on('error', reject);
-    child.on('close', code => {
+    child.on("error", reject);
+    child.on("close", (code) => {
       clearTimeout(timer);
-      if (code !== 0 || bytes > 100_000) return reject(new Error('知识库工具执行失败'));
-      try { resolve(JSON.parse(Buffer.concat(chunks).toString('utf8'))); }
-      catch { reject(new Error('知识库工具返回格式不正确')); }
+      if (code !== 0 || bytes > 100_000)
+        return reject(
+          new Error("知识库工具执行失败；请检查资料版本或服务配置"),
+        );
+      try {
+        resolve(JSON.parse(Buffer.concat(chunks).toString("utf8")));
+      } catch {
+        reject(new Error("工具返回无效JSON"));
+      }
     });
-    child.stdin.on('error', () => {});
-    child.stdin.end(JSON.stringify(args));
+    child.stdin.on("error", () => {});
+    child.stdin.end(JSON.stringify({ args, context: config.context || null }));
   });
 }
 
 export function apply(ctx, config) {
-  const field = type => ({ type, required: true });
-  const source = {
-    type: 'object', additionalProperties: false,
-    properties: {
-      chunk_id: field('integer'), document_id: field('integer'), ordinal: field('integer'),
-      name: field('string'), content: field('string'), source_id: field('string'),
-    },
+  const descriptions = {
+    kb_search:
+      "检索本地原文：关键词、向量、图谱，多路状态与失败明确返回；只用hits原文回答，可换词。",
+    kb_list_documents: "列出文档名和片段数，帮助找词；文件名不是事实证据。",
+    kb_graph_schema:
+      "探索问题附近真实存在的图谱实体、关系、类型和属性；多跳查询前先检查。",
+    kb_graph_query:
+      "执行1至3跳只读计划，anchors必须实际存在；每跳relation/target_type空字符串表示不限。empty时核对schema并修正，不编造路径；hits是原文。",
   };
-  for (const definition of [
-    {
-      name: 'kb_search',
-      description: '用中文关键词查询本地资料，最多返回四个原文片段及可引用的 source_id。无结果时可换词重查，不得编造。',
-      parameters: { query: { type: 'string', required: true, description: '1—1000 字检索关键词' } },
-      items: source,
-    },
-    {
-      name: 'kb_list_documents',
-      description: '列出本地知识库中前 100 份文档的名称和片段数，帮助选择检索关键词。文件名不能作为事实证据。',
-      parameters: {},
-      items: { type: 'object', additionalProperties: false,
-        properties: { name: field('string'), chunk_count: field('integer') } },
-    },
-  ]) {
-    ctx.tools.register(defineTool({
-      name: definition.name, description: definition.description, parameters: definition.parameters,
-      output: {
-        schema: { type: 'array', items: definition.items },
-        render: (_args, value) => [{ type: 'text', text: JSON.stringify(value) }],
-      },
-      execute: (args, exec) => invoke(config, definition.name, args, exec.signal),
-    }));
+  let toolCalls = 0;
+  for (const [operation, contract] of Object.entries(api["x-dsh-tools"])) {
+    const parameters = sdkSchema(contract.input).properties;
+    ctx.tools.register(
+      defineTool({
+        name: operation,
+        description: descriptions[operation],
+        parameters,
+        output: {
+          schema: sdkSchema(contract.output),
+          render: (_args, value) => [
+            { type: "text", text: JSON.stringify(value) },
+          ],
+        },
+        execute: (args, exec) => {
+          if (++toolCalls > 8) throw new Error("已达到8次工具调用预算");
+          return invoke(config, operation, args, exec.signal);
+        },
+      }),
+    );
   }
-  // Restrict the actual registry as well as removing the stock tool producers.
-  ctx.on('agent/created', ({ agent }) => {
-    agent.ctx.tools.restrict({ allow: ['kb_search', 'kb_list_documents'] });
-  });
+  ctx.on("agent/created", ({ agent }) =>
+    agent.ctx.tools.restrict({ allow: Object.keys(descriptions) }),
+  );
   const steps = new WeakMap();
-  ctx.on('agent/pre-step', ({ agent }, next) => {
+  ctx.on("agent/pre-step", ({ agent }, next) => {
     const count = (steps.get(agent) ?? 0) + 1;
     steps.set(agent, count);
-    if (count > config.maxSteps) throw new Error('已达到本次问答的模型请求步数上限');
+    if (count > config.maxSteps) throw new Error("已达到本轮模型请求上限");
     return next();
   });
 }

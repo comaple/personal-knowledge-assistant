@@ -10,14 +10,20 @@
       "ordinal": 1,
       "content": "摄影课退款需要在开课前至少72小时申请。",
       "name": "虚构课程.md",
-      "source_id": "S1"
+      "source_id": "S1",
+      "channels": [
+        "bm25"
+      ],
+      "channel_ranks": "{\"bm25\":1}",
+      "rank_position": 1,
+      "graph_paths": []
     }
   ],
   "trace": [
     {
       "type": "tool/call",
       "seq": 12,
-      "time": 1794046298879,
+      "time": 1794049157921,
       "data": {
         "turn": 1,
         "step": 1,
@@ -29,7 +35,7 @@
     {
       "type": "tool/result",
       "seq": 13,
-      "time": 1794046299004,
+      "time": 1794049158147,
       "data": {
         "turn": 1,
         "step": 1,
@@ -43,11 +49,11 @@
           "content": [
             {
               "type": "text",
-              "text": "[]"
+              "text": "{\"hits\":[],\"retrieval\":{\"mode\":\"lexical_fallback\",\"message\":\"尚未构建图谱与向量索引\",\"ranking\":{\"method\":\"candidate_pool\",\"status\":\"not_run\",\"reason\":\"仅可用 BM25，保留其原始排序\"},\"routes\":[{\"name\":\"bm25\",\"status\":\"ok\",\"candidates\":0},{\"name\":\"vector\",\"status\":\"not_built\",\"candidates\":0},{\"name\":\"graph\",\"status\":\"not_built\",\"candidates\":0}]}}"
             }
           ],
           "isError": false,
-          "id": "bd625fd6-462a-4ba3-9dc8-61bc7b48e9ed"
+          "id": "e2d72662-99bd-42df-9fd4-5379d976de30"
         }
       },
       "sourceEventSeqs": [
@@ -58,7 +64,7 @@
     {
       "type": "tool/call",
       "seq": 18,
-      "time": 1794046299060,
+      "time": 1794049158208,
       "data": {
         "turn": 1,
         "step": 2,
@@ -70,7 +76,7 @@
     {
       "type": "tool/result",
       "seq": 19,
-      "time": 1794046299178,
+      "time": 1794049158431,
       "data": {
         "turn": 1,
         "step": 2,
@@ -84,11 +90,11 @@
           "content": [
             {
               "type": "text",
-              "text": "[{\"chunk_id\":1,\"document_id\":1,\"ordinal\":1,\"content\":\"摄影课退款需要在开课前至少72小时申请。\",\"name\":\"虚构课程.md\",\"source_id\":\"S1\"}]"
+              "text": "{\"hits\":[{\"chunk_id\":1,\"document_id\":1,\"ordinal\":1,\"content\":\"摄影课退款需要在开课前至少72小时申请。\",\"name\":\"虚构课程.md\",\"source_id\":\"S1\",\"channels\":[\"bm25\"],\"channel_ranks\":\"{\\\"bm25\\\": 1}\",\"rank_position\":1,\"graph_paths\":[]}],\"retrieval\":{\"mode\":\"lexical_fallback\",\"message\":\"尚未构建图谱与向量索引\",\"ranking\":{\"method\":\"candidate_pool\",\"status\":\"not_run\",\"reason\":\"仅可用 BM25，保留其原始排序\"},\"routes\":[{\"name\":\"bm25\",\"status\":\"ok\",\"candidates\":1},{\"name\":\"vector\",\"status\":\"not_built\",\"candidates\":0},{\"name\":\"graph\",\"status\":\"not_built\",\"candidates\":0}]}}"
             }
           ],
           "isError": false,
-          "id": "cacf66e6-546a-44a1-a1c9-59a75f8706a2"
+          "id": "e339bdca-3bfe-40dc-9477-b043745009e9"
         }
       },
       "sourceEventSeqs": [
@@ -99,7 +105,7 @@
     {
       "type": "turn/end",
       "seq": 25,
-      "time": 1794046299229,
+      "time": 1794049158482,
       "data": {
         "turn": 1,
         "reason": {

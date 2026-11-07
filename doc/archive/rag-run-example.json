@@ -1,0 +1,169 @@
+{
+  "note": "真实 LightRAG 1.5.7 / NanoVectorDB / NetworkX；模型和8维向量由本地脚本模拟，不是检索质量评测。",
+  "query": "摄影课退费找谁？",
+  "lexical_hits": [
+    "课程联系.md"
+  ],
+  "graph": {
+    "status": {
+      "status": "ready",
+      "message": "BM25 + 向量 + 图谱三路可用",
+      "revision": 2,
+      "dependency_ready": true,
+      "llm_ready": true,
+      "generation": "46a8f694e9ae4a73b301529028e645f3",
+      "built_at": "2026-11-07 10:59:42",
+      "chunks": 2,
+      "entities": 5,
+      "relations": 4
+    },
+    "nodes": [
+      {
+        "id": "摄影课",
+        "type": "course",
+        "description": "摄影课由林老师负责，课程事务联系青松教务。",
+        "chunk_ids": [
+          1
+        ]
+      },
+      {
+        "id": "青松教务",
+        "type": "organization",
+        "description": "青松教务负责摄影课课程事务。<SEP>青松教务负责受理退课申请。",
+        "chunk_ids": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "林老师",
+        "type": "person",
+        "description": "林老师负责摄影课。",
+        "chunk_ids": [
+          1
+        ]
+      },
+      {
+        "id": "退课申请",
+        "type": "policy",
+        "description": "退出课程的申请需提前72小时提交。",
+        "chunk_ids": [
+          2
+        ]
+      },
+      {
+        "id": "72小时",
+        "type": "time",
+        "description": "退课申请的提前提交时间。",
+        "chunk_ids": [
+          2
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "source": "摄影课",
+        "target": "青松教务",
+        "description": "摄影课课程事务联系青松教务。",
+        "relation": "课程事务",
+        "chunk_ids": [
+          1
+        ]
+      },
+      {
+        "source": "摄影课",
+        "target": "林老师",
+        "description": "林老师负责摄影课。",
+        "relation": "负责",
+        "chunk_ids": [
+          1
+        ]
+      },
+      {
+        "source": "青松教务",
+        "target": "退课申请",
+        "description": "青松教务受理退出课程的申请。",
+        "relation": "办理,受理",
+        "chunk_ids": [
+          2
+        ]
+      },
+      {
+        "source": "退课申请",
+        "target": "72小时",
+        "description": "退出课程需提前72小时申请。",
+        "relation": "期限",
+        "chunk_ids": [
+          2
+        ]
+      }
+    ]
+  },
+  "result": {
+    "hits": [
+      {
+        "chunk_id": 2,
+        "document_id": 2,
+        "ordinal": 1,
+        "content": "青松教务负责受理退出课程的申请，需在开课前至少72小时提交。",
+        "name": "办理规则.md",
+        "source_id": "S2",
+        "channels": [
+          "vector",
+          "graph"
+        ],
+        "channel_ranks": "{\"vector\": 2, \"graph\": 2}",
+        "rank_position": 1,
+        "graph_paths": [
+          "青松教务 — 退课申请",
+          "退课申请 — 72小时"
+        ]
+      },
+      {
+        "chunk_id": 1,
+        "document_id": 1,
+        "ordinal": 1,
+        "content": "摄影课由林老师负责，课程事务联系青松教务。",
+        "name": "课程联系.md",
+        "source_id": "S1",
+        "channels": [
+          "bm25",
+          "vector",
+          "graph"
+        ],
+        "channel_ranks": "{\"bm25\": 1, \"vector\": 1, \"graph\": 1}",
+        "rank_position": 2,
+        "graph_paths": [
+          "摄影课 — 青松教务",
+          "摄影课 — 林老师"
+        ]
+      }
+    ],
+    "retrieval": {
+      "mode": "hybrid",
+      "message": "三路召回完成",
+      "ranking": {
+        "method": "llm_evidence",
+        "status": "ok",
+        "reason": "保留办理条件与联系部门的原文证据"
+      },
+      "routes": [
+        {
+          "name": "bm25",
+          "status": "ok",
+          "candidates": 1
+        },
+        {
+          "name": "vector",
+          "status": "ok",
+          "candidates": 2
+        },
+        {
+          "name": "graph",
+          "status": "ok",
+          "candidates": 2
+        }
+      ]
+    }
+  }
+}

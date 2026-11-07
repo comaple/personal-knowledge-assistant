@@ -1,0 +1,9 @@
+项目：个人知识管理助手 / Personal Knowledge Assistant。
+唯一正式开发依据：doc/PRD.md、doc/SPEC.md、doc/openapi.json、doc/VERIFY.md、doc/TASKS.md。
+产品目标：资料与笔记持续积累、标签整理、知识关联、多路检索、有出处的DSH问答、导出和备份。
+按SDD工作：需求和接口变更先改文档，再改实现与验收；不以原型行为覆盖规格。
+DSH负责实际Agent循环；四项知识工具只读，不能暴露终端、文件写入、SQL或任意路径。
+SQLite是原文事实源；使用永久片段ID、文档乐观锁和语料revision。旧索引失效、回答最终事务检查、历史引用快照不可被新正文替换。
+开发验证：安装requirements-dev.lock，完整图谱另装requirements-rag.lock和npm ci；运行Python与Node测试。缺依赖不能计完整通过。
+真实模型20题评估与模拟服务测试分开；不编造质量结果、调用用量或费用。执行真实评估使用隔离空数据库，不污染日常资料。
+只发布对应任务的代码与脱敏证据；所有文档和配图统一在doc/，旧原型记录只作历史参考。

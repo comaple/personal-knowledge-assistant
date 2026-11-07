@@ -1,19 +1,1147 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>我的资料助手</title><style>
-:root{--ink:#273650;--muted:#66748b;--accent:#5d5cb1;--line:#dde2ed;--paper:#f5f6fb}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}button,input,textarea,select{font:inherit}button{background:var(--accent);color:white;border:0;border-radius:8px;padding:10px 15px;cursor:pointer}button:disabled{opacity:.5;cursor:wait}.secondary{background:#e8e9f5;color:var(--ink)}.danger{background:white;border:1px solid #e6d0ce;color:#955347;padding:5px 10px;font-size:13px}header{max-width:1260px;padding:32px 28px 18px;margin:auto}h1{font-size:31px;margin:0}header p{margin:5px 0;color:var(--muted)}.tag{font-size:12px;letter-spacing:2px;color:var(--accent)}main{max-width:1260px;display:grid;grid-template-columns:310px 1fr;gap:22px;padding:0 28px 32px;margin:auto}.panel{background:white;border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:16px}h2{font-size:19px;margin:0 0 14px}label{display:block;font-size:14px}input[type=file]{max-width:100%;font-size:13px}select,textarea{width:100%;border:1px solid var(--line);border-radius:8px;background:white;color:var(--ink);padding:9px}textarea{resize:vertical;min-height:92px}small,.muted{color:var(--muted);font-size:13px}.note{padding:12px 15px;background:#f0f1f9;border-radius:8px;font-size:13px;margin:12px 0}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.doc{border-top:1px solid var(--line);padding:12px 0}.doc strong{overflow-wrap:anywhere;font-size:14px}.doc .row{justify-content:space-between}.msg{padding:17px 20px;border:1px solid var(--line);border-radius:10px;margin:14px 0;white-space:pre-wrap;overflow-wrap:anywhere}.msg.user{margin-left:35px;background:#f1f0fa}.msg.assistant{margin-right:20px}.msg .role{font-weight:600;color:var(--accent);font-size:13px;margin-bottom:7px}details{font-size:14px;border-top:1px solid var(--line);padding-top:10px;margin-top:10px}summary{cursor:pointer;color:var(--accent)}.excerpt{white-space:pre-wrap;overflow-wrap:anywhere;background:#f7f8fc;padding:12px;margin:8px 0}#status{min-height:26px;color:#8b5441;font-size:14px}#messages:empty:before{content:'先导入示例资料，再问：摄影课退款需要提前多久申请？';display:block;padding:35px 10px;color:var(--muted)}.busy{color:var(--accent)}@media(max-width:760px){header{padding:22px 16px 14px}main{display:block;padding:0 16px 20px}.panel{padding:17px}h1{font-size:25px}.msg.user,.msg.assistant{margin-left:0;margin-right:0}}
-</style></head><body><header><div class="tag">LOCAL KNOWLEDGE WORKSHOP</div><h1>我的资料助手</h1><p>上传资料，查看出处；重启服务后，文档和会话仍在。</p></header><main><aside><section class="panel"><h2>① 准备资料</h2><button id="demo" class="secondary">导入示例资料</button><p><label for="upload">上传 UTF-8 的 TXT / Markdown（单文件 ≤ 1 MB）</label><input id="upload" type="file" accept=".txt,.md" multiple></p><div id="documents"></div></section><section class="panel"><h2>② 选择会话</h2><select id="sessions" aria-label="选择历史会话"></select><div class="row" style="margin-top:12px"><button id="new" class="secondary">新建会话</button><button id="delete-session" class="danger">删除会话</button></div><p><small>聊天记录用于保存和展示；本版每次按当前问题检索，追问请写明关键词。</small></p></section></aside><section class="panel"><h2>③ 从资料中查答案</h2><div class="note">默认仅检索，不调用模型。启用模型后，本次问题、工具返回的文档名与命中片段会发送到你配置的服务；请先用公开资料练习。出处编号可核对，回答仍需检查原文。</div><div class="row"><label><input id="generate" type="checkbox"> 使用 DSH 智能体检索并回答</label><small id="model-status"></small></div><div id="messages"></div><form id="ask"><label for="question">你的问题</label><textarea id="question" maxlength="1000" placeholder="例如：摄影课退款需要提前多久申请？" required></textarea><div class="row" style="margin-top:10px"><button id="send" type="submit">查询资料</button><small>DSH 模式由模型调用工具，最多 5 步。</small></div></form><p id="status" aria-live="polite"></p></section></main><script>
-const $=id=>document.getElementById(id);let active='';let busy=false;
-async function api(path,method='GET',data){const opts={method};if(data!==undefined){opts.headers={'Content-Type':'application/json'};opts.body=JSON.stringify(data)}const r=await fetch(path,opts);const result=await r.json();if(!r.ok)throw Error(result.error||'请求失败');return result}
-function node(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n}
-function status(message){$('status').textContent=message}
-function controls(disabled){busy=disabled;for(const id of ['send','demo','upload','sessions','new','delete-session','generate'])$(id).disabled=disabled;$('question').disabled=disabled;document.querySelectorAll('[data-delete-document]').forEach(b=>b.disabled=disabled)}
-async function docs(){const list=await api('/api/documents');$('documents').replaceChildren();for(const d of list){const card=node('div',undefined,'doc');card.append(node('strong',d.name));const row=node('div',undefined,'row');row.append(node('small',d.chunk_count+' 个片段'));const b=node('button','删除','danger');b.dataset.deleteDocument=d.id;b.onclick=async()=>{if(!confirm('从新检索中移除此文档？历史会话中的引用快照仍会保留。'))return;try{await api('/api/documents/'+d.id,'DELETE',{});await docs();status('文档和检索索引已删除。')}catch(e){status(e.message)}};row.append(b);card.append(row);$('documents').append(card)}}
-async function sessions(preferred){let list=await api('/api/sessions');if(!list.length){const n=await api('/api/sessions','POST',{});list=await api('/api/sessions');preferred=n.session_id}active=preferred||active||list[0].id;if(!list.some(s=>s.id===active))active=list[0].id;$('sessions').replaceChildren();for(const s of list){const option=node('option',s.title);option.value=s.id;$('sessions').append(option)}$('sessions').value=active;await messages()}
-async function messages(){const list=await api('/api/messages?session_id='+encodeURIComponent(active));$('messages').replaceChildren();for(const m of list){const box=node('div',undefined,'msg '+m.role);box.append(node('div',m.role==='user'?'你':'资料助手','role'));box.append(node('div',m.content));if(m.sources.length){const detail=node('details');detail.append(node('summary','查看 '+m.sources.length+' 个来源片段'));for(const s of m.sources){detail.append(node('strong','['+s.source_id+'] '+s.name+' · 片段 '+s.ordinal));detail.append(node('div',s.content,'excerpt'))}box.append(detail)}$('messages').append(box)}const runs=await api('/api/runs?session_id='+encodeURIComponent(active));if(runs.length){const detail=node('details');detail.append(node('summary','查看智能体检索过程（'+runs.length+' 次运行）'));for(const run of runs){detail.append(node('strong',run.created_at+' · '+run.finish_reason));for(const event of run.events){if(event.type==='tool/call')detail.append(node('div',event.data.name+' '+event.data.arguments,'excerpt'))}detail.append(node('small','DSH 会话：'+run.harness_session_id))}$('messages').append(detail)}}
-$('demo').onclick=async()=>{controls(true);try{await api('/api/demo','POST',{});await docs();status('示例资料已导入；相同内容不会重复入库。')}catch(e){status(e.message)}finally{controls(false)}};
-$('upload').onchange=async()=>{const files=[...$('upload').files];controls(true);try{for(const f of files){if(f.size>1024*1024)throw Error(f.name+' 超过 1 MB');const content=new TextDecoder('utf-8',{fatal:true}).decode(await f.arrayBuffer());await api('/api/documents','POST',{name:f.name,content})}await docs();status('资料已保存并建立检索索引。')}catch(e){status(e.message)}finally{$('upload').value='';controls(false)}};
-$('new').onclick=async()=>{try{const n=await api('/api/sessions','POST',{});await sessions(n.session_id)}catch(e){status(e.message)}};
-$('sessions').onchange=async()=>{active=$('sessions').value;try{await messages()}catch(e){status(e.message)}};
-$('delete-session').onclick=async()=>{if(!confirm('删除当前会话及其消息和引用快照？'))return;try{await api('/api/sessions/'+active,'DELETE',{});active='';await sessions()}catch(e){status(e.message)}};
-$('ask').onsubmit=async e=>{e.preventDefault();const question=$('question').value.trim();if(!question||busy)return;controls(true);status($('generate').checked?'DSH 正在调用知识库工具，请稍候…':'正在检索本地资料…');try{const result=await api('/api/ask','POST',{session_id:active,question,mode:$('generate').checked?'generate':'retrieve'});$('question').value='';await sessions(active);status(result.status==='model_error'?'调用未完成，原因已显示；检索片段仍可查看。':'本次记录已保存。')}catch(err){status(err.message)}finally{controls(false)}};
-(async()=>{try{const c=await api('/api/config');$('model-status').textContent=c.model_ready?'模型凭证已配置':'未配置 Key，可先练习本地检索';await docs();await sessions()}catch(e){status(e.message)}})();
-</script></body></html>
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>个人知识管理助手</title>
+    <style>
+      :root {
+        font-family:
+          system-ui,
+          -apple-system,
+          "PingFang SC",
+          sans-serif;
+        color: #202c30;
+        background: #f5f6f2;
+        line-height: 1.6;
+        --accent: #176454;
+        --border: #dce3dd;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+      }
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: white;
+        color: inherit;
+        padding: 8px 13px;
+      }
+      button:hover {
+        border-color: var(--accent);
+      }
+      button:disabled {
+        cursor: wait;
+        opacity: 0.55;
+      }
+      .primary {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+      }
+      .danger {
+        color: #a13e34;
+      }
+      .quiet {
+        color: #65716e;
+        font-size: 13px;
+      }
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0 0 12px;
+      }
+      h1 {
+        font-size: 24px;
+        letter-spacing: -0.5px;
+      }
+      h2 {
+        font-size: 19px;
+      }
+      h3 {
+        font-size: 15px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 22px 30px;
+        background: #fff;
+        border-bottom: 1px solid var(--border);
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+      header small {
+        display: block;
+        color: #7b8580;
+        letter-spacing: 1px;
+      }
+      .shell {
+        display: grid;
+        grid-template-columns: 205px minmax(0, 1fr);
+        min-height: calc(100vh - 105px);
+      }
+      aside {
+        padding: 24px 18px;
+        background: #edf1eb;
+        border-right: 1px solid var(--border);
+      }
+      nav {
+        display: grid;
+        gap: 8px;
+      }
+      nav button {
+        border: none;
+        background: transparent;
+        text-align: left;
+      }
+      nav button.selected {
+        background: #dce7dc;
+        color: #164f42;
+        font-weight: 700;
+      }
+      .side-note {
+        margin-top: 32px;
+      }
+      main {
+        min-width: 0;
+        padding: 28px;
+        max-width: 1500px;
+        width: 100%;
+        margin: 0 auto;
+        align-self: start;
+      }
+      .bar {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        flex-wrap: wrap;
+        margin: 0 0 18px;
+      }
+      .bar .spacer {
+        flex: 1;
+      }
+      .panel {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 22px;
+        min-width: 0;
+      }
+      .library-grid {
+        display: grid;
+        grid-template-columns: minmax(260px, 0.85fr) minmax(300px, 1.3fr);
+        gap: 20px;
+      }
+      .doc-row {
+        padding: 15px 0;
+        border-bottom: 1px solid #edf0eb;
+      }
+      .doc-row:last-child {
+        border: 0;
+      }
+      .doc-title {
+        display: block;
+        text-align: left;
+        border: 0;
+        padding: 0;
+        color: var(--accent);
+        font-weight: 600;
+        background: none;
+        max-width: 100%;
+        overflow-wrap: anywhere;
+      }
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 7px;
+      }
+      .tag {
+        font-size: 12px;
+        padding: 2px 8px;
+        background: #edf3ec;
+        border-radius: 5px;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        color: #4c5b55;
+        margin: 12px 0 5px;
+      }
+      input,
+      textarea,
+      select {
+        border: 1px solid #ccd7ce;
+        background: #fff;
+        border-radius: 8px;
+        padding: 9px;
+        color: inherit;
+        max-width: 100%;
+        min-width: 0;
+      }
+      input,
+      textarea {
+        width: 100%;
+      }
+      textarea {
+        resize: vertical;
+        min-height: 230px;
+        line-height: 1.8;
+      }
+      #question {
+        min-height: 100px;
+      }
+      pre,
+      .prose {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        font-family: inherit;
+      }
+      .source {
+        padding: 12px;
+        background: #f5f8f3;
+        border-radius: 8px;
+        margin: 8px 0;
+        font-size: 13px;
+      }
+      summary {
+        cursor: pointer;
+        overflow-wrap: anywhere;
+      }
+      .message {
+        padding: 18px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .message.user {
+        color: #355249;
+      }
+      .badge {
+        background: #e6efe4;
+        border-radius: 20px;
+        font-size: 12px;
+        padding: 4px 10px;
+      }
+      .error {
+        color: #973e2d;
+        background: #fff0e8;
+      }
+      .status {
+        padding: 10px 18px;
+        background: #eaf0e5;
+        min-height: 45px;
+        border-bottom: 1px solid var(--border);
+        overflow-wrap: anywhere;
+      }
+      .hidden,
+      [hidden] {
+        display: none !important;
+      }
+      .empty {
+        padding: 35px 5px;
+        color: #748278;
+        text-align: center;
+      }
+      .pager {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: center;
+        margin-top: 15px;
+      }
+      .pagination-label {
+        font-size: 12px;
+      }
+      svg {
+        width: 100%;
+        max-height: 550px;
+        display: block;
+        background: #f8faf6;
+        border-radius: 10px;
+      }
+      .legend {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+        margin-top: 15px;
+      }
+      .legend button {
+        font-size: 12px;
+      }
+      .settings {
+        margin-top: 14px;
+      }
+      #graph-sources {
+        margin-top: 20px;
+      }
+      .result-meta {
+        font-size: 12px;
+        color: #6a766b;
+        margin-top: 8px;
+      }
+      .count {
+        font-size: 13px;
+        color: #6f7e72;
+      }
+      details pre {
+        font:
+          12px/1.6 ui-monospace,
+          monospace;
+        max-height: 380px;
+        overflow: auto;
+        white-space: pre-wrap;
+      }
+      button:focus-visible,
+      input:focus-visible,
+      textarea:focus-visible,
+      select:focus-visible {
+        outline: 3px solid #8dc4ac;
+        outline-offset: 2px;
+      }
+      @media (max-width: 850px) {
+        .library-grid {
+          grid-template-columns: 1fr;
+        }
+        .shell {
+          grid-template-columns: 1fr;
+        }
+        aside {
+          padding: 10px 14px;
+          border-right: 0;
+          border-bottom: 1px solid var(--border);
+        }
+        nav {
+          display: flex;
+          flex-wrap: wrap;
+        }
+        .side-note {
+          display: none;
+        }
+        main {
+          padding: 16px;
+        }
+        header {
+          padding: 18px;
+        }
+        h1 {
+          font-size: 21px;
+        }
+        .panel {
+          padding: 16px;
+        }
+        .bar .spacer {
+          display: none;
+        }
+        #sessions {
+          max-width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <small>PERSONAL KNOWLEDGE ASSISTANT</small>
+        <h1>个人知识管理助手</h1>
+        <span class="quiet">把积累的资料，变成随时用得上的知识。</span>
+      </div>
+      <span id="model-status" class="badge">本地资料库</span>
+    </header>
+    <div id="status" class="status" role="status" aria-live="polite">
+      正在打开资料库…
+    </div>
+    <div class="shell">
+      <aside>
+        <nav aria-label="主导航">
+          <button data-tab="library" class="selected">▤　资料库</button
+          ><button data-tab="search">⌕　搜索与问答</button
+          ><button data-tab="graph">◎　知识图谱</button>
+        </nav>
+        <div class="side-note quiet">
+          原文保存在本机。<br />智能检索和问答可能调用你配置的模型服务。
+          <div class="settings" id="index-summary">索引状态读取中</div>
+          <button id="build" style="margin-top: 12px">构建图谱与向量</button>
+        </div>
+      </aside>
+      <main>
+        <section id="tab-library">
+          <div class="bar">
+            <h2>我的资料</h2>
+            <span class="spacer"></span
+            ><button id="new-note" class="primary">＋ 新建笔记</button
+            ><button id="upload-button">导入 TXT / MD</button
+            ><input
+              id="upload"
+              type="file"
+              accept=".txt,.md"
+              multiple
+              hidden
+            /><button id="demo">导入示例</button
+            ><button id="export">导出全部</button>
+          </div>
+          <div class="library-grid">
+            <div class="panel">
+              <div class="bar">
+                <select id="tag-filter" aria-label="按标签筛选">
+                  <option value="">全部标签</option></select
+                ><span id="doc-total" class="count"></span>
+              </div>
+              <div id="documents"></div>
+              <div class="pager">
+                <button id="doc-prev">上一页</button
+                ><span id="doc-page" class="pagination-label"></span
+                ><button id="doc-next">下一页</button>
+              </div>
+              <p class="quiet" style="margin-top: 18px">
+                标签筛选仅作用于资料列表，搜索与问答使用全部资料。
+              </p>
+            </div>
+            <div class="panel">
+              <div id="editor-empty" class="empty">
+                打开一份资料，或记录新的想法。<br />正文、标签与修改会保存在本机。
+              </div>
+              <div id="editor" hidden>
+                <div class="bar">
+                  <h2 id="editor-heading">编辑资料</h2>
+                  <span class="spacer"></span
+                  ><span id="version" class="quiet"></span>
+                </div>
+                <label for="note-name">标题</label
+                ><input
+                  id="note-name"
+                  maxlength="240"
+                  placeholder="给这份知识一个标题"
+                /><label for="note-content">正文 / Markdown</label
+                ><textarea id="note-content" placeholder="记录正文…"></textarea
+                ><label for="note-tags">标签（用逗号分隔）</label
+                ><input id="note-tags" placeholder="项目, 阅读, 待整理" />
+                <div class="bar" style="margin-top: 18px">
+                  <button id="save-note" class="primary">保存</button
+                  ><button id="cancel-note">取消</button
+                  ><span class="spacer"></span
+                  ><button id="delete-note" class="danger">删除资料</button>
+                </div>
+                <div id="editor-status" class="quiet" role="status"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section id="tab-search" hidden>
+          <div class="bar">
+            <h2>从知识里找答案</h2>
+            <span class="spacer"></span
+            ><select id="sessions" aria-label="选择会话"></select
+            ><button id="new-session">新会话</button
+            ><button id="delete-session" class="danger">删除会话</button>
+          </div>
+          <div class="panel">
+            <label for="question">你想查找什么？</label
+            ><textarea
+              id="question"
+              placeholder="例如：摄影课退课要提前多久申请？"
+            ></textarea>
+            <div class="bar" style="margin-top: 12px">
+              <select id="mode" aria-label="检索模式">
+                <option value="lexical">关键词（本地）</option>
+                <option value="retrieve">多路检索</option>
+                <option value="generate">DSH 问答</option></select
+              ><button id="send" class="primary">查找</button
+              ><span class="quiet" id="mode-hint"
+                >仅本机关键词，不调用模型。</span
+              >
+            </div>
+            <div class="quiet">
+              检索范围：全部资料；每轮独立检索，旧聊天不会自动作为新问题的上下文。
+            </div>
+          </div>
+          <div id="messages" class="panel" style="margin-top: 20px"></div>
+          <div class="pager">
+            <button id="message-prev">较早记录</button
+            ><span id="message-page" class="pagination-label"></span
+            ><button id="message-next">较新记录</button>
+          </div>
+        </section>
+        <section id="tab-graph" hidden>
+          <div class="bar">
+            <h2>知识之间的联系</h2>
+            <button id="graph-refresh">刷新图谱</button
+            ><button id="build-mobile">构建图谱与向量</button>
+          </div>
+          <p class="quiet">
+            实体和关系由模型自动抽取；图谱帮助查找线索，事实请核对原文。只读计划不代表因果方向。
+          </p>
+          <div class="panel">
+            <div id="graph-state" class="quiet"></div>
+            <div id="graph-canvas"></div>
+            <div id="graph-legend" class="legend"></div>
+            <div id="graph-sources"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script>
+      const $ = (id) => document.getElementById(id),
+        el = (tag, text, cls) => {
+          const n = document.createElement(tag);
+          if (text !== undefined) n.textContent = text;
+          if (cls) n.className = cls;
+          return n;
+        };
+      let selected = null,
+        dirty = false,
+        docPage = 1,
+        docTotal = 0,
+        sid = "",
+        messagePage = 1,
+        messageTotal = 0,
+        indexTimer = null;
+      function status(message, error = false) {
+        $("status").textContent = message;
+        $("status").classList.toggle("error", error);
+      }
+      async function api(path, method = "GET", data) {
+        const r = await fetch(path, {
+          method,
+          headers:
+            method === "GET" ? {} : { "Content-Type": "application/json" },
+          ...(data !== undefined ? { body: JSON.stringify(data) } : {}),
+        });
+        const value = await r.json();
+        if (!r.ok) {
+          const e = Error(value.error?.message || "操作未完成");
+          e.code = value.error?.code;
+          e.details = value.error?.details;
+          throw e;
+        }
+        return value;
+      }
+      function fail(e) {
+        status(e.message, true);
+      }
+      function discard() {
+        return !dirty || confirm("有尚未保存的修改，确定离开吗？");
+      }
+      function tagsInput() {
+        return [
+          ...new Set(
+            $("note-tags")
+              .value.split(/[,，]/)
+              .map((t) => t.trim())
+              .filter(Boolean),
+          ),
+        ];
+      }
+      function editor(row) {
+        selected = row;
+        dirty = false;
+        $("editor-empty").hidden = true;
+        $("editor").hidden = false;
+        $("note-name").value = row?.name || "";
+        $("note-content").value = row?.content || "";
+        $("note-tags").value = (row?.tags || []).join(", ");
+        $("editor-heading").textContent = row ? "编辑资料" : "新建笔记";
+        $("version").textContent = row ? "版本 " + row.version : "";
+        $("delete-note").hidden = !row;
+        $("editor-status").textContent = "修改后请点击保存。";
+      }
+      for (const id of ["note-name", "note-content", "note-tags"])
+        $(id).addEventListener("input", () => {
+          dirty = true;
+          $("editor-status").textContent = "有尚未保存的修改";
+        });
+      window.addEventListener("beforeunload", (e) => {
+        if (dirty) {
+          e.preventDefault();
+          e.returnValue = "";
+        }
+      });
+      async function documents() {
+        const tag = $("tag-filter").value;
+        const result = await api(
+          "/api/documents?page=" +
+            docPage +
+            "&page_size=20" +
+            (tag ? "&tag=" + encodeURIComponent(tag) : ""),
+        );
+        docTotal = result.total;
+        if (docPage > 1 && !result.items.length) {
+          docPage--;
+          return documents();
+        }
+        $("doc-total").textContent = docTotal + " 份资料";
+        $("documents").replaceChildren();
+        for (const d of result.items) {
+          const card = el("div", undefined, "doc-row");
+          const b = el("button", d.name, "doc-title");
+          b.dataset.documentId = d.id;
+          b.onclick = async () => {
+            if (!discard()) return;
+            try {
+              editor(await api("/api/documents/" + d.id));
+            } catch (e) {
+              fail(e);
+            }
+          };
+          card.append(
+            b,
+            el(
+              "div",
+              (d.kind === "note" ? "笔记" : "导入资料") +
+                " · " +
+                d.chunk_count +
+                " 个片段 · " +
+                new Date(d.updated_at).toLocaleString(),
+              "quiet",
+            ),
+          );
+          const labels = el("div", undefined, "tags");
+          for (const tag of d.tags) labels.append(el("span", tag, "tag"));
+          card.append(labels);
+          $("documents").append(card);
+        }
+        if (!result.items.length)
+          $("documents").append(
+            el(
+              "div",
+              tag
+                ? "这个标签下没有资料。"
+                : "还没有资料，先导入文件或新建笔记。",
+              "empty",
+            ),
+          );
+        $("doc-page").textContent =
+          docPage + " / " + Math.max(1, Math.ceil(docTotal / 20));
+        $("doc-prev").disabled = docPage === 1;
+        $("doc-next").disabled = docPage * 20 >= docTotal;
+      }
+      async function tags() {
+        const chosen = $("tag-filter").value;
+        const values = await api("/api/tags");
+        $("tag-filter").replaceChildren(new Option("全部标签", ""));
+        for (const t of values)
+          $("tag-filter").add(
+            new Option(t.name + " (" + t.document_count + ")", t.name),
+          );
+        if (values.some((t) => t.name === chosen))
+          $("tag-filter").value = chosen;
+      }
+      $("new-note").onclick = () => {
+        if (discard()) editor(null);
+      };
+      $("cancel-note").onclick = () => {
+        if (!discard()) return;
+        if (selected) editor(selected);
+        else {
+          $("editor").hidden = true;
+          $("editor-empty").hidden = false;
+          dirty = false;
+        }
+      };
+      $("save-note").onclick = async () => {
+        const b = $("save-note");
+        b.disabled = true;
+        try {
+          const name = $("note-name").value,
+            content = $("note-content").value,
+            labels = tagsInput();
+          let id;
+          if (selected) {
+            const saved = await api("/api/documents/" + selected.id, "PATCH", {
+              expected_version: selected.version,
+              name,
+              content,
+            });
+            id = selected.id;
+            selected = { ...selected, name, content, version: saved.version };
+            $("version").textContent = "版本 " + saved.version;
+          } else {
+            const saved = await api("/api/notes", "POST", { name, content });
+            id = saved.document_id;
+            selected = await api("/api/documents/" + id);
+            if (!saved.created) status("相同正文已存在，已打开现有资料。");
+          }
+          const savedTags = await api("/api/documents/" + id + "/tags", "PUT", {
+            expected_version: selected.version,
+            tags: labels,
+          });
+          selected.version = savedTags.version;
+          editor(await api("/api/documents/" + id));
+          await tags();
+          await documents();
+          await indexStatus();
+          status("资料已保存。正文变化后请重建图谱与向量。");
+        } catch (e) {
+          $("editor-status").textContent =
+            e.code === "VERSION_CONFLICT"
+              ? "保存冲突：服务端版本 " +
+                e.details.current_version +
+                "。草稿已保留，请复制后重新打开资料。"
+              : "保存未全部完成，输入已保留：" + e.message;
+          dirty = true;
+          fail(e);
+        } finally {
+          b.disabled = false;
+        }
+      };
+      $("delete-note").onclick = async () => {
+        if (
+          !selected ||
+          !confirm(
+            "删除这份资料？当前检索将停止使用它，历史答案的引用快照仍会保留。",
+          )
+        )
+          return;
+        try {
+          await api("/api/documents/" + selected.id, "DELETE", {
+            expected_version: selected.version,
+          });
+          selected = null;
+          dirty = false;
+          $("editor").hidden = true;
+          $("editor-empty").hidden = false;
+          await tags();
+          await documents();
+          await indexStatus();
+          status("资料已删除，派生索引已失效。");
+        } catch (e) {
+          fail(e);
+        }
+      };
+      $("tag-filter").onchange = () => {
+        docPage = 1;
+        documents().catch(fail);
+      };
+      $("doc-prev").onclick = () => {
+        docPage--;
+        documents().catch(fail);
+      };
+      $("doc-next").onclick = () => {
+        docPage++;
+        documents().catch(fail);
+      };
+      $("upload-button").onclick = () => {
+        if (discard()) $("upload").click();
+      };
+      $("upload").onchange = async () => {
+        try {
+          let created = 0;
+          for (const f of $("upload").files) {
+            if (f.size > 1048576) throw Error(f.name + " 超过1MB");
+            const content = new TextDecoder("utf-8", { fatal: true }).decode(
+              await f.arrayBuffer(),
+            );
+            const r = await api("/api/documents", "POST", {
+              name: f.name,
+              content,
+            });
+            created += Number(r.created);
+          }
+          await documents();
+          await indexStatus();
+          status("导入完成，新增 " + created + " 份，相同内容已去重。");
+        } catch (e) {
+          fail(e);
+        } finally {
+          $("upload").value = "";
+        }
+      };
+      $("demo").onclick = async () => {
+        try {
+          await api("/api/demo", "POST", {});
+          await documents();
+          await indexStatus();
+          status("虚构示例资料已导入。");
+        } catch (e) {
+          await documents();
+          fail(e);
+        }
+      };
+      $("export").onclick = async () => {
+        try {
+          const r = await fetch("/api/export");
+          if (!r.ok) throw Error((await r.json()).error.message);
+          const url = URL.createObjectURL(await r.blob());
+          const a = el("a");
+          a.href = url;
+          a.download = "personal-knowledge.zip";
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          status("已导出全部原文和标签；聊天记录不包含在此ZIP中。");
+        } catch (e) {
+          fail(e);
+        }
+      };
+      async function indexStatus() {
+        const s = await api("/api/index");
+        $("index-summary").textContent =
+          s.message + " · " + s.counts.chunks + " 个片段";
+        for (const id of ["build", "build-mobile"])
+          $(id).disabled = s.job.status === "running";
+        clearTimeout(indexTimer);
+        if (s.job.status === "running")
+          indexTimer = setTimeout(() => indexStatus().catch(fail), 2000);
+        return s;
+      }
+      async function build() {
+        if (
+          !confirm(
+            "构建会将全部当前资料发送到你配置的图谱模型和Embedding服务，可能产生费用。开始构建吗？",
+          )
+        )
+          return;
+        try {
+          await api("/api/index", "POST", {});
+          await indexStatus();
+          status("构建已启动，可继续浏览资料。");
+        } catch (e) {
+          fail(e);
+        }
+      }
+      $("build").onclick = build;
+      $("build-mobile").onclick = build;
+      function sourceCard(source) {
+        const d = el("details", undefined, "source");
+        d.append(
+          el(
+            "summary",
+            "[" +
+              source.source_id +
+              "] " +
+              source.name +
+              " · " +
+              (source.legacy
+                ? "历史记录"
+                : "原文快照 v" + source.document_version),
+          ),
+        );
+        d.append(el("div", source.content, "prose"));
+        if (source.channels)
+          d.append(
+            el("div", "召回：" + source.channels.join(" / "), "result-meta"),
+          );
+        if (source.graph_paths?.length)
+          d.append(
+            el("div", "路径：" + source.graph_paths.join("；"), "result-meta"),
+          );
+        return d;
+      }
+      async function trace(detail, turn) {
+        detail.append(el("div", "读取工具记录…", "quiet"));
+        for (let page = 1; ; page++) {
+          const r = await api(
+            "/api/runs?session_id=" +
+              encodeURIComponent(sid) +
+              "&page_size=100&page=" +
+              page,
+          );
+          const run = r.items.find((r) => r.turn_id === turn);
+          if (run) {
+            detail.replaceChildren(
+              el("summary", "DSH 工具执行记录"),
+              el("pre", JSON.stringify(run.events, null, 2)),
+            );
+            return;
+          }
+          if (page * 100 >= r.total) {
+            detail.replaceChildren(
+              el("summary", "DSH 工具执行记录"),
+              el("p", "此轮没有已保存的DSH轨迹。", "quiet"),
+            );
+            return;
+          }
+        }
+      }
+      async function messages(last = false) {
+        let r = await api(
+          "/api/messages?session_id=" +
+            sid +
+            "&page_size=100&page=" +
+            messagePage,
+        );
+        if (last && r.total > 100) {
+          messagePage = Math.ceil(r.total / 100);
+          r = await api(
+            "/api/messages?session_id=" +
+              sid +
+              "&page_size=100&page=" +
+              messagePage,
+          );
+        }
+        messageTotal = r.total;
+        $("messages").replaceChildren();
+        for (const m of r.items) {
+          const item = el("article", undefined, "message " + m.role);
+          item.append(
+            el("h3", m.role === "user" ? "我的问题" : "知识助手"),
+            el("div", m.content, "prose"),
+          );
+          if (m.retrieval)
+            item.append(
+              el(
+                "div",
+                m.retrieval.message + " · " + m.retrieval.ranking.reason,
+                "result-meta",
+              ),
+            );
+          for (const source of m.sources) item.append(sourceCard(source));
+          if (m.role === "assistant" && m.turn_id) {
+            const detail = el("details");
+            detail.append(el("summary", "DSH 工具执行记录"));
+            let loaded = false;
+            detail.addEventListener("toggle", () => {
+              if (detail.open && !loaded) {
+                loaded = true;
+                trace(detail, m.turn_id).catch(fail);
+              }
+            });
+            item.append(detail);
+          }
+          $("messages").append(item);
+        }
+        if (!r.items.length)
+          $("messages").append(el("div", "这段会话还没有问题。", "empty"));
+        $("message-page").textContent =
+          messagePage + " / " + Math.max(1, Math.ceil(messageTotal / 100));
+        $("message-prev").disabled = messagePage === 1;
+        $("message-next").disabled = messagePage * 100 >= messageTotal;
+      }
+      async function sessions() {
+        const list = { items: [] };
+        for (let page = 1; ; page++) {
+          const chunk = await api("/api/sessions?page_size=100&page=" + page);
+          list.items.push(...chunk.items);
+          if (page * 100 >= chunk.total) break;
+        }
+        if (!list.items.length) {
+          sid = (await api("/api/sessions", "POST", {})).session_id;
+          return sessions();
+        }
+        if (!list.items.some((s) => s.id === sid)) sid = list.items[0].id;
+        $("sessions").replaceChildren();
+        for (const s of list.items)
+          $("sessions").add(new Option(s.title, s.id));
+        $("sessions").value = sid;
+        messagePage = 1;
+        await messages(true);
+      }
+      $("sessions").onchange = () => {
+        sid = $("sessions").value;
+        messagePage = 1;
+        messages().catch(fail);
+      };
+      $("new-session").onclick = async () => {
+        try {
+          sid = (await api("/api/sessions", "POST", {})).session_id;
+          await sessions();
+        } catch (e) {
+          fail(e);
+        }
+      };
+      $("delete-session").onclick = async () => {
+        if (!confirm("删除此会话及全部聊天、引用和工具轨迹？")) return;
+        try {
+          await api("/api/sessions/" + sid, "DELETE", {});
+          sid = "";
+          await sessions();
+          status("会话已删除。");
+        } catch (e) {
+          fail(e);
+        }
+      };
+      $("message-prev").onclick = () => {
+        messagePage--;
+        messages().catch(fail);
+      };
+      $("message-next").onclick = () => {
+        messagePage++;
+        messages().catch(fail);
+      };
+      $("mode").onchange = () => {
+        $("mode-hint").textContent =
+          $("mode").value === "lexical"
+            ? "仅本机关键词，不调用模型。"
+            : "可能调用模型及Embedding服务，产生费用。";
+        $("send").textContent =
+          $("mode").value === "generate" ? "提问" : "查找";
+      };
+      $("send").onclick = async () => {
+        const b = $("send");
+        b.disabled = true;
+        try {
+          status("正在查找资料，请稍候…");
+          const r = await api("/api/ask", "POST", {
+            session_id: sid,
+            question: $("question").value,
+            mode: $("mode").value,
+          });
+          await messages(true);
+          if ($("sessions").selectedOptions[0]?.textContent === "新会话") {
+            $("sessions").selectedOptions[0].textContent = [
+              ...$("question").value.trim(),
+            ]
+              .slice(0, 28)
+              .join("");
+          }
+          status(r.error ? r.error.message : "本轮结果已保存。", !!r.error);
+        } catch (e) {
+          fail(e);
+        } finally {
+          b.disabled = false;
+        }
+      };
+      async function graphSources(ids) {
+        const rows = await api(
+          "/api/chunks?ids=" + [...new Set(ids)].slice(0, 12).join(","),
+        );
+        $("graph-sources").replaceChildren(el("h3", "关联的当前原文"));
+        for (const r of rows) {
+          const d = sourceCard({
+            ...r,
+            source_id: "S" + r.chunk_id,
+            channels: ["graph"],
+          });
+          d.open = true;
+          $("graph-sources").append(d);
+        }
+      }
+      async function graph() {
+        const r = await api("/api/graph");
+        $("graph-canvas").replaceChildren();
+        $("graph-legend").replaceChildren();
+        $("graph-sources").replaceChildren();
+        $("graph-state").textContent = r.index.message;
+        if (r.index.status !== "ready") return;
+        const nodes = r.nodes.slice(0, 24),
+          lookup = new Map(
+            nodes.map((n, i) => [
+              n.id,
+              {
+                x:
+                  320 +
+                  230 * Math.cos((i * 2 * Math.PI) / Math.max(nodes.length, 1)),
+                y:
+                  260 +
+                  210 * Math.sin((i * 2 * Math.PI) / Math.max(nodes.length, 1)),
+              },
+            ]),
+          );
+        const edges = r.edges
+          .filter((e) => lookup.has(e.source) && lookup.has(e.target))
+          .slice(0, 50);
+        $("graph-state").textContent =
+          "局部视图：显示 " +
+          nodes.length +
+          " / " +
+          r.total_nodes +
+          " 个实体，" +
+          edges.length +
+          " / " +
+          r.total_edges +
+          " 条关系。点击核对原文。";
+        const ns = "http://www.w3.org/2000/svg",
+          svg = document.createElementNS(ns, "svg");
+        svg.setAttribute("viewBox", "0 0 640 520");
+        svg.setAttribute("aria-label", "知识图谱局部视图");
+        for (const e of edges) {
+          const a = lookup.get(e.source),
+            b = lookup.get(e.target),
+            line = document.createElementNS(ns, "line");
+          for (const [k, v] of Object.entries({
+            x1: a.x,
+            y1: a.y,
+            x2: b.x,
+            y2: b.y,
+            stroke: "#9cbbac",
+            "stroke-width": 5,
+            tabindex: 0,
+            role: "button",
+            "aria-label": e.source + " 关联 " + e.target,
+          }))
+            line.setAttribute(k, v);
+          line.onclick = () => graphSources(e.chunk_ids).catch(fail);
+          line.onkeydown = (ev) => {
+            if (ev.key === "Enter") line.onclick();
+          };
+          svg.append(line);
+        }
+        nodes.forEach((n, i) => {
+          const p = lookup.get(n.id),
+            c = document.createElementNS(ns, "circle");
+          for (const [k, v] of Object.entries({
+            cx: p.x,
+            cy: p.y,
+            r: 19,
+            fill: "#176454",
+            tabindex: 0,
+            role: "button",
+            "aria-label": n.id,
+          }))
+            c.setAttribute(k, v);
+          c.onclick = () => graphSources(n.chunk_ids).catch(fail);
+          c.onkeydown = (e) => {
+            if (e.key === "Enter") c.onclick();
+          };
+          const label = document.createElementNS(ns, "text");
+          label.setAttribute("x", p.x);
+          label.setAttribute("y", p.y + 5);
+          label.setAttribute("text-anchor", "middle");
+          label.setAttribute("fill", "white");
+          label.setAttribute("pointer-events", "none");
+          label.textContent = i + 1;
+          svg.append(c, label);
+          const b = el("button", i + 1 + ". " + n.id);
+          b.onclick = c.onclick;
+          $("graph-legend").append(b);
+        });
+        $("graph-canvas").append(svg);
+      }
+      $("graph-refresh").onclick = () => graph().catch(fail);
+      for (const button of document.querySelectorAll("[data-tab]"))
+        button.onclick = async () => {
+          for (const tab of ["library", "search", "graph"])
+            $("tab-" + tab).hidden = tab !== button.dataset.tab;
+          for (const b of document.querySelectorAll("[data-tab]"))
+            b.classList.toggle("selected", b === button);
+          if (button.dataset.tab === "graph")
+            try {
+              await graph();
+            } catch (e) {
+              fail(e);
+            }
+        };
+      (async () => {
+        try {
+          const c = await api("/api/config");
+          $("model-status").textContent = c.model_ready
+            ? "DSH凭据已配置（连通性需验证）"
+            : "无Key也可管理与关键词检索";
+          await tags();
+          await documents();
+          await indexStatus();
+          await sessions();
+          status("资料库已打开。");
+        } catch (e) {
+          fail(e);
+        }
+      })();
+    </script>
+  </body>
+</html>

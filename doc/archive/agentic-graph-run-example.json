@@ -1,0 +1,217 @@
+{
+  "note": "真实 DSH 与 LightRAG；模型输出由本地脚本模拟。ArcRAG流程工程改编，不是作者实现或论文效果复现。",
+  "answer": {
+    "answer": "摄影课课程事务联系青松教务。[S1] 退出课程的申请由青松教务受理，需在开课前至少72小时提交。[S2]",
+    "sources": [
+      {
+        "chunk_id": 2,
+        "document_id": 2,
+        "ordinal": 1,
+        "content": "青松教务负责受理退出课程的申请，需在开课前至少72小时提交。",
+        "name": "办理规则.md",
+        "source_id": "S2",
+        "channels": [
+          "vector",
+          "graph",
+          "graph_query"
+        ],
+        "channel_ranks": "{\"vector\":2,\"graph\":2}",
+        "rank_position": 2,
+        "graph_paths": [
+          "青松教务 — 退课申请",
+          "退课申请 — 72小时",
+          "摄影课 — 青松教务 — 退课申请"
+        ]
+      },
+      {
+        "chunk_id": 1,
+        "document_id": 1,
+        "ordinal": 1,
+        "content": "摄影课由林老师负责，课程事务联系青松教务。",
+        "name": "课程联系.md",
+        "source_id": "S1",
+        "channels": [
+          "bm25",
+          "vector",
+          "graph",
+          "graph_query"
+        ],
+        "channel_ranks": "{\"bm25\":1,\"vector\":1,\"graph\":1}",
+        "rank_position": 1,
+        "graph_paths": [
+          "摄影课 — 青松教务",
+          "摄影课 — 林老师",
+          "摄影课 — 青松教务 — 退课申请"
+        ]
+      }
+    ],
+    "status": "generated",
+    "retrieval": null
+  },
+  "tool_trace": [
+    {
+      "type": "tool/call",
+      "seq": 12,
+      "time": 1794049176169,
+      "data": {
+        "turn": 1,
+        "step": 1,
+        "callId": "call_1",
+        "name": "kb_search",
+        "arguments": "{\"query\": \"\\u6444\\u5f71\\u8bfe\\u9000\\u8d39\\u627e\\u8c01\\uff1f\"}"
+      }
+    },
+    {
+      "type": "tool/result",
+      "seq": 13,
+      "time": 1794049178999,
+      "data": {
+        "turn": 1,
+        "step": 1,
+        "message": {
+          "role": "tool",
+          "source": {
+            "kind": "tool",
+            "callId": "call_1"
+          },
+          "toolCallId": "call_1",
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"hits\":[{\"chunk_id\":2,\"document_id\":2,\"ordinal\":1,\"content\":\"青松教务负责受理退出课程的申请，需在开课前至少72小时提交。\",\"name\":\"办理规则.md\",\"source_id\":\"S2\",\"channels\":[\"vector\",\"graph\"],\"channel_ranks\":\"{\\\"vector\\\": 2, \\\"graph\\\": 2}\",\"rank_position\":1,\"graph_paths\":[\"青松教务 — 退课申请\",\"退课申请 — 72小时\"]},{\"chunk_id\":1,\"document_id\":1,\"ordinal\":1,\"content\":\"摄影课由林老师负责，课程事务联系青松教务。\",\"name\":\"课程联系.md\",\"source_id\":\"S1\",\"channels\":[\"bm25\",\"vector\",\"graph\"],\"channel_ranks\":\"{\\\"bm25\\\": 1, \\\"vector\\\": 1, \\\"graph\\\": 1}\",\"rank_position\":2,\"graph_paths\":[\"摄影课 — 青松教务\",\"摄影课 — 林老师\"]}],\"retrieval\":{\"mode\":\"hybrid\",\"message\":\"三路召回完成\",\"ranking\":{\"method\":\"llm_evidence\",\"status\":\"ok\",\"reason\":\"保留办理条件与联系部门的原文证据\"},\"routes\":[{\"name\":\"bm25\",\"status\":\"ok\",\"candidates\":1},{\"name\":\"vector\",\"status\":\"ok\",\"candidates\":2},{\"name\":\"graph\",\"status\":\"ok\",\"candidates\":2}]}}"
+            }
+          ],
+          "isError": false,
+          "id": "9c834e13-30d5-4525-8fb0-4829ab1f6d20"
+        }
+      },
+      "sourceEventSeqs": [
+        12
+      ],
+      "surfaceOp": "append"
+    },
+    {
+      "type": "tool/call",
+      "seq": 18,
+      "time": 1794049179065,
+      "data": {
+        "turn": 1,
+        "step": 2,
+        "callId": "call_2",
+        "name": "kb_graph_schema",
+        "arguments": "{\"query\": \"\\u6444\\u5f71\\u8bfe\"}"
+      }
+    },
+    {
+      "type": "tool/result",
+      "seq": 19,
+      "time": 1794049179276,
+      "data": {
+        "turn": 1,
+        "step": 2,
+        "message": {
+          "role": "tool",
+          "source": {
+            "kind": "tool",
+            "callId": "call_2"
+          },
+          "toolCallId": "call_2",
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"status\":\"ready\",\"message\":\"BM25 + 向量 + 图谱三路可用\",\"anchors\":[\"摄影课\"],\"entity_types\":[\"course\",\"organization\",\"person\",\"policy\",\"time\"],\"relation_descriptors\":[\"课程事务\",\"负责\"],\"node_properties\":[\"chunk_ids\",\"description\",\"id\",\"type\"],\"edge_properties\":[\"chunk_ids\",\"description\",\"relation\",\"source\",\"target\"]}"
+            }
+          ],
+          "isError": false,
+          "id": "1651e6c2-0a49-403c-b547-77f9a01290f0"
+        }
+      },
+      "sourceEventSeqs": [
+        18
+      ],
+      "surfaceOp": "append"
+    },
+    {
+      "type": "tool/call",
+      "seq": 24,
+      "time": 1794049179331,
+      "data": {
+        "turn": 1,
+        "step": 3,
+        "callId": "call_3",
+        "name": "kb_graph_query",
+        "arguments": "{\"anchors\": [\"\\u6444\\u5f71\\u8bfe\"], \"hops\": [{\"relation\": \"\\u4e0d\\u5b58\\u5728\\u7684\\u5173\\u7cfb\", \"target_type\": \"\"}]}"
+      }
+    },
+    {
+      "type": "tool/result",
+      "seq": 25,
+      "time": 1794049179532,
+      "data": {
+        "turn": 1,
+        "step": 3,
+        "message": {
+          "role": "tool",
+          "source": {
+            "kind": "tool",
+            "callId": "call_3"
+          },
+          "toolCallId": "call_3",
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"hits\":[],\"graph_result\":{\"status\":\"empty\",\"diagnostic\":\"计划未匹配到完整路径；请检查锚点和实际关系描述，修正后重试\",\"witnesses\":[]}}"
+            }
+          ],
+          "isError": false,
+          "id": "2cc6d246-f839-45db-aaba-caf021273e81"
+        }
+      },
+      "sourceEventSeqs": [
+        24
+      ],
+      "surfaceOp": "append"
+    },
+    {
+      "type": "tool/call",
+      "seq": 30,
+      "time": 1794049179583,
+      "data": {
+        "turn": 1,
+        "step": 4,
+        "callId": "call_4",
+        "name": "kb_graph_query",
+        "arguments": "{\"anchors\": [\"\\u6444\\u5f71\\u8bfe\"], \"hops\": [{\"relation\": \"\", \"target_type\": \"organization\"}, {\"relation\": \"\", \"target_type\": \"policy\"}]}"
+      }
+    },
+    {
+      "type": "tool/result",
+      "seq": 31,
+      "time": 1794049179790,
+      "data": {
+        "turn": 1,
+        "step": 4,
+        "message": {
+          "role": "tool",
+          "source": {
+            "kind": "tool",
+            "callId": "call_4"
+          },
+          "toolCallId": "call_4",
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"hits\":[{\"chunk_id\":1,\"document_id\":1,\"ordinal\":1,\"content\":\"摄影课由林老师负责，课程事务联系青松教务。\",\"name\":\"课程联系.md\",\"source_id\":\"S1\",\"channels\":[\"graph_query\"],\"channel_ranks\":\"{}\",\"rank_position\":1,\"graph_paths\":[\"摄影课 — 青松教务 — 退课申请\"]},{\"chunk_id\":2,\"document_id\":2,\"ordinal\":1,\"content\":\"青松教务负责受理退出课程的申请，需在开课前至少72小时提交。\",\"name\":\"办理规则.md\",\"source_id\":\"S2\",\"channels\":[\"graph_query\"],\"channel_ranks\":\"{}\",\"rank_position\":2,\"graph_paths\":[\"摄影课 — 青松教务 — 退课申请\"]}],\"graph_result\":{\"status\":\"completed\",\"diagnostic\":\"已执行只读多跳计划；路径是图谱抽取结果，回答仍需引用原文\",\"witnesses\":[{\"nodes\":[\"摄影课\",\"青松教务\",\"退课申请\"],\"relations\":[\"课程事务\",\"办理,受理\"],\"chunk_ids\":[1,2]}]}}"
+            }
+          ],
+          "isError": false,
+          "id": "772eea04-fcbf-4ce8-be6a-d4023982e205"
+        }
+      },
+      "sourceEventSeqs": [
+        30
+      ],
+      "surfaceOp": "append"
+    }
+  ]
+}

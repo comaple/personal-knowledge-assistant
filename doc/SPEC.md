@@ -152,7 +152,7 @@ PRAGMA user_version=2;
 
 1. 主动 POST 构建，验证 RAG 开关、依赖、模型配置、非空资料和容量；返回 202/job_id。重复运行返回 409。
 2. SQLite 一致读快照获取 revision=R 和全部片段；读取启动时固定的配置 profile=P。
-3. 创建 UUID generation=G 独立目录。每个 SQLite 片段作为唯一 LightRAG 输入，保存内部 chunk→SQLite chunk 映射。
+3. 创建 UUID generation=G 独立目录。以 SQLite 片段构建 LightRAG 输入；按后端规范化后的相同正文合并输入，保存内部 chunk→全部对应 SQLite chunk 的一对多映射，禁止因后端去重丢失出处。
 4. 确认全部处理完成、向量有效、来源映射和图文件可读；finalize/刷写完成后写 manifest，再 CAS 更新指针：仅 current revision=R 时发布 G/R/P。
 5. 失败不切换旧指针，未发布代正常清理；硬终止残留代不自动加载。文件先完成、SQLite 后发布，不声称跨库事务。
 
@@ -342,7 +342,7 @@ python maintain.py clean-index --db data/knowledge.db
 
 ## 11｜开发入口与变更
 
-开始实施时先按 T00 保存现有改动，之后按任务依赖推进。运行账号/Key、真实服务资源和测试用量是环境输入，缺少时 L3/L4 记录 BLOCKED；不影响基于模拟服务的业务开发。后续开发指令到来前，本轮只交付上述规格与契约。
+开始实施时先按 T00 保存现有改动，之后按任务依赖推进。运行账号/Key、真实服务资源和测试用量是环境输入，缺少时 L3/L4 记录 BLOCKED；不影响基于模拟服务的业务开发。当前已按用户开发指令进入实现；实际完成情况和验证缺口维护在 Tasks / Verify。
 
 变更顺序：PRD → Spec/OpenAPI/Verify/固定题集 → TASKS → 实现 → 证据与复验。引用 ID、HTTP 字段或持久化格式变化需同时更新迁移与契约。版本 1.0 是文档基线，不代表软件版本、功能验收或用户逐项审批签字。
 
