@@ -2,6 +2,8 @@
 
 **8 个动手步骤 · 阅读约 8 分钟 · 附最小项目源码与开发任务书**
 
+项目源码：https://github.com/comaple/personal-knowledge-assistant
+
 配套代码与启动说明：[仓库首页](../README.md)。完整开发任务书：[BUILD_PROMPT.txt](BUILD_PROMPT.txt)。
 
 项目代码与本文为独立教学实现。摄影课程资料为虚构练习数据；第一版面向本地单人使用。

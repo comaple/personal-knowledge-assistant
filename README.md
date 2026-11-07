@@ -17,11 +17,12 @@ macOS / Linux：
 
 ```bash
 python3 --version
+git clone https://github.com/comaple/personal-knowledge-assistant.git
 cd personal-knowledge-assistant
 python3 app.py
 ```
 
-Windows（在仓库文件夹打开终端）：
+Windows（下载 ZIP 解压后，在仓库文件夹打开终端）：
 
 ```powershell
 py --version
