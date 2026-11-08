@@ -67,7 +67,8 @@ const harness = new DeepSeekHarness({
   dshHome: input.home,
   patches: [patchPath],
   cwd: root,
-  processCwd: root,
+  // Python loads application .env; DSH bootstrap must only inherit that config.
+  processCwd: input.home,
   model,
   provider: "deepseek-official",
   maxTokens: 1200,

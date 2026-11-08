@@ -1,0 +1,22 @@
+✖ real DSH: project dotenv does not override or block inherited configuration (867.395842ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1231.245644
+
+✖ failing tests:
+
+test at harness/integration.test.mjs:307:1
+✖ real DSH: project dotenv does not override or block inherited configuration (867.395842ms)
+  Error: runner exit 1: DSH 运行失败，请检查模型配置、网络和依赖。
+  
+      at ChildProcess.<anonymous> (file:///Users/data/proj/x/projects/personal-knowledge-assistant/harness/integration.test.mjs:279:37)
+      at ChildProcess.emit (node:events:508:28)
+      at maybeClose (node:internal/child_process:1085:16)
+      at Socket.<anonymous> (node:internal/child_process:456:11)
+      at Socket.emit (node:events:508:28)
+      at Pipe.<anonymous> (node:net:346:12)

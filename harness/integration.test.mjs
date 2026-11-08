@@ -2,7 +2,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { spawn, execFileSync } from "node:child_process";
-import { mkdtemp, rm, writeFile, readFile } from "node:fs/promises";
+import {
+  mkdtemp, rm, writeFile, readFile, mkdir, symlink, copyFile,
+} from "node:fs/promises";
 import { existsSync } from "node:fs";
 import {
   invokeBridge,
@@ -254,9 +256,29 @@ async function scenario(t, mode) {
     assert.notEqual(nextRuns.items[1].harness_session_id, oldRunId);
     return;
   }
+  let runnerRoot = root;
+  if (mode === "dotenv") {
+    runnerRoot = path.join(dir, "project");
+    await mkdir(path.join(runnerRoot, "harness"), { recursive: true });
+    await copyFile(
+      path.join(root, "harness/runner.mjs"),
+      path.join(runnerRoot, "harness/runner.mjs"),
+    );
+    await symlink(
+      path.join(root, "node_modules"), path.join(runnerRoot, "node_modules"),
+    );
+    for (const name of ["knowledge-plugin.mjs", "kb_bridge.py"])
+      await symlink(
+        path.join(root, "harness", name), path.join(runnerRoot, "harness", name),
+      );
+    await writeFile(
+      path.join(runnerRoot, ".env"),
+      "DSH_BASE_URL=https://invalid.example\nLLM_API_KEY=fixture-only-key\n",
+    );
+  }
   const run = await new Promise((resolve, reject) => {
     const child = spawn(process.execPath, ["harness/runner.mjs"], {
-      cwd: root,
+      cwd: runnerRoot,
       env,
       stdio: ["pipe", "pipe", "pipe"],
     });
@@ -293,6 +315,15 @@ async function scenario(t, mode) {
     assert.equal(existsSync(path.join(dir, "forbidden-marker")), false);
   return { run, requests };
 }
+
+test("real DSH: project dotenv does not override or block inherited configuration", { timeout: 90_000 }, async (t) => {
+  const { run, requests } = await scenario(t, "dotenv");
+  assert.equal(run.finish_reason, "completed");
+  assert.equal(requests.length, 3);
+  assert.match(run.answer, /72小时/);
+  assert.equal(run.sources.length, 1);
+  assert.ok(!JSON.stringify(run).includes("fixture-only-key"));
+});
 
 test(
   "real DSH: empty search -> rewrite -> evidence -> cited answer",

@@ -1,0 +1,128 @@
+{
+  "run_id": "pka-real-20261108",
+  "code_commit": "6067a73770316c5cb7f0634dd6086db764433638",
+  "python": "3.12.9",
+  "sqlite": "3.47.1",
+  "node": "v25.3.0",
+  "llm_model": "deepseek-flash",
+  "llm_base_url": "https://api.deepseek.com/anthropic",
+  "rag_llm_model": "deepseek-flash",
+  "rag_llm_base_url": "https://api.deepseek.com",
+  "embedding_model": "bge-m3",
+  "embedding_dim": 1024,
+  "ollama": {
+    "version": "0.21.2"
+  },
+  "embedding_artifact": {
+    "name": "bge-m3:latest",
+    "model": "bge-m3:latest",
+    "modified_at": "2026-11-08T11:02:22.124276855+08:00",
+    "size": 1157672605,
+    "digest": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab",
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "bert",
+      "families": [
+        "bert"
+      ],
+      "parameter_size": "566.70M",
+      "quantization_level": "F16"
+    }
+  },
+  "model_connectivity": {
+    "chat": {
+      "status": "PASS",
+      "usage": {
+        "prompt_tokens": 7,
+        "completion_tokens": 1
+      }
+    },
+    "messages": {
+      "status": "PASS",
+      "usage": {
+        "input_tokens": 7,
+        "output_tokens": 1
+      }
+    }
+  },
+  "embedding_smoke": {
+    "status": "PASS",
+    "count": 2,
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "finite_nonzero": true,
+    "elapsed_seconds": 4.583
+  },
+  "fixture_mapping": {
+    "D01": {
+      "document_id": 1,
+      "chunk_id": 1
+    },
+    "D02": {
+      "document_id": 2,
+      "chunk_id": 2
+    },
+    "D03": {
+      "document_id": 3,
+      "chunk_id": 3
+    },
+    "D04": {
+      "document_id": 4,
+      "chunk_id": 4
+    },
+    "D05": {
+      "document_id": 5,
+      "chunk_id": 5
+    },
+    "D06": {
+      "document_id": 6,
+      "chunk_id": 6
+    },
+    "D07": {
+      "document_id": 7,
+      "chunk_id": 7
+    },
+    "D08": {
+      "document_id": 8,
+      "chunk_id": 8
+    }
+  },
+  "db": "data/real-eval-20261108b.db",
+  "simulated_service": false,
+  "api_key_recorded": false,
+  "code_files_sha256": {
+    "app.py": "30896ad7bf0d5232fceeeaf9b6d99e97f3635102cfba1cc8a27b3c6d94cff511",
+    "rag_backend.py": "cb7a29b67388a5d73577b54bb6bb3244c9785c05a6abfce6176f319808185ca7",
+    "retrieval.py": "e7c13679c50b861303acacb020020d80e3bf96c709b4e56745b378ebe306e09d",
+    "model_client.py": "3aa0b65124592214ec94616942d8d1dcf85b17c65077cbfc3ce98acf02d34ea6",
+    "harness/runner.mjs": "8ab8376dbd459a3b7a1f1fcbf8c3fc516119e25e75edb10fefc0de674b9e69f4",
+    "evaluate.py": "98430a653ff6b55446200dba6a24792797995a23e02844191ceedeebd0398bc0"
+  },
+  "index": {
+    "status": "ready",
+    "message": "图谱和向量索引就绪",
+    "revision": 8,
+    "catalog_revision": 8,
+    "generation": "08ce2fb9d38642dcbaa02d1522682f06",
+    "profile": "2a48d9acb2efab68397d499144408c3d8ee134218ac9f16a3e6f14b8af306c80",
+    "dependency_ready": true,
+    "llm_ready": true,
+    "counts": {
+      "documents": 8,
+      "chunks": 8,
+      "entities": 33,
+      "relations": 30
+    },
+    "job": {
+      "job_id": "b6c8729a-1940-4480-b215-dde8555d81ee",
+      "status": "completed",
+      "message": "索引构建完成。",
+      "started_at": "2026-11-08T03:05:16.064Z",
+      "finished_at": "2026-11-08T03:08:43.275Z"
+    }
+  },
+  "index_build_elapsed_seconds": 207.211
+}
