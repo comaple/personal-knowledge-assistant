@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "http_status": 200,
+  "title": "个人知识管理助手",
+  "page_errors": [],
+  "body_has_notebook": true,
+  "url": "http://127.0.0.1:8501/",
+  "checked_at": "2026-11-08T03:36:08.732Z"
+}

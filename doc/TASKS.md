@@ -3,7 +3,7 @@
 | 项目 | 内容 |
 | --- | --- |
 | 版本 / 日期 | 1.0 / 2026-11-07 |
-| 状态 | 17项离线用例通过；T01—T06/T08/T09完成，T07/T10待真实模型验收 |
+| 状态 | 18项验收通过；T00—T10完成，真实模型20题及启动证据见REAL-REPORT |
 | 依据 | [PRD](PRD.md) · [Spec](SPEC.md) · [Verify](VERIFY.md) · [OpenAPI](openapi.json) |
 
 ## 01｜任务执行规则
@@ -23,10 +23,10 @@
 | T04 HTTP与本地检索 | app.py、retrieval.py、settings.py；lexical模式、结构化错误、请求/响应字段 | T02 | FR-03、FR-11 / AC-03、AC-11 | 不调用模型的本地路径、OpenAPI契约检查、业务状态不混淆 | DONE |
 | T05 索引与代发布 | rag_backend.py、index_jobs.py；profile、manifest校验、CAS、任务状态 | T01、T02 | FR-04；NFR-03、NFR-04 / AC-04、AC-14 | 真后端+模拟服务建图，坏代不发布、过期代不读、任务/重启行为明确 | DONE |
 | T06 多路与图计划 | retrieval.py、graph_tools.py；候选、正文重排、Source对象、schema和有界计划 | T04、T05 | FR-05、FR-06 / AC-05、AC-06 | 三路真实执行、来源合并、失败透明、完整路径/空结果可验证 | DONE |
-| T07 DSH与版本一致性 | harness/*、model_client.py、store.py、app.py；四工具、turn_id、最终事务、预算和进程树 | T04、T06 | FR-02、FR-06、FR-07、FR-09、FR-10、FR-11；NFR-01—04 / AC-02、AC-06、AC-07、AC-09—AC-14 | 真DSH链路、权限、空结果/冲突/非法引用、资料修改竞争与超时恢复证据 | BLOCKED |
+| T07 DSH与版本一致性 | harness/*、model_client.py、store.py、app.py；四工具、turn_id、最终事务、预算和进程树 | T04、T06 | FR-02、FR-06、FR-07、FR-09、FR-10、FR-11；NFR-01—04 / AC-02、AC-06、AC-07、AC-09—AC-14 | 真DSH链路、权限、空结果/冲突/非法引用、资料修改竞争与超时恢复证据 | DONE |
 | T08 产品界面 | index.html及必要前端资源；资料编辑/标签、搜索模式、图谱、快照、轨迹、错误 | T03、T04、T06、T07 | FR-08、FR-09；NFR-01、NFR-02、NFR-05、NFR-06 / AC-08、AC-09、AC-13、AC-15—AC-17 | 桌面/390px可操作，保存冲突保留输入，历史来源不读当前内容 | DONE |
 | T09 导出与维护 | app.py及导出模块、maintain.py；ZIP、backup/restore/clean-index | T01、T02、T03 | FR-12、FR-15 / AC-12、AC-18 | 一致快照、安全文件名、停服锁、备份校验、恢复和拒绝覆盖证据 | DONE |
-| T10 集成与交付 | 依赖锁、CI、README和使用维护说明、验收记录；固定题集L3/L4、性能与恢复 | T07、T08、T09 | 全部 / AC-01—AC-18 | 干净检出验证、真实服务及20题报告、延时/费用、最终GitHub提交；缺服务明确BLOCKED | BLOCKED |
+| T10 集成与交付 | 依赖锁、CI、README和使用维护说明、验收记录；固定题集L3/L4、性能与恢复 | T07、T08、T09 | 全部 / AC-01—AC-18 | 干净检出验证、真实服务及20题报告、延时/费用、最终GitHub提交；缺服务明确BLOCKED | DONE |
 
 T03/T04/T05 在依赖满足后可分别实施；任务依赖不代表本轮启动并行代理。集成时统一版本上下文和接口字段，不能各模块独立发明命名。
 
@@ -92,3 +92,12 @@ uvx --python 3.12 --from openapi-spec-validator openapi-spec-validator doc/opena
 - 具体方法、缺陷修复及证据见[当前报告](verification/REPORT.md)，后续操作见[OpenSpec教程](openspec-workflow.md)。
 
 - Linux CI：修复setup-python默认缓存查找文件名的问题，显式使用两份锁；49e7c82的Python3.10/3.12/3.14、DSH、GraphRAG共5项远端作业通过，任务1.2复验后关闭。
+
+## 08｜真实模型验收与启动（2026-11-08）
+
+- 当前OpenSpec change为verify-real-model-quality，沿用冻结语料和门槛。
+- 本地DeepSeek凭据仅存0600且Git忽略的.env；实际连通Chat/Messages，并安装运行BGE-M3 1024维。
+- 修复DSH重复读取.env的启动错误，以及未支持的排他性职责/活动数量推断。两轮失败保留，不能用最后通过覆盖失败历史。
+- 最终检索覆盖12/12、完整有支持回答12/12、拒答4/4、冲突4/4；逐题评审未发现未支持事实。T07/T10关闭，18项PASS；64项本地工程回归及5项Linux CI成功。
+- 日常服务启动于http://127.0.0.1:8501，测试资料不混入日常库。逐题用量仅记录可取得的DSH部分，RAG/总费用未知。
+- [完整证据与边界](verification/REAL-REPORT.md)，没有创建正式Release或tag。

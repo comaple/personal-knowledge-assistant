@@ -40,9 +40,9 @@ CLI提供模板和状态，不会自动替你生成需求或实现代码。Codex
 
 如需禁用CLI匿名遥测，可在运行环境设置`OPENSPEC_TELEMETRY=0`。CI已设置，不改变用户全局配置。
 
-## 本轮接入记录
+## 首轮接入记录（历史）
 
-当前change：`close-offline-acceptance-gaps`。
+首轮change：`close-offline-acceptance-gaps`。
 
 - 原因：RC的10项复合验收已有部分证据，需要补齐离线可验证场景。
 - 迁入时点：已按原doc基线补写部分测试，发现模型结果脱敏缺口并实施修复之后，用户提出采用OpenSpec。
@@ -59,3 +59,7 @@ CLI提供模板和状态，不会自动替你生成需求或实现代码。Codex
 完成后将增量规格同步到主规格，归档只针对已完成且范围明确的change。真实模型固定20题是独立验收门槛，缺配置就保留BLOCKED，不用脚本模型结果替代。
 
 CI的pip缓存通过`cache-dependency-path`显式引用`requirements-rag.lock`与`requirements-dev.lock`，不依赖默认的requirements.txt查找规则。
+
+## 真实服务验收变更
+
+当前change为[verify-real-model-quality](../openspec/changes/verify-real-model-quality/tasks.md)。用户授权配置、真实测试与启动后，先记录配置/验证范围；实际发现DSH启动目录问题和未经支持的排他推断后，先补行为增量与doc/SPEC，再实施修复并同步主规格。失败与最终复验分别留存，固定20题达到门槛后才关闭AC-07、T07/T10。详见[真实报告](verification/REAL-REPORT.md)。Key只在本地，所有提交前扫描暂存内容；开发工具不会代替这一检查。

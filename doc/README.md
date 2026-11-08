@@ -7,7 +7,8 @@
 - [Verify：验收计划与结果](VERIFY.md)
 - [Tasks：开发任务与进度](TASKS.md)
 - [OpenAPI：接口与工具契约](openapi.json)
-- [实现验收报告](verification/REPORT.md)
+- [真实模型验收与启动记录](verification/REAL-REPORT.md)
+- [实现验收报告与历史记录](verification/REPORT.md)
 - [固定语料](fixtures/knowledge.json)与[验收题集](fixtures/questions.json)
 
 使用与接入记录：

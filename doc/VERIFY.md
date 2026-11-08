@@ -3,14 +3,14 @@
 | 项目 | 内容 |
 | --- | --- |
 | 产品 / 版本 | Personal Knowledge Assistant / 验收基线 1.0 |
-| 日期 / 状态 | 2026-11-08 / 17项离线用例通过，真实模型验收待配置 |
+| 日期 / 状态 | 2026-11-08 / 18项用例通过，真实模型固定20题复验通过 |
 | 上游基线 | [PRD 1.0](PRD.md) · [Spec 1.0](SPEC.md) · [OpenAPI](openapi.json) |
 | 开发与固定数据 | [TASKS](TASKS.md) · [语料](fixtures/knowledge.json) · [20 题](fixtures/questions.json) |
 | 当前范围 | FR-01—FR-15、NFR-01—NFR-06 全部纳入，不存在待定功能用例 |
 
 ## 01｜状态与验证层次
 
-功能用例状态为 NOT_RUN/PASS/FAIL/BLOCKED/SKIP。PASS 必须有对应提交、配置、数据和实际证据；缺依赖是 BLOCKED，主动未运行是 SKIP，二者均不能算通过。本轮已执行 L1/L2、干净检出、浏览器与本地性能验证，详见 [当前实现报告](verification/REPORT.md)。用例含多个子场景；仅验证部分时仍保留 NOT_RUN，并列出缺口，不把工程测试数当作用例通过数。
+功能用例状态为 NOT_RUN/PASS/FAIL/BLOCKED/SKIP。PASS 必须有对应提交、配置、数据和实际证据；缺依赖是 BLOCKED，主动未运行是 SKIP，二者均不能算通过。本轮已补齐L3/L4真实DeepSeek+BGE-M3及固定20题复验，详见[真实验收与启动记录](verification/REAL-REPORT.md)；此前L1/L2、干净检出、浏览器与本地性能验证见 [当前实现报告](verification/REPORT.md)。用例含多个子场景；仅验证部分时仍保留 NOT_RUN，并列出缺口，不把工程测试数当作用例通过数。
 
 | 层次 | 内容 | 不能据此证明的内容 |
 | --- | --- | --- |
@@ -27,14 +27,14 @@
 
 | 字段 | 本次执行值 |
 | --- | --- |
-| 执行编号、日期、执行人 | pka-openspec-clean-41738ca / 2026-11-08 / Codex |
-| 目标代码 commit / 工作树快照哈希 | 41738caad9bcddeb7d352991c5d63cb8c9b78d34；独立干净 worktree |
+| 执行编号、日期、执行人 | pka-real-final-20261108 / 2026-11-08 / Codex（执行代理逐题核对，非人工签署） |
+| 目标代码 commit / 工作树快照哈希 | 4290fa022db5e3af4acc27b9ced93ad3d684d185；源码SHA-256与该提交逐项匹配，真实配置不入库；离线干净worktree证据另保留 |
 | 文档基线 | PRD/Spec/Verify 1.0，OpenAPI info.version=1.0.0 |
 | OS、CPU、内存、磁盘 | macOS 26.3 Intel，12逻辑CPU、32GB、SSD；原始记录见 performance.json |
 | Python/SQLite/Node/DSH/LightRAG 版本 | Python3.12.9 / SQLite3.47.1 / Node25.3.0 / DSH0.2.2-rc.1 / LightRAG1.5.7 |
-| DB/索引路径、schema、revision/profile | 每测试独立临时目录，schema2；revision/profile 由各测试断言，未使用日常资料库 |
-| 模型/Embedding 名称与版本、维度、接口类型 | 本地脚本模拟 Chat Completions / Messages / 8维Embedding；真实服务未配置 |
-| 语料和题集 SHA-256、是否模拟服务、费用 | 哈希及20题结果见 lexical-evaluation.json；模型链路为模拟服务；真实用量/费用未提供 |
+| DB/索引路径、schema、revision/profile | 真实固定语料使用data/real-eval-20261108b.db及独立索引，schema2/revision8；profile、generation见real-environment.json；日常资料库未混入夹具 |
+| 模型/Embedding 名称与版本、维度、接口类型 | 真实DeepSeek deepseek-flash（Messages/Chat Completions）及Ollama BGE-M3 F16/1024维；制品digest与接口见real-environment.json |
+| 语料和题集 SHA-256、是否模拟服务、费用 | 固定哈希及逐题生成见real-quality-final.json，检索阶段见real-grounding-failure.json；真实服务非模拟。记录DSH用量，RAG未采集usage、总费用null |
 
 [knowledge.json](fixtures/knowledge.json) 固定 8 份虚构资料，正文按 Spec 规范化后导入；保存 fixture_id→实际 document_id/chunk_id 映射。[questions.json](fixtures/questions.json) 固定 20 题，包含 direct/paraphrase/multihop/unanswerable/conflict 各 4 题，明确所需资料和预期行为，不根据系统输出反推标准答案。
 
@@ -54,7 +54,7 @@ D05/D06 刻意含互相冲突的读书会日期、地点、费用和线上/线�
 | AC-04 / FR-04 | POST 构建并轮询；并发第二任务；构建时改正文；模拟服务失败/缺文件/改维度 | 202 和独立 job 状态；重复 409 INDEX_BUSY；CAS 拒绝过期代；失败不覆盖旧指针；缺文件 missing、配置变化 stale，禁止读取旧代 | PASS |
 | AC-05 / FR-05 | ready 下 retrieve；检查三路请求与 top4；模拟一路错误、非法/遗漏/重复重排 ID、截断 | 三路执行且去重保留通道，池≤24；非法重排回退并显示 error；零命中且服务失败为 retrieval_error，正常零命中才 no_evidence；保存路由元数据 | PASS |
 | AC-06 / FR-06 | 实际 schema→错误计划→empty→修正两跳；测试 0/4 跳、空锚点、未知字段 | 只接受有界只读计划，完成所有跳才 completed；稳定 witness 对应原文；非法参数拒绝，错误计划不编造成功；保存轨迹和来源映射 | PASS |
-| AC-07 / FR-07 | DSH 正常回答、无检索、失败工具、假引用、空资料、冲突资料；生成期间改正文/删除来源 | 成功配对 kb_search 和合法引用；冲突并列双方来源；不支持的事实不得输出；版本变化 sources=[]、CORPUS_CHANGED，不能 generated；保存模型输入/结果及落库断言 | BLOCKED |
+| AC-07 / FR-07 | DSH 正常回答、无检索、失败工具、假引用、空资料、冲突资料；生成期间改正文/删除来源 | 成功配对 kb_search 和合法引用；冲突并列双方来源；不支持的事实不得输出；版本变化 sources=[]、CORPUS_CHANGED，不能 generated；保存模型输入/结果及落库断言 | PASS |
 | AC-08 / FR-08 | 点击图实体/边及答案引用；修改/删除原文后打开旧答案；加载超裁剪数的图 | 当前图回指原文；旧答案打开快照而非当前 chunk API；自动抽取/局部图标识及全图数量正确；保存桌面截图和数据 | PASS |
 | AC-09 / FR-09 | 两会话问答、分页读取；在运行中删除会话，再结束后删除；新一轮测试旧历史注入 | 会话隔离；运行中 SESSION_BUSY；删除后消息/轨迹级联清除；旧轮内容未注入；旧数据 turn_id=null 可读 | PASS |
 | AC-10 / FR-10 | 删除资料，检查当前三路；新建资料/编辑重切片；历史回看；对不存在 ID 删除 | 删除使旧索引过期；当前结果无旧证据，历史快照保留；新片段 ID 高于旧 ID、不复用；不存在返回 404，旧 version 返回409 | PASS |
@@ -105,7 +105,7 @@ npm run spec:validate
 
 两名评审不是首版必需；执行人逐题记判断理由及原文，争议记录为未通过待复核，不能为达标修改题目。必要事实可以等义表述，不要求与 expected_facts 逐字匹配。报告单次结果与失败案例，不以小样本声称普遍优越性。
 
-延时、API用量/费用逐题记录；未知用量标“服务未提供”，不得填0。若真实服务无法连接/无凭据，L3/L4=BLOCKED，仍可完成工程演示，但不能声明正式首版全部验收通过。
+延时、API用量/费用逐题记录；未知用量注明实际原因（服务未提供或适配器未采集），不得填0。若真实服务无法连接/无凭据，L3/L4=BLOCKED，仍可完成工程演示，但不能声明正式首版全部验收通过。
 
 ## 07｜执行与缺陷模板
 
@@ -124,7 +124,7 @@ npm run spec:validate
 
 ## 08｜当前记录与交付门槛
 
-**当前完整用例：17项PASS、0项NOT_RUN、1项BLOCKED。** 目标代码为`41738caad9bcddeb7d352991c5d63cb8c9b78d34`；54项Python与9项DSH测试均通过、无跳过，OpenSpec严格校验和Chrome/性能复验通过；CI缓存修复后49e7c82的5个远端作业全部成功。PASS限定在L1/L2工程行为；AC-07、L3/L4仍因缺真实服务配置而阻塞，不能宣称产品真实问答质量全部通过。对应方法、修复与证据见[实现验收报告](verification/REPORT.md)。
+**当前完整用例：18项PASS、0项BLOCKED。** 运行代码绑定`4290fa022db5e3af4acc27b9ced93ad3d684d185`，工作树源码哈希与提交匹配。54项Python、10项DSH无失败/跳过，该代码的5项Linux CI成功；已有Chrome/性能及离线证据继续保留。真实服务经历启动配置错误和事实越界两轮失败，均保留原始记录；修复后固定20题生成复验达到第06节全部门槛：检索12/12、完整有支持回答12/12、拒答4/4、冲突4/4、36/36本题去重引用合法且无混版，逐题核对未发现未支持事实。详见[真实验收与启动记录](verification/REAL-REPORT.md)。这是执行代理评审的固定样本结论，不是所有资料上的保证；API总费用未知，没有填0。应用已在本地启动，未创建正式Release。
 
 交付前必须同时具备：AC-01—AC-18 证据、L3冒烟和L4门槛结果、无未处理阻断缺陷、同一版本的代码/说明/截图、干净检出和维护恢复记录。仅交付文档时可发布这份验收计划，不能将计划当作结果。
 
@@ -136,3 +136,4 @@ npm run spec:validate
 | 1.0 | 2026-11-07 | 全部用例纳入首版，冻结20题及量化标准，补齐迁移/竞态/编辑/导出/性能验证；功能未执行 |
 | 1.0 RC记录 | 2026-11-07 | 补入干净检出工程验证、UI/性能证据及未结项的完整用例；不改变质量门槛 |
 | 1.0 OpenSpec记录 | 2026-11-08 | 补齐10项离线复合场景，17项PASS；真实模型质量保持BLOCKED；通过OpenSpec管理增量、证据与任务 |
+| 1.0 真实模型记录 | 2026-11-08 | 配置DeepSeek及BGE-M3；保留启动/事实越界失败，修复后20题生成复验通过，18项PASS，日常服务启动；凭据未提交 |

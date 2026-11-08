@@ -1,0 +1,16 @@
+{
+  "url": "http://127.0.0.1:8501",
+  "pid": 12132,
+  "config": {
+    "model_ready": true,
+    "rag_enabled": true,
+    "harness": "dsh"
+  },
+  "documents": 0,
+  "index_status": "not_built",
+  "test_fixtures_imported_into_daily_db": false,
+  "log": "data/application.log",
+  "database": "data/knowledge.db",
+  "embedding_service": "http://127.0.0.1:11434",
+  "ollama_running": true
+}

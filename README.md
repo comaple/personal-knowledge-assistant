@@ -2,7 +2,7 @@
 
 本地单人知识管理应用：导入资料、创建和编辑 Markdown 笔记、用标签整理、搜索原文、查看知识图谱，并由 DSH 调用工具完成有出处的问答。
 
-**当前版本：1.0.0-rc.1。**核心工程链路使用真实 DSH、LightRAG 和 SQLite 验证；模型和向量在离线测试中由模拟服务提供。真实模型质量验收尚待配置服务，不能将离线测试等同于实际问答效果。
+**当前版本：1.0.0-rc.1。**已完成工程回归及真实DeepSeek+BGE-M3固定20题验收：检索覆盖12/12、完整回答12/12、拒答4/4、冲突4/4；逐题核对未发现未支持事实。详见[真实验收记录](doc/verification/REAL-REPORT.md)，结论限于该语料和配置，尚未创建正式Release。
 
 [文档入口](doc/README.md) · [PRD](doc/PRD.md) · [Spec](doc/SPEC.md) · [验收](doc/VERIFY.md) · [任务进度](doc/TASKS.md) · [OpenAPI](doc/openapi.json)
 
@@ -32,7 +32,7 @@ npm ci
 cp .env.example .env
 ```
 
-将 `.env` 中的模型配置填好后重启。PowerShell 用 `Copy-Item .env.example .env`。不要覆盖已有配置文件。
+Key只保存在本地被Git忽略的`.env`，禁止提交GitHub；macOS/Linux可执行`chmod 600 .env`。将 `.env` 中的模型配置填好后重启。PowerShell 用 `Copy-Item .env.example .env`。不要覆盖已有配置文件。
 
 ```dotenv
 LLM_API_KEY=你的Key

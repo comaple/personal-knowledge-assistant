@@ -1,45 +1,45 @@
 {
-  "commit": "84bc2b0534cd3cd3a445179796ae5b82c919725a",
+  "commit": "4290fa022db5e3af4acc27b9ced93ad3d684d185",
   "checks": [
-    {
-      "name": "python (3.10)",
-      "status": "completed",
-      "conclusion": "success",
-      "html_url": "https://github.com/comaple/personal-knowledge-assistant/actions/runs/42442065848/job/128613196134",
-      "started_at": "2026-11-08T03:17:11Z",
-      "completed_at": "2026-11-08T03:17:30Z"
-    },
-    {
-      "name": "graph-rag",
-      "status": "completed",
-      "conclusion": "success",
-      "html_url": "https://github.com/comaple/personal-knowledge-assistant/actions/runs/42442065848/job/128613196113",
-      "started_at": "2026-11-08T03:17:11Z",
-      "completed_at": "2026-11-08T03:18:31Z"
-    },
-    {
-      "name": "dsh",
-      "status": "completed",
-      "conclusion": "success",
-      "html_url": "https://github.com/comaple/personal-knowledge-assistant/actions/runs/42442065848/job/128613196085",
-      "started_at": "2026-11-08T03:17:11Z",
-      "completed_at": "2026-11-08T03:17:50Z"
-    },
     {
       "name": "python (3.12)",
       "status": "completed",
       "conclusion": "success",
-      "html_url": "https://github.com/comaple/personal-knowledge-assistant/actions/runs/42442065848/job/128613196045",
-      "started_at": "2026-11-08T03:17:12Z",
-      "completed_at": "2026-11-08T03:17:28Z"
+      "html_url": "https://github.com/comaple/personal-knowledge-assistant/actions/runs/42442843882/job/128615539322",
+      "started_at": "2026-11-08T03:28:10Z",
+      "completed_at": "2026-11-08T03:28:32Z"
     },
     {
       "name": "python (3.14)",
       "status": "completed",
       "conclusion": "success",
-      "html_url": "https://github.com/comaple/personal-knowledge-assistant/actions/runs/42442065848/job/128613195912",
-      "started_at": "2026-11-08T03:17:12Z",
-      "completed_at": "2026-11-08T03:17:32Z"
+      "html_url": "https://github.com/comaple/personal-knowledge-assistant/actions/runs/42442843882/job/128615539287",
+      "started_at": "2026-11-08T03:28:10Z",
+      "completed_at": "2026-11-08T03:28:27Z"
+    },
+    {
+      "name": "graph-rag",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/comaple/personal-knowledge-assistant/actions/runs/42442843882/job/128615539228",
+      "started_at": "2026-11-08T03:28:11Z",
+      "completed_at": "2026-11-08T03:29:44Z"
+    },
+    {
+      "name": "python (3.10)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/comaple/personal-knowledge-assistant/actions/runs/42442843882/job/128615539198",
+      "started_at": "2026-11-08T03:28:11Z",
+      "completed_at": "2026-11-08T03:28:30Z"
+    },
+    {
+      "name": "dsh",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/comaple/personal-knowledge-assistant/actions/runs/42442843882/job/128615538947",
+      "started_at": "2026-11-08T03:28:10Z",
+      "completed_at": "2026-11-08T03:28:43Z"
     }
   ]
 }

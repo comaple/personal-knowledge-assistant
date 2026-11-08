@@ -5,7 +5,7 @@
 | 产品名称 | 个人知识管理助手 / Personal Knowledge Assistant |
 | 版本 / 日期 | 1.0 / 2026-11-07 |
 | 文档状态 | 开发规格基线；功能尚未完成验收 |
-| 当前工作范围 | 核心实现与17项离线验收完成；真实模型质量待配置，进度见 Tasks / Verify |
+| 当前工作范围 | 核心实现与18项验收完成；真实模型固定20题通过，范围及证据见 Tasks / Verify |
 | 配套文档 | [Spec](SPEC.md) · [Verify](VERIFY.md) · [开发任务](TASKS.md) · [接口契约](openapi.json) |
 | 仓库 | https://github.com/comaple/personal-knowledge-assistant |
 
