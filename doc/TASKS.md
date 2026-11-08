@@ -90,3 +90,5 @@ uvx --python 3.12 --from openapi-spec-validator openapi-spec-validator doc/opena
 - 17项离线完整用例结项；T01—T06/T08/T09完成范围为工程实现及对应离线验收。
 - T07剩余实际模型事实支持、冲突/拒答质量；与T10的L3/L4一起因缺真实服务配置保持BLOCKED，不能把本轮完成等同正式首版全部验收通过。
 - 具体方法、缺陷修复及证据见[当前报告](verification/REPORT.md)，后续操作见[OpenSpec教程](openspec-workflow.md)。
+
+- Linux CI：修复setup-python默认缓存查找文件名的问题，显式使用两份锁；49e7c82的Python3.10/3.12/3.14、DSH、GraphRAG共5项远端作业通过，任务1.2复验后关闭。

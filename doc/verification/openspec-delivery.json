@@ -1,10 +1,10 @@
 {
   "change": "close-offline-acceptance-gaps",
-  "state": "ready",
+  "state": "all_done",
   "progress": {
     "total": 10,
-    "complete": 9,
-    "remaining": 1
+    "complete": 10,
+    "remaining": 0
   },
   "code_commit": "41738caad9bcddeb7d352991c5d63cb8c9b78d34",
   "code_and_evidence_pushed_commit": "7f4d8382ee7d9167502b78cb09b104cdb524357d",
@@ -12,5 +12,6 @@
   "archived": false,
   "recorded_at": "2026-11-08T01:28:54.026991+00:00",
   "real_quality": "AC-07/L3/L4 remain BLOCKED and are outside this offline change",
-  "ci_status": "pending_retry_after_explicit_pip_cache_paths"
+  "ci_status": "five_jobs_passed",
+  "ci_commit": "49e7c820c292ed15e9d85a90c7055f7d9a252942"
 }

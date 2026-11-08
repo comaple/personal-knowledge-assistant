@@ -124,7 +124,7 @@ npm run spec:validate
 
 ## 08｜当前记录与交付门槛
 
-**当前完整用例：17项PASS、0项NOT_RUN、1项BLOCKED。** 目标代码为`41738caad9bcddeb7d352991c5d63cb8c9b78d34`；54项Python与9项DSH测试均通过、无跳过，OpenSpec严格校验和Chrome/性能复验通过。PASS限定在L1/L2工程行为；AC-07、L3/L4仍因缺真实服务配置而阻塞，不能宣称产品真实问答质量全部通过。对应方法、修复与证据见[实现验收报告](verification/REPORT.md)。
+**当前完整用例：17项PASS、0项NOT_RUN、1项BLOCKED。** 目标代码为`41738caad9bcddeb7d352991c5d63cb8c9b78d34`；54项Python与9项DSH测试均通过、无跳过，OpenSpec严格校验和Chrome/性能复验通过；CI缓存修复后49e7c82的5个远端作业全部成功。PASS限定在L1/L2工程行为；AC-07、L3/L4仍因缺真实服务配置而阻塞，不能宣称产品真实问答质量全部通过。对应方法、修复与证据见[实现验收报告](verification/REPORT.md)。
 
 交付前必须同时具备：AC-01—AC-18 证据、L3冒烟和L4门槛结果、无未处理阻断缺陷、同一版本的代码/说明/截图、干净检出和维护恢复记录。仅交付文档时可发布这份验收计划，不能将计划当作结果。
 

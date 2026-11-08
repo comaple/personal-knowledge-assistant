@@ -1,7 +1,7 @@
 ## 1. OpenSpec接入
 
 - [x] 1.1 固定OpenSpec1.16.1开发依赖，生成项目内Codex工作流并完善context、两份增量规格与设计；以CLI严格校验为证据。
-- [ ] 1.2 补充doc/中的使用教程、文档导航及npm/CI命令，说明与现有PRD/Spec/Verify的对应关系。
+- [x] 1.2 补充doc/中的使用教程、文档导航及npm/CI命令，说明与现有PRD/Spec/Verify的对应关系。
 
 ## 2. 离线验收与修复
 

@@ -57,3 +57,5 @@ CLI提供模板和状态，不会自动替你生成需求或实现代码。Codex
 任务checkbox仅在实际实现、断言和证据均满足时勾选。`openspec status`的artifact完成表示文件存在，`openspec validate`验证格式和规则，二者都不能证明产品正确。CI同时执行OpenSpec严格校验、Python回归和真实DSH/模拟服务集成；浏览器证据另行运行。
 
 完成后将增量规格同步到主规格，归档只针对已完成且范围明确的change。真实模型固定20题是独立验收门槛，缺配置就保留BLOCKED，不用脚本模型结果替代。
+
+CI的pip缓存通过`cache-dependency-path`显式引用`requirements-rag.lock`与`requirements-dev.lock`，不依赖默认的requirements.txt查找规则。

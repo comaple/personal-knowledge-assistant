@@ -2,7 +2,7 @@
 
 **17项离线完整用例通过，AC-07及真实模型L3/L4仍为BLOCKED。** 工程实现已形成可运行RC，尚不能宣称产品真实问答质量验收完成。
 
-- 目标代码：`41738caad9bcddeb7d352991c5d63cb8c9b78d34`。后续提交只更新文档、截图、任务状态及证据，不改变应用实现。
+- 目标代码：`41738caad9bcddeb7d352991c5d63cb8c9b78d34`。后续提交更新文档、截图、任务状态及证据；CI修复仅显式指定缓存依赖路径，不改变应用实现。
 - 运行编号：`pka-openspec-clean-41738ca`，2026-11-08，Codex；独立detached worktree，安装前工作树干净。
 - 环境：macOS26.3 Intel，12逻辑CPU、32GB、SSD；Python3.12.9 / SQLite3.47.1 / Node25.3.0；DSH0.2.2-rc.1 / LightRAG1.5.7 / OpenSpec1.16.1。
 - 使用该检出内全新Python虚拟环境、两份requirements锁与`npm ci`。全部数据库、资料及模型凭据均为隔离测试数据；未修改日常资料库。
@@ -54,12 +54,14 @@ L2的模型服务由本地脚本提供，Embedding为8维测试向量；它们�
 
 ## OpenSpec与尚需配置的部分
 
-[接入教程](../openspec-workflow.md)记录迁入时点；[当前change](../../openspec/changes/close-offline-acceptance-gaps/tasks.md)的工程验证已完成；CI缓存配置复验中，任务1.2重新打开（[交付状态](openspec-delivery.json)），管理本轮离线范围，两份行为规格已同步到主规格。正式PRD/Spec/Verify仍在doc/，OpenSpec不替代DSH运行时。
+[接入教程](../openspec-workflow.md)记录迁入时点；[当前change](../../openspec/changes/close-offline-acceptance-gaps/tasks.md)的10项任务已全部完成（[交付状态](openspec-delivery.json)），管理本轮离线范围，两份行为规格已同步到主规格。正式PRD/Spec/Verify仍在doc/，OpenSpec不替代DSH运行时。
 
 再次检查环境：没有`.env`，生成/图谱Key及Embedding地址均未配置。真实模型完整冒烟和固定20题retrieve/generate、人工事实支持/冲突/拒答复核、真实用量与费用均未执行；unknown字段保持null。补齐配置后按README使用隔离空库运行evaluate.py，达到Verify门槛后才能关闭AC-07与最终交付。
 
 [Verify](../VERIFY.md) · [Tasks](../TASKS.md) · [安装教程](../tutorial.md)
 
-## Linux CI复验
+## Linux CI修复与复验
 
-远端e45a083的Python3.10/3.12/3.14检查通过；GraphRAG作业在setup-python缓存步骤失败，尚未执行测试。原因是默认缓存查找requirements.txt/pyproject.toml，而项目使用requirements-rag.lock和requirements-dev.lock。现显式配置cache-dependency-path；修复后的远端复验尚在进行，不能把该次失败算通过。
+最初e45a083的GraphRAG作业在setup-python缓存步骤失败，未执行测试；默认缓存只查找requirements.txt/pyproject.toml。修复明确指定requirements-rag.lock和requirements-dev.lock，不改应用代码。
+
+修复提交`49e7c820c292ed15e9d85a90c7055f7d9a252942`的5项作业均已成功：Python3.10、Python3.12、Python3.14、DSH及完整GraphRAG。原失败不计为通过；[远端CI记录](ci.json)记录修复后作业、时间及GitHub链接。OpenSpec任务1.2已在此次复验成功后重新关闭。
