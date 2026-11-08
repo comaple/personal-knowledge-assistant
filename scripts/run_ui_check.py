@@ -54,7 +54,7 @@ with tempfile.TemporaryDirectory() as tmp:
             threading.Thread(target=app.serve_forever, daemon=True).start()
             try:
                 result = subprocess.run(
-                    ["node", "scripts/verify-ui.mjs"],
+                    ["node", os.getenv("PKA_UI_SCRIPT", "scripts/verify-ui.mjs")],
                     env={
                         **os.environ,
                         "PKA_UI_URL": f"http://127.0.0.1:{app.server_port}",

@@ -1,0 +1,258 @@
+{
+  "kind": "real DeepSeek + Ollama BGE-M3; fictional isolated data",
+  "code_sha256": {
+    "rag_backend.py": "79abd8c036f1a41156e93a47268f3521c3690e443775453c672038d85e7e1257",
+    "index_jobs.py": "5af3c5fc4d44be3917d70b5da92f13f69ffd5d6b18dad4d65b1e0f8d0d6c3b30",
+    "app.py": "795e61585867c1daf36bd662ea5cc7af9935fcd96b7848663b1f435adfa1d7a7",
+    "titling.py": "add3a42544f486d48534b94029a8a018a436376618bde81854877826d61b5003",
+    "index.html": "25e726a946503733381c21ea98ecc0a2c497dd211b6b9b63f4de07e5726bf0cf"
+  },
+  "steps": [
+    {
+      "kind": "AI title",
+      "title": "青松摄影课开课信息",
+      "status": "PASS",
+      "body_preserved": true
+    },
+    {
+      "kind": "single build",
+      "status": "PASS",
+      "request": {
+        "document_id": 1
+      },
+      "elapsed_seconds": 25.226,
+      "progress": [
+        {
+          "phase": "preparing",
+          "completed_chunks": 0,
+          "total_chunks": 1
+        },
+        {
+          "phase": "processing",
+          "completed_chunks": 0,
+          "total_chunks": 1
+        },
+        {
+          "phase": "publishing",
+          "completed_chunks": 1,
+          "total_chunks": 1
+        },
+        {
+          "phase": "completed",
+          "completed_chunks": 1,
+          "total_chunks": 1
+        }
+      ],
+      "index": {
+        "status": "ready",
+        "message": "已构建1/2份资料；其余资料仍可关键词检索",
+        "revision": 2,
+        "catalog_revision": 3,
+        "generation": "7cb803c62c04471ab0e5a9c0d9200e33",
+        "profile": "2a48d9acb2efab68397d499144408c3d8ee134218ac9f16a3e6f14b8af306c80",
+        "dependency_ready": true,
+        "llm_ready": true,
+        "coverage": "partial",
+        "indexed_document_ids": [
+          1
+        ],
+        "counts": {
+          "documents": 2,
+          "chunks": 2,
+          "entities": 3,
+          "relations": 2,
+          "indexed_chunks": 1
+        },
+        "job": {
+          "job_id": "c41c30d0-f831-4de0-b461-88fceed14a90",
+          "status": "completed",
+          "message": "索引构建完成。",
+          "started_at": "2026-11-08T05:30:16.351Z",
+          "finished_at": "2026-11-08T05:30:40.658Z",
+          "document_id": 1,
+          "progress": {
+            "phase": "completed",
+            "completed_chunks": 1,
+            "total_chunks": 1
+          }
+        }
+      }
+    },
+    {
+      "kind": "global pending-only build",
+      "status": "PASS",
+      "request": {},
+      "elapsed_seconds": 29.73,
+      "progress": [
+        {
+          "phase": "preparing",
+          "completed_chunks": 0,
+          "total_chunks": 1
+        },
+        {
+          "phase": "processing",
+          "completed_chunks": 0,
+          "total_chunks": 1
+        },
+        {
+          "phase": "publishing",
+          "completed_chunks": 1,
+          "total_chunks": 1
+        },
+        {
+          "phase": "completed",
+          "completed_chunks": 1,
+          "total_chunks": 1
+        }
+      ],
+      "index": {
+        "status": "ready",
+        "message": "图谱和向量索引就绪",
+        "revision": 2,
+        "catalog_revision": 3,
+        "generation": "0a75062d9b934a1a965cd6d09694ca36",
+        "profile": "2a48d9acb2efab68397d499144408c3d8ee134218ac9f16a3e6f14b8af306c80",
+        "dependency_ready": true,
+        "llm_ready": true,
+        "coverage": "complete",
+        "indexed_document_ids": [
+          1,
+          2
+        ],
+        "counts": {
+          "documents": 2,
+          "chunks": 2,
+          "entities": 6,
+          "relations": 5,
+          "indexed_chunks": 2
+        },
+        "job": {
+          "job_id": "0ccfcc8d-b791-47a0-8582-7ea1d6aa1dfd",
+          "status": "completed",
+          "message": "索引构建完成。",
+          "started_at": "2026-11-08T05:30:41.607Z",
+          "finished_at": "2026-11-08T05:31:10.637Z",
+          "document_id": null,
+          "progress": {
+            "phase": "completed",
+            "completed_chunks": 1,
+            "total_chunks": 1
+          }
+        }
+      }
+    },
+    {
+      "kind": "global no-op",
+      "status": "PASS",
+      "http_status": 200,
+      "elapsed_seconds": 0.024,
+      "job": {
+        "job_id": null,
+        "status": "completed",
+        "noop": true,
+        "document_id": null,
+        "message": "没有新文档可构建。",
+        "started_at": null,
+        "finished_at": null,
+        "progress": {
+          "phase": "completed",
+          "completed_chunks": 0,
+          "total_chunks": 0
+        }
+      }
+    },
+    {
+      "kind": "agent retrieve",
+      "status": "PASS",
+      "result": {
+        "hits": [
+          {
+            "chunk_id": 2,
+            "document_id": 2,
+            "ordinal": 1,
+            "content": "青松教务受理退课申请，必须在开课前至少72小时提交。联系邮箱service@qingsong.example。",
+            "name": "sample-b.md",
+            "document_version": 1,
+            "source_id": "S2",
+            "revision": 2,
+            "generation": "0a75062d9b934a1a965cd6d09694ca36",
+            "channels": [
+              "bm25",
+              "vector",
+              "graph"
+            ],
+            "channel_ranks": {
+              "bm25": 2,
+              "vector": 1,
+              "graph": 1
+            },
+            "rank_position": 1,
+            "graph_paths": [
+              "青松教务 — 退课申请",
+              "青松教务 — Service@qingsong.example",
+              "退课申请 — 开课时间"
+            ]
+          },
+          {
+            "chunk_id": 1,
+            "document_id": 1,
+            "ordinal": 1,
+            "content": "青松摄影课由林老师授课，课程事务联系青松教务。\n\n开课时间为2026年12月1日09:00。\n\n这是一段用于验证摘录范围的虚构中间说明。\n\n本文为软件功能测试的虚构课程资料。",
+            "name": "青松摄影课开课信息",
+            "document_version": 2,
+            "source_id": "S1",
+            "revision": 2,
+            "generation": "0a75062d9b934a1a965cd6d09694ca36",
+            "channels": [
+              "bm25",
+              "vector",
+              "graph"
+            ],
+            "channel_ranks": {
+              "bm25": 1,
+              "vector": 2,
+              "graph": 2
+            },
+            "rank_position": 2,
+            "graph_paths": [
+              "青松摄影课 — 林老师",
+              "青松摄影课 — 青松教务"
+            ]
+          }
+        ],
+        "retrieval": {
+          "revision": 2,
+          "generation": "0a75062d9b934a1a965cd6d09694ca36",
+          "mode": "hybrid",
+          "message": "三路检索完成",
+          "ranking": {
+            "method": "llm_evidence",
+            "status": "ok",
+            "reason": "问题问退课部门与提前时限。chunk 2直接给出退课受理部门（青松教务）、需在开课前至少72小时提交及联系方式，是核心桥接证据；chunk 1说明课程事务联系青松教务并提供开课时间，可作为辅助定位开课基准。故2在前、1在后。"
+          },
+          "routes": [
+            {
+              "name": "bm25",
+              "status": "ok",
+              "candidates": 2,
+              "reason": ""
+            },
+            {
+              "name": "vector",
+              "status": "ok",
+              "candidates": 2,
+              "reason": ""
+            },
+            {
+              "name": "graph",
+              "status": "ok",
+              "candidates": 2,
+              "reason": ""
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "status": "PASS"
+}

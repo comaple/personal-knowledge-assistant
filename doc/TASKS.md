@@ -101,3 +101,7 @@ uvx --python 3.12 --from openapi-spec-validator openapi-spec-validator doc/opena
 - 最终检索覆盖12/12、完整有支持回答12/12、拒答4/4、冲突4/4；逐题评审未发现未支持事实。T07/T10关闭，18项PASS；64项本地工程回归及5项Linux CI成功。
 - 日常服务启动于http://127.0.0.1:8501，测试资料不混入日常库。逐题用量仅记录可取得的DSH部分，RAG/总费用未知。
 - [完整证据与边界](verification/REAL-REPORT.md)，没有创建正式Release或tag。
+
+## 09｜T11 构建反馈与Agent入口（完成）
+
+FR-16—FR-18 / AC-19—AC-21：完成真实进度与全库待处理跳过、单篇增量与覆盖范围、Agent API/导航和限定摘录AI命名（含已有文档入口）。59项Python、10项DSH、原有7项及新增4组浏览器检查通过；真实DeepSeek+BGE-M3完成命名、单篇/补齐/noop及无会话hybrid检索。服务已更新且用户资料转储摘要不变。[证据与边界](verification/BUILD-REPORT.md)。历史20题未在本轮重新评分。

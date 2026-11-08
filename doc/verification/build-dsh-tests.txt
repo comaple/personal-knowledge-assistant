@@ -1,0 +1,22 @@
+
+> personal-knowledge-assistant@1.0.0-rc.1 test:harness
+> node --test harness/integration.test.mjs
+
+✔ real DSH: project dotenv does not override or block inherited configuration (3332.829475ms)
+✔ real DSH: empty search -> rewrite -> evidence -> cited answer (2906.874344ms)
+✔ real DSH: no evidence stays empty (2793.370086ms)
+✔ real DSH: repeated tools stop after five model requests (3717.624695ms)
+✔ HTTP app -> Python adapter -> DSH -> tools -> SQLite trace (5971.046314ms)
+✔ real DSH: ninth tool call is rejected even when model completes (4307.14351ms)
+✔ real DSH: model request for a forbidden shell tool cannot execute (2683.669941ms)
+✔ tool bridge: timeout cleans even TERM-ignoring descendants in other sessions (1625.517138ms)
+✔ tool bridge: oversized stdout fails and subsequent calls recover (90.450192ms)
+✔ real DSH: provider output-token limit is a failed budgeted turn (2365.894733ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 30175.623022

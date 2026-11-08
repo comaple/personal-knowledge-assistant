@@ -22,6 +22,137 @@ from harness.kb_bridge import call as bridge_call
 from knowledge import import_text, retrieve
 from retrieval import search_knowledge
 from store import Store
+from titling import name_import, title_excerpts
+
+
+class AgentAndNamingAcceptanceTest(unittest.TestCase):
+    setUp = fixtures.ApiTest.setUp
+    call = fixtures.ApiTest.call
+
+    def test_agent_add_search_and_openapi_without_session_or_key(self):
+        self.call(
+            "/api/documents",
+            {"name": "智能体记录.md", "content": "部署前完成测试与备份。"},
+        )
+        status, result = self.call(
+            "/api/knowledge/search", {"query": "部署 测试", "mode": "lexical"}
+        )
+        self.assertEqual(status, 200)
+        self.assertTrue(result["hits"])
+        self.assertEqual(result["retrieval"]["mode"], "lexical")
+        self.assertEqual(self.call("/api/openapi.json")[0], 200)
+        self.assertEqual(
+            self.call("/api/knowledge/search", {"query": "x", "sql": "DELETE"})[0], 400
+        )
+        self.assertEqual(
+            self.call(
+                "/api/knowledge/search",
+                {"query": "x"},
+                headers={"Origin": "https://foreign.example"},
+            )[0],
+            403,
+        )
+
+    def test_title_excerpts_are_bounded_and_exclude_middle_paragraphs(self):
+        self.assertEqual(
+            title_excerpts("首段\n\n第二段\n\n不应发送\n\n结尾"),
+            ["首段", "第二段", "结尾"],
+        )
+        self.assertEqual(title_excerpts("唯一段落"), ["唯一段落"])
+        self.assertEqual(title_excerpts("第一段\n\n最后一段"), ["第一段", "最后一段"])
+        self.assertTrue(
+            all(len(p) <= 1200 for p in title_excerpts(("长" * 2000 + "\n\n") * 4))
+        )
+
+    def test_http_naming_is_opt_in_and_existing_documents_can_be_renamed(self):
+        response = {
+            "choices": [
+                {
+                    "finish_reason": "stop",
+                    "message": {"content": '{"title":"部署检查清单"}'},
+                }
+            ]
+        }
+        with (
+            patch.dict(os.environ, {"RAG_LLM_API_KEY": "title-test-key"}),
+            patch("titling.post_json", return_value=response) as model,
+        ):
+            self.call("/api/documents", {"name": "原始.txt", "content": "部署前测试。"})
+            model.assert_not_called()
+            code, named = self.call("/api/documents/1/title", {})
+            self.assertEqual(code, 200)
+            self.assertFalse(named["created"])
+            self.assertEqual(named["naming"]["status"], "completed")
+            self.assertEqual(self.store.document(1)["name"], "部署检查清单")
+            code, imported = self.call(
+                "/api/documents",
+                {"name": "另一篇.txt", "content": "发布前备份。", "auto_title": True},
+            )
+            self.assertEqual(code, 201)
+            self.assertEqual(imported["naming"]["status"], "completed")
+
+    def test_title_success_dedup_failure_and_concurrent_edit_preserve_content(self):
+        content = "第一段\n\n第二段\n\n中间私有文本\n\n最后一段"
+        result = import_text(self.store, "原始.txt", content)
+        revision = self.store.rag_state()["revision"]
+        chunks = self.store.corpus_snapshot()[1]
+        response = {
+            "choices": [
+                {
+                    "finish_reason": "stop",
+                    "message": {"content": '{"title":"知识整理方法"}'},
+                }
+            ]
+        }
+        with (
+            patch.dict(os.environ, {"RAG_LLM_API_KEY": "title-test-key"}),
+            patch("titling.post_json", return_value=response) as mocked,
+        ):
+            renamed = name_import(self.store, result, True)
+            self.assertEqual(renamed["naming"]["status"], "completed")
+            self.assertNotIn(
+                "中间私有文本", json.dumps(mocked.call_args.args[2], ensure_ascii=False)
+            )
+            duplicate = import_text(self.store, "再次.txt", content)
+            name_import(self.store, duplicate, True)
+            self.assertEqual(mocked.call_count, 1)
+        self.assertEqual(self.store.document(1)["name"], "知识整理方法")
+        self.assertEqual(self.store.document(1)["content"], content)
+        self.assertEqual(self.store.rag_state()["revision"], revision)
+        self.assertEqual(
+            [c["chunk_id"] for c in self.store.corpus_snapshot()[1]],
+            [c["chunk_id"] for c in chunks],
+        )
+        for value in ["invalid json", '{"title":""}', '{"title":"title-test-key"}']:
+            with (
+                patch.dict(os.environ, {"RAG_LLM_API_KEY": "title-test-key"}),
+                patch(
+                    "titling.post_json",
+                    return_value={
+                        "choices": [
+                            {"finish_reason": "stop", "message": {"content": value}}
+                        ]
+                    },
+                ),
+            ):
+                self.assertEqual(
+                    name_import(self.store, dict(result), True)["naming"]["status"],
+                    "error",
+                )
+
+        def concurrent(*args, **kwargs):
+            doc = self.store.document(1)
+            self.store.edit_document(1, doc["version"], {"name": "用户的新名称"})
+            return response
+
+        with (
+            patch.dict(os.environ, {"RAG_LLM_API_KEY": "title-test-key"}),
+            patch("titling.post_json", side_effect=concurrent),
+        ):
+            self.assertEqual(
+                name_import(self.store, dict(result), True)["naming"]["status"], "error"
+            )
+        self.assertEqual(self.store.document(1)["name"], "用户的新名称")
 
 
 class PersistenceAcceptanceTest(unittest.TestCase):

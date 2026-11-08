@@ -289,6 +289,66 @@
       .settings {
         margin-top: 14px;
       }
+      .usage-guide,
+      .build-card {
+        margin-bottom: 18px;
+      }
+      .usage-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin-top: 14px;
+      }
+      .usage-grid p {
+        font-size: 13px;
+        color: #65716e;
+        margin: 6px 0 0;
+      }
+      progress {
+        display: block;
+        width: 100%;
+        height: 12px;
+        accent-color: var(--accent);
+        margin: 12px 0;
+      }
+      progress:indeterminate {
+        background: #dce7dc;
+        border-radius: 8px;
+      }
+      .build-card {
+        border-left: 4px solid var(--accent);
+      }
+      .build-card.failed {
+        border-left-color: #a13e34;
+      }
+      .build-card .bar {
+        margin-bottom: 8px;
+      }
+      .doc-build {
+        margin-top: 10px;
+        font-size: 13px;
+      }
+      .doc-build progress {
+        height: 7px;
+        margin: 6px 0;
+      }
+      .api-code {
+        padding: 14px;
+        background: #f3f6f1;
+        border-radius: 8px;
+        font:
+          12px/1.7 ui-monospace,
+          monospace;
+      }
+      #api-content .panel {
+        margin-bottom: 18px;
+      }
+      .import-options {
+        margin: -6px 0 18px;
+      }
+      .import-options input {
+        width: auto;
+      }
       #graph-sources {
         margin-top: 20px;
       }
@@ -317,6 +377,10 @@
         outline-offset: 2px;
       }
       @media (max-width: 850px) {
+        .usage-grid {
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
         .library-grid {
           grid-template-columns: 1fr;
         }
@@ -374,6 +438,7 @@
           <button data-tab="library" class="selected">▤　资料库</button
           ><button data-tab="search">⌕　搜索与问答</button
           ><button data-tab="graph">◎　知识图谱</button>
+          <button data-tab="api">API　智能体接入</button>
         </nav>
         <div class="side-note quiet">
           原文保存在本机。<br />智能检索和问答可能调用你配置的模型服务。
@@ -382,6 +447,54 @@
         </div>
       </aside>
       <main>
+        <details class="panel usage-guide" open>
+          <summary>
+            <strong>怎么用？先添加资料，本地搜索可以直接用</strong>
+          </summary>
+          <div class="usage-grid">
+            <div>
+              <strong>01　保存知识</strong>
+              <p>
+                导入 TXT /
+                Markdown，或新建笔记。单份正文最多1MB；标签用于整理资料列表。
+              </p>
+            </div>
+            <div>
+              <strong>02　直接搜索原文</strong>
+              <p>
+                进入“搜索与问答”，选择“关键词（本地）”。无需AI配置或构建，不发送模型请求。
+              </p>
+            </div>
+            <div>
+              <strong>03　开启智能检索与回答</strong>
+              <p>
+                在资料行构建本文，或构建全库 → 等待完成 →
+                选择“多路检索”找原文，或“DSH问答”生成答案。点击引用核对原文；修改正文后需重新构建。
+              </p>
+            </div>
+          </div>
+        </details>
+        <section id="build-card" class="panel build-card" aria-label="构建进度">
+          <div class="bar">
+            <strong id="build-title" role="status" aria-live="polite"
+              >正在检查智能功能准备状态…</strong
+            ><span class="spacer"></span
+            ><span id="build-elapsed" class="quiet"></span>
+          </div>
+          <progress
+            id="build-progress"
+            aria-label="图谱和向量构建进度"
+            hidden
+          ></progress>
+          <div id="build-detail" class="quiet"></div>
+          <div id="build-connection" class="quiet" role="status" hidden></div>
+          <div class="row" style="margin-top: 12px">
+            <button id="build-global">构建待处理文档</button
+            ><button id="build-retry" hidden>重试构建</button
+            ><button id="build-open-graph" hidden>查看知识图谱</button
+            ><button id="build-open-search">去搜索与问答</button>
+          </div>
+        </section>
         <section id="tab-library">
           <div class="bar">
             <h2>我的资料</h2>
@@ -397,6 +510,10 @@
             /><button id="demo">导入示例</button
             ><button id="export">导出全部</button>
           </div>
+          <label class="quiet import-options"
+            ><input type="checkbox" id="auto-title" checked />
+            导入时AI自动命名：仅发送正文前两段和最后一段的摘录，可能产生费用；可关闭，失败保留文件名。</label
+          >
           <div class="library-grid">
             <div class="panel">
               <div class="bar">
@@ -495,6 +612,54 @@
             <div id="graph-sources"></div>
           </div>
         </section>
+        <section id="tab-api" hidden>
+          <h2>让 Agent 使用你的知识库</h2>
+          <p class="quiet">
+            供本机 Agent /
+            代码智能体新增资料和检索原文，无需创建聊天会话。服务只监听本机、没有远程鉴权，请保持本机访问范围。接口不会返回服务器的模型Key。
+          </p>
+          <div id="api-content">
+            <div class="panel">
+              <h3>01　新增知识</h3>
+              <p class="quiet">
+                正文先保存在本机；相同正文去重。添加后可单篇构建；只有显式设置
+                auto_title=true 才调用AI自动命名。
+              </p>
+              <pre id="api-write" class="api-code"></pre>
+              <button data-copy="api-write">复制新增示例</button>
+            </div>
+            <div class="panel">
+              <h3>02　检索知识</h3>
+              <p class="quiet">
+                lexical：全库关键词检索，无模型调用。retrieve：关键词、向量和图谱，可能调用模型；未构建的资料只参与关键词检索。读取
+                hits 中的 content 和 source_id，并检查 retrieval 的通道状态。
+              </p>
+              <pre id="api-search" class="api-code"></pre>
+              <button data-copy="api-search">复制检索示例</button>
+            </div>
+            <div class="panel">
+              <h3>03　构建刚写入的资料</h3>
+              <p class="quiet">
+                把 document_id
+                替换为新增接口返回的数字。202表示任务已启动，不代表完成；轮询
+                GET /api/index，等待
+                job.status=completed。省略document_id可构建全库。
+              </p>
+              <pre id="api-build" class="api-code"></pre>
+              <button data-copy="api-build">复制构建示例</button>
+            </div>
+            <div class="panel">
+              <h3>接口契约与错误处理</h3>
+              <a href="/api/openapi.json" target="_blank" rel="noopener"
+                >打开完整 OpenAPI 契约</a
+              >
+              <p class="quiet">
+                本机地址：<code id="api-base"></code
+                >。400检查JSON字段；409等待当前任务结束或重新读取版本；422检查智能服务配置。遇到检索降级时核对返回状态，不把服务故障当成资料没有答案。构建和AI命名会使用配置的服务。
+              </p>
+            </div>
+          </div>
+        </section>
       </main>
     </div>
     <script>
@@ -512,7 +677,9 @@
         sid = "",
         messagePage = 1,
         messageTotal = 0,
-        indexTimer = null;
+        indexTimer = null,
+        lastIndex = null,
+        buildPending = false;
       function status(message, error = false) {
         $("status").textContent = message;
         $("status").classList.toggle("error", error);
@@ -615,6 +782,46 @@
           const labels = el("div", undefined, "tags");
           for (const tag of d.tags) labels.append(el("span", tag, "tag"));
           card.append(labels);
+          card.dataset.documentId = d.id;
+          const actions = el("div", undefined, "doc-build");
+          const construct = el("button", "构建本文图谱与向量");
+          construct.dataset.buildDocument = d.id;
+          construct.onclick = () => build(d.id);
+          const meter = el("progress");
+          meter.hidden = true;
+          meter.setAttribute("aria-label", d.name + "的构建进度");
+          const hint = el("div", "尚未构建，可先使用关键词搜索。", "quiet");
+          actions.append(construct, meter, hint);
+          if (d.kind === "imported") {
+            const nameButton = el("button", "AI命名");
+            nameButton.title =
+              "仅发送首两段和末一段的摘录，可能产生费用；原文不会修改";
+            nameButton.onclick = async () => {
+              nameButton.disabled = true;
+              nameButton.textContent = "正在命名…";
+              try {
+                const renamed = await api(
+                  "/api/documents/" + d.id + "/title",
+                  "POST",
+                  {},
+                );
+                if (selected?.id === d.id && !dirty)
+                  editor(await api("/api/documents/" + d.id));
+                await documents();
+                status(
+                  renamed.naming.message,
+                  renamed.naming.status === "error",
+                );
+              } catch (e) {
+                fail(e);
+              } finally {
+                nameButton.disabled = false;
+                nameButton.textContent = "AI命名";
+              }
+            };
+            actions.append(nameButton);
+          }
+          card.append(actions);
           $("documents").append(card);
         }
         if (!result.items.length)
@@ -631,6 +838,7 @@
           docPage + " / " + Math.max(1, Math.ceil(docTotal / 20));
         $("doc-prev").disabled = docPage === 1;
         $("doc-next").disabled = docPage * 20 >= docTotal;
+        renderDocumentProgress();
       }
       async function tags() {
         const chosen = $("tag-filter").value;
@@ -743,24 +951,43 @@
       $("upload").onchange = async () => {
         try {
           let created = 0;
+          const namingMessages = [];
+          $("upload-button").disabled = true;
           for (const f of $("upload").files) {
             if (f.size > 1048576) throw Error(f.name + " 超过1MB");
             const content = new TextDecoder("utf-8", { fatal: true }).decode(
               await f.arrayBuffer(),
             );
+            status(
+              "正在导入“" +
+                f.name +
+                "”" +
+                ($("auto-title").checked ? "并尝试AI命名，请稍候…" : "…"),
+            );
             const r = await api("/api/documents", "POST", {
               name: f.name,
               content,
+              auto_title: $("auto-title").checked,
             });
             created += Number(r.created);
+            if (r.naming && r.naming.status !== "completed")
+              namingMessages.push(r.naming.message);
           }
           await documents();
           await indexStatus();
-          status("导入完成，新增 " + created + " 份，相同内容已去重。");
+          status(
+            "导入完成，新增 " +
+              created +
+              " 份。" +
+              (namingMessages.length
+                ? [...new Set(namingMessages)].join("；")
+                : "可在列表构建本文，开启智能检索。"),
+          );
         } catch (e) {
           fail(e);
         } finally {
           $("upload").value = "";
+          $("upload-button").disabled = false;
         }
       };
       $("demo").onclick = async () => {
@@ -789,34 +1016,264 @@
           fail(e);
         }
       };
-      async function indexStatus() {
-        const s = await api("/api/index");
-        $("index-summary").textContent =
-          s.message + " · " + s.counts.chunks + " 个片段";
-        for (const id of ["build", "build-mobile"])
-          $(id).disabled = s.job.status === "running";
-        clearTimeout(indexTimer);
-        if (s.job.status === "running")
-          indexTimer = setTimeout(() => indexStatus().catch(fail), 2000);
-        return s;
+      function renderElapsed() {
+        const job = lastIndex?.job;
+        if (!job?.started_at) {
+          $("build-elapsed").textContent = "";
+          return;
+        }
+        const end = job.finished_at ? Date.parse(job.finished_at) : Date.now();
+        const seconds = Math.max(
+          0,
+          Math.floor((end - Date.parse(job.started_at)) / 1000),
+        );
+        $("build-elapsed").textContent =
+          (job.status === "running" ? "已用时 " : "耗时 ") +
+          Math.floor(seconds / 60) +
+          "分" +
+          (seconds % 60) +
+          "秒";
       }
-      async function build() {
+      setInterval(renderElapsed, 1000);
+      function setMeter(meter, job) {
+        const p = job.progress;
+        meter.hidden =
+          !!job.noop || !["running", "completed"].includes(job.status);
+        if (job.status === "completed") {
+          meter.max = p?.total_chunks || 1;
+          meter.value = meter.max;
+        } else if (p?.phase === "processing" && p.total_chunks > 0) {
+          meter.max = p.total_chunks;
+          meter.value = p.completed_chunks;
+        } else meter.removeAttribute("value");
+      }
+      function renderDocumentProgress() {
+        const s = lastIndex,
+          job = s?.job;
+        for (const card of document.querySelectorAll(
+          ".doc-row[data-document-id]",
+        )) {
+          const id = Number(card.dataset.documentId),
+            button = card.querySelector("[data-build-document]");
+          const meter = card.querySelector("progress"),
+            hint = card.querySelector(".doc-build .quiet");
+          const active =
+            job?.status === "running" &&
+            (!job.document_id || job.document_id === id);
+          button.disabled = buildPending || job?.status === "running";
+          button.textContent = active ? "正在构建…" : "构建本文图谱与向量";
+          meter.hidden = !active;
+          if (active) {
+            if (job.document_id) setMeter(meter, job);
+            else meter.removeAttribute("value");
+            hint.textContent = job.document_id
+              ? progressText(job)
+              : "全库正在构建，详见上方进度。";
+          } else if (job?.status === "error" && job.document_id === id) {
+            hint.textContent = "本篇构建失败，可重试；关键词搜索仍可用。";
+          } else if (s?.indexed_document_ids?.includes(id))
+            hint.textContent = "图谱与向量已就绪，可使用智能检索。";
+          else
+            hint.textContent =
+              s?.status === "stale"
+                ? "资料或配置已变化，请构建以更新智能检索。"
+                : "尚未构建，仍可使用关键词搜索。";
+        }
+      }
+      function progressText(job) {
+        const p = job.progress;
+        if (!p || p.phase === "preparing") return "正在准备资料与服务连接…";
+        if (p.phase === "publishing")
+          return "内容处理完成，正在校验图谱、向量与来源并发布…";
+        return (
+          "已处理 " +
+          p.completed_chunks +
+          " / " +
+          p.total_chunks +
+          " 段内容，正在抽取实体关系与生成向量。此计数不含最后的校验发布。"
+        );
+      }
+      function modeHint() {
+        const mode = $("mode").value,
+          s = lastIndex;
+        $("mode-hint").textContent =
+          mode === "lexical"
+            ? "全库关键词搜索，只返回原文；无需构建，不调用模型。"
+            : (mode === "retrieve"
+                ? "返回多路检索的原文，不生成最终答案。"
+                : "根据原文生成带引用的答案，请点击出处核对。") +
+              (s?.status === "ready"
+                ? s.coverage === "partial"
+                  ? "部分资料已构建，其余仅关键词检索。"
+                  : "图谱与向量已就绪。"
+                : "尚未就绪：当前会使用关键词候选，建议先构建或重建。") +
+              "可能调用模型和向量服务并产生费用。";
+        $("send").textContent = mode === "generate" ? "生成答案" : "查找原文";
+      }
+      function renderIndex() {
+        const s = lastIndex;
+        if (!s) return;
+        const job = s.job,
+          running = job.status === "running";
+        const ready = s.status === "ready";
+        const noop =
+          job.noop &&
+          ready &&
+          (job.document_id
+            ? s.indexed_document_ids?.includes(job.document_id)
+            : s.coverage === "complete");
+        $("index-summary").textContent =
+          (running ? "正在构建" : s.message) +
+          " · " +
+          s.counts.documents +
+          " 份资料";
+        $("build-card").classList.toggle("failed", job.status === "error");
+        $("build-title").textContent = buildPending
+          ? "正在启动构建…"
+          : noop
+            ? job.message
+            : running
+              ? job.document_id
+                ? "正在构建当前文档"
+                : "正在构建待处理文档"
+              : job.status === "error"
+                ? "本次构建未完成"
+                : ready
+                  ? "智能检索已准备好"
+                  : "智能检索尚未准备好";
+        $("build-detail").textContent = noop
+          ? job.document_id
+            ? "本文内容已就绪，未启动任务，也没有调用模型。其他未构建资料可使用总按钮处理。"
+            : "全部当前文档均已就绪，未启动任务，也没有调用模型。新增或修改正文后再构建即可。"
+          : running
+            ? progressText(job) +
+              " 请保持应用运行；模型处理可能需要数分钟。可浏览或本地搜索，暂不要修改或删除正文。"
+            : job.status === "error"
+              ? job.message
+              : ready
+                ? s.message + "。可查看图谱，或在搜索页选择多路检索 / DSH问答。"
+                : !s.counts.documents
+                  ? "先导入TXT / Markdown或新建笔记。本地关键词搜索无需构建；有资料后可构建单篇或全库。"
+                  : !s.llm_ready || !s.dependency_ready
+                    ? "请先配置图谱模型与向量服务后重启应用；资料管理和本地搜索仍可使用。"
+                    : s.status === "stale"
+                      ? "正文或模型配置已变化，请构建相关文档或全库以更新智能检索。"
+                      : "在文档列表构建本文，或点击下方构建全库。完成后可用图谱、向量与AI问答；本地关键词现在就能使用。";
+        for (const id of ["build", "build-mobile", "build-global"]) {
+          $(id).disabled = buildPending || running || !s.counts.documents;
+          $(id).textContent =
+            running || buildPending ? "正在构建…" : "构建待处理文档";
+        }
+        $("build-retry").hidden = job.status !== "error";
+        $("build-retry").disabled = buildPending;
+        $("build-open-graph").hidden = !ready;
+        setMeter($("build-progress"), job);
+        if (buildPending) {
+          $("build-progress").hidden = false;
+          $("build-progress").removeAttribute("value");
+        }
+        renderElapsed();
+        renderDocumentProgress();
+        modeHint();
+      }
+      async function pollIndex() {
+        try {
+          await indexStatus();
+        } catch {
+          $("build-connection").hidden = false;
+          $("build-connection").textContent =
+            "连接暂时中断，进度可能已变化；3秒后自动重试。请确认本地应用仍在运行。";
+          indexTimer = setTimeout(pollIndex, 3000);
+        }
+      }
+      async function indexStatus() {
+        const before = lastIndex?.job;
+        lastIndex = await api("/api/index");
+        $("build-connection").hidden = true;
+        renderIndex();
+        clearTimeout(indexTimer);
+        if (lastIndex.job.status === "running")
+          indexTimer = setTimeout(pollIndex, 2000);
+        else if (before?.status === "running") {
+          status(lastIndex.job.message, lastIndex.job.status === "error");
+          if (lastIndex.status === "ready" && !$("tab-graph").hidden)
+            graph().catch(fail);
+        }
+        return lastIndex;
+      }
+      async function build(documentId = null) {
+        if (buildPending || lastIndex?.job.status === "running") return;
+        const scope = documentId
+          ? "当前文档的全文"
+          : "待构建或正文已变化的资料";
         if (
           !confirm(
-            "构建会将全部当前资料发送到你配置的图谱模型和Embedding服务，可能产生费用。开始构建吗？",
+            "构建会将" +
+              scope +
+              "发送到已配置的模型与向量服务，可能产生费用。已构建且未变化的内容会复用。保持应用运行，完成后再编辑正文。开始吗？",
           )
         )
           return;
+        buildPending = true;
+        renderIndex();
         try {
-          await api("/api/index", "POST", {});
+          const job = await api(
+            "/api/index",
+            "POST",
+            documentId ? { document_id: documentId } : {},
+          );
           await indexStatus();
-          status("构建已启动，可继续浏览资料。");
+          status(
+            job.noop
+              ? job.message
+              : "构建已启动，可在上方或文档行查看进度。请保持应用运行。",
+          );
         } catch (e) {
           fail(e);
+        } finally {
+          buildPending = false;
+          renderIndex();
         }
       }
-      $("build").onclick = build;
-      $("build-mobile").onclick = build;
+      for (const id of ["build", "build-mobile", "build-global"])
+        $(id).onclick = () => build();
+      $("build-retry").onclick = () =>
+        build(lastIndex?.job.document_id || null);
+      $("build-open-graph").onclick = () =>
+        document.querySelector('[data-tab="graph"]').click();
+      $("build-open-search").onclick = () =>
+        document.querySelector('[data-tab="search"]').click();
+      $("api-base").textContent = location.origin;
+      function curlExample(path, data) {
+        return [
+          "curl -X POST '" + location.origin + path + "' " + "\\",
+          "  -H 'Content-Type: application/json' " + "\\",
+          "  -d '" + JSON.stringify(data, null, 2) + "'",
+        ].join("\n");
+      }
+      $("api-write").textContent = curlExample("/api/documents", {
+        name: "项目约定.md",
+        content: "部署前必须完成测试与备份。",
+        auto_title: false,
+      });
+      $("api-search").textContent = curlExample("/api/knowledge/search", {
+        query: "部署前要做什么？",
+        mode: "lexical",
+      });
+      $("api-build").textContent =
+        curlExample("/api/index", { document_id: 1 }) +
+        "\n\n# 查询进度\ncurl '" +
+        location.origin +
+        "/api/index'";
+      for (const b of document.querySelectorAll("[data-copy]"))
+        b.onclick = async () => {
+          try {
+            await navigator.clipboard.writeText($(b.dataset.copy).textContent);
+            status("示例已复制，可交给本机Agent执行。");
+          } catch {
+            status("无法自动复制，请选中示例文本复制。");
+          }
+        };
       function sourceCard(source) {
         const d = el("details", undefined, "source");
         d.append(
@@ -974,19 +1431,16 @@
         messagePage++;
         messages().catch(fail);
       };
-      $("mode").onchange = () => {
-        $("mode-hint").textContent =
-          $("mode").value === "lexical"
-            ? "仅本机关键词，不调用模型。"
-            : "可能调用模型及Embedding服务，产生费用。";
-        $("send").textContent =
-          $("mode").value === "generate" ? "提问" : "查找";
-      };
+      $("mode").onchange = modeHint;
       $("send").onclick = async () => {
         const b = $("send");
         b.disabled = true;
         try {
-          status("正在查找资料，请稍候…");
+          status(
+            $("mode").value === "generate"
+              ? "正在检索原文并生成答案，请稍候…"
+              : "正在查找原文，请稍候…",
+          );
           const r = await api("/api/ask", "POST", {
             session_id: sid,
             question: $("question").value,
@@ -1116,7 +1570,7 @@
       $("graph-refresh").onclick = () => graph().catch(fail);
       for (const button of document.querySelectorAll("[data-tab]"))
         button.onclick = async () => {
-          for (const tab of ["library", "search", "graph"])
+          for (const tab of ["library", "search", "graph", "api"])
             $("tab-" + tab).hidden = tab !== button.dataset.tab;
           for (const b of document.querySelectorAll("[data-tab]"))
             b.classList.toggle("selected", b === button);

@@ -1,0 +1,13 @@
+
+> personal-knowledge-assistant@1.0.0-rc.1 spec:validate
+> openspec validate --all --strict --no-interactive
+
+✓ spec/agent-knowledge-api
+✓ change/close-offline-acceptance-gaps
+✓ spec/document-display-titles
+✓ spec/index-build-feedback
+✓ change/index-build-feedback
+✓ spec/model-output-safety
+✓ spec/tool-process-lifecycle
+✓ change/verify-real-model-quality
+Totals: 8 passed, 0 failed (8 items)

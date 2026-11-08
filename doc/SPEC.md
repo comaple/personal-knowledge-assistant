@@ -352,3 +352,19 @@ python maintain.py clean-index --db data/knowledge.db
 | --- | --- | --- |
 | 0.3 | 2026-11-07 | SDD 草案和独立 Verify |
 | 1.0 | 2026-11-07 | 冻结数据、版本/冲突、一致性、模式、接口、错误和维护协议；补齐迁移及开发追溯；未修改实现 |
+
+## 构建反馈增量（2026-11-08）
+
+FR-04/FR-08/FR-11：Job可选progress={phase,completed_chunks,total_chunks}，phase为preparing/processing/publishing/completed/error。仅处理阶段使用真实片段完成计数；未观测比例、校验发布时为不定进度，不能按时间伪造总体百分比，发布成功才完成。进度为派生临时状态，不包含正文、Key或原始服务诊断；中间记录不可用不影响原子构建。页面主区域跨页/刷新/移动可见，包含耗时、连接中断自动重试及完成/失败后的操作。
+
+使用指引说明资料先保存、本地搜索无需Key/索引、智能模式构建与降级范围、正文变更重建；构建前确认外发范围，运行时提示保持应用、不修改正文。旧Job无progress时兼容为不定进度，不影响旧API消费者。
+
+单篇构建：POST /api/index接受可选document_id，Job返回document_id。manifest v3覆盖当前原文片段的非空子集，必须以完整文档为单位；v2保持全覆盖校验。Index新增indexed_document_ids、coverage，counts新增indexed_chunks；旧代经文件摘要验证后拷贝到新代，删除失效backend doc，仅向ainsert提交未processed内容。发布仍要求全局revision匹配。
+
+Agent：POST /api/knowledge/search接受query和mode（lexical/retrieve，默认retrieve），返回既有KnowledgeSearch结构；GET /api/openapi.json下载当前无凭据契约；写入复用POST /api/documents。仅本机、原Host/Origin与请求范围校验生效。
+
+命名：ImportRequest新增可选auto_title（默认false），响应可选naming={status,message}。保存及去重后，仅新导入且开启时提取首两段/末一段（按空行分段，不足时按现有段落，单段最多1200字符、去重重叠索引），用Chat Completions产生≤80字符单行标题；使用当前version乐观更新name，正文与chunk不变。失败/无Key/并发冲突不会撤销导入或覆盖用户最新编辑。
+
+总构建仅处理待构建/已变更资料；Job.progress.total_chunks计本轮待处理片段，不含复用片段。全部已就绪时POST /api/index返回200 Job（noop=true、status=completed、message=没有新文档可构建），不新建子进程。确需移除删除来源或重新绑定语料revision时可进行零新增内容的校验发布。启动传递expected_revision，子进程开始前校验，避免计划和实际正文错位。
+
+已有资料可POST /api/documents/{id}/title（空JSON）再次AI命名；仅修改显示名，沿用摘录、失败及乐观锁边界。响应ImportResult，created=false，并包含naming状态。

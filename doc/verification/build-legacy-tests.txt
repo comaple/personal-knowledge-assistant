@@ -1,0 +1,6 @@
+test_single_document_build_reuses_processed_sources_and_tracks_coverage (test_rag.LightRagTest.test_single_document_build_reuses_processed_sources_and_tracks_coverage) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 10.202s
+
+OK

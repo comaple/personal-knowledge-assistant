@@ -10,7 +10,7 @@ import shutil
 import sys
 import tempfile
 import uuid
-from contextlib import redirect_stdout
+from contextlib import redirect_stdout, suppress
 from dataclasses import dataclass
 from pathlib import Path
 from urllib import error, request
@@ -67,7 +67,7 @@ def index_root(store):
     return store.path.resolve().parent / (store.path.stem + "-rag-index")
 
 
-def validate_generation(store, generation, revision, profile):
+def validate_generation(store, generation, revision, profile, check_live=True):
     if (
         not isinstance(generation, str)
         or len(generation) != 32
@@ -78,7 +78,7 @@ def validate_generation(store, generation, revision, profile):
     manifest = json.loads((directory / "manifest.json").read_text())
     graph = json.loads((directory / "graph.json").read_text())
     if (
-        manifest.get("format_version") != 2
+        manifest.get("format_version") not in (2, 3)
         or manifest["revision"] != revision
         or manifest["profile"] != profile
     ):
@@ -91,19 +91,30 @@ def validate_generation(store, generation, revision, profile):
             != manifest["files"][name]
         ):
             raise ValueError("索引文件摘要不匹配")
-    snapshot_revision, rows = store.corpus_snapshot()
-    store.assert_revision(revision)
-    if snapshot_revision != revision:
-        raise ValueError("语料版本已变化")
-    live = {row["chunk_id"] for row in rows}
     referenced = {cid for values in manifest["source_map"].values() for cid in values}
-    if referenced != live or len(live) != manifest["counts"]["chunks"]:
+    if not referenced or len(referenced) != manifest["counts"]["chunks"]:
         raise ValueError("索引来源无效")
+    if check_live:
+        snapshot_revision, rows = store.corpus_snapshot()
+        store.assert_revision(revision)
+        live = {row["chunk_id"] for row in rows}
+        if snapshot_revision != revision or not referenced <= live:
+            raise ValueError("语料版本已变化")
+        if manifest["format_version"] == 2 and referenced != live:
+            raise ValueError("索引来源无效")
+        document_chunks = {}
+        for row in rows:
+            document_chunks.setdefault(row["document_id"], set()).add(row["chunk_id"])
+        if any(
+            cids & referenced and not cids <= referenced
+            for cids in document_chunks.values()
+        ):
+            raise ValueError("文档索引不完整")
     node_ids = {n["id"] for n in graph["nodes"]}
     if len(node_ids) != len(graph["nodes"]):
         raise ValueError("重复实体")
     for row in graph["nodes"] + graph["edges"]:
-        if not row["chunk_ids"] or not set(row["chunk_ids"]) <= live:
+        if not row["chunk_ids"] or not set(row["chunk_ids"]) <= referenced:
             raise ValueError("图谱来源缺失")
     for edge in graph["edges"]:
         if edge["source"] not in node_ids or edge["target"] not in node_ids:
@@ -122,11 +133,14 @@ def index_status(store):
         "profile": None,
         "dependency_ready": importlib.util.find_spec("lightrag") is not None,
         "llm_ready": False,
+        "coverage": "none",
+        "indexed_document_ids": [],
         "counts": {
             "documents": len(documents),
             "chunks": sum(row["chunk_count"] for row in documents),
             "entities": 0,
             "relations": 0,
+            "indexed_chunks": 0,
         },
         "job": {
             "job_id": None,
@@ -147,6 +161,15 @@ def index_status(store):
         return info
     if not info["dependency_ready"] or not info["llm_ready"]:
         return {**info, "status": "unavailable", "message": "图谱依赖或模型配置缺失"}
+    try:
+        current_revision, rows, reusable, _ = build_plan(store)
+        if current_revision == info["revision"]:
+            info["indexed_document_ids"] = sorted(
+                {r["document_id"] for r in rows if r["chunk_id"] in reusable}
+            )
+            info["counts"]["indexed_chunks"] = len(reusable)
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
     if (
         state["built_revision"] != state["revision"]
         or state["profile"] != config.profile()
@@ -166,11 +189,27 @@ def index_status(store):
             "status": "missing",
             "message": "索引文件、格式或来源映射无效，请重建",
         }
+    referenced = {cid for values in manifest["source_map"].values() for cid in values}
+    indexed_docs = sorted(
+        {r["document_id"] for r in store.chunks_by_ids(sorted(referenced))}
+    )
+    complete = len(referenced) == info["counts"]["chunks"]
     return {
         **info,
         "status": "ready",
-        "message": "图谱和向量索引就绪",
-        "counts": {"documents": info["counts"]["documents"], **manifest["counts"]},
+        "message": (
+            "图谱和向量索引就绪"
+            if complete
+            else f"已构建{len(indexed_docs)}/{len(documents)}份资料；其余资料仍可关键词检索"
+        ),
+        "coverage": "complete" if complete else "partial",
+        "indexed_document_ids": indexed_docs,
+        "counts": {
+            **info["counts"],
+            **manifest["counts"],
+            "chunks": info["counts"]["chunks"],
+            "indexed_chunks": len(referenced),
+        },
     }
 
 
@@ -289,21 +328,81 @@ async def create_rag(directory, config):
     return rag
 
 
-async def build_index(store):
+def build_plan(store, document_id=None):
+    revision, rows = store.corpus_snapshot()
+    if document_id is not None:
+        store.document(document_id)
+    config, state = RagConfig.from_env(), store.rag_state()
+    refs = set()
+    if state["generation"] and state["profile"] == config.profile():
+        try:
+            previous, _ = validate_generation(
+                store,
+                state["generation"],
+                state["built_revision"],
+                config.profile(),
+                check_live=False,
+            )
+            refs = {cid for values in previous["source_map"].values() for cid in values}
+        except (OSError, ValueError, KeyError, TypeError):
+            pass
+    by_doc = {}
+    for row in rows:
+        by_doc.setdefault(row["document_id"], set()).add(row["chunk_id"])
+    reusable = {cid for cids in by_doc.values() if cids <= refs for cid in cids}
+    pending = {
+        r["chunk_id"]
+        for r in rows
+        if r["chunk_id"] not in reusable
+        and (document_id is None or r["document_id"] == document_id)
+    }
+    return revision, rows, reusable, pending
+
+
+async def build_index(store, progress=None, document_id=None, expected_revision=None):
     config = RagConfig.from_env()
     if not config.llm_key:
         raise RuntimeError("构建图谱需要配置 RAG_LLM_API_KEY 或 LLM_API_KEY")
-    revision, chunks = store.corpus_snapshot()
+    revision, chunks, reusable, target_ids = build_plan(store, document_id)
+    if expected_revision is not None and revision != expected_revision:
+        raise RuntimeError("构建开始前资料已变化，请重新构建")
     if not chunks:
         raise ValueError("请先导入资料")
     if len(chunks) > 500:
         raise ValueError("教学版每次最多构建 500 个片段，请缩小资料集")
+    report = progress or (lambda *args: None)
+    report("preparing", 0, len(target_ids))
     generation = uuid.uuid4().hex
     directory = index_root(store) / generation
     directory.mkdir(parents=True)
     rag = None
+    monitor = None
     published = False
     try:
+        state = store.rag_state()
+        if state["generation"] and state["profile"] == config.profile():
+            try:
+                previous, _ = validate_generation(
+                    store,
+                    state["generation"],
+                    state["built_revision"],
+                    config.profile(),
+                    check_live=False,
+                )
+                shutil.copytree(
+                    index_root(store) / state["generation"],
+                    directory,
+                    dirs_exist_ok=True,
+                )
+                (directory / "manifest.json").unlink()
+                (directory / "graph.json").unlink()
+            except (OSError, ValueError, KeyError, TypeError):
+                if reusable:
+                    raise RuntimeError("复用索引不可用，请重试构建") from None
+                shutil.rmtree(directory)
+                directory.mkdir()
+        if document_id is not None:
+            chunks = [r for r in chunks if r["chunk_id"] in target_ids | reusable]
         rag = await create_rag(directory, config)
         # LightRAG deduplicates normalized input text even with explicit IDs.
         # Retain every SQLite source behind each unique backend input.
@@ -316,16 +415,53 @@ async def build_index(store):
             )
         groups = list(grouped.values())
         ids = [f"sqlite-{group[0]['chunk_id']}" for group in groups]
-        await rag.ainsert(
-            [group[0]["content"] for group in groups],
-            ids=ids,
-            file_paths=[f"{value}.txt" for value in ids],
+        status_path = directory / "kv_store_doc_status.json"
+        old_ids = (
+            set(json.loads(status_path.read_text())) if status_path.exists() else set()
         )
+        for obsolete in old_ids - set(ids):
+            deletion = await rag.adelete_by_doc_id(obsolete)
+            if deletion.status not in ("success", "not_found"):
+                raise RuntimeError("旧片段清理失败，请重试全库构建")
+
+        async def observe():
+            while True:
+                try:
+                    states = await rag.doc_status.get_by_ids(ids)
+                    done = sum(
+                        sum(c["chunk_id"] in target_ids for c in group)
+                        for group, state in zip(groups, states)
+                        if state and state.get("status") == "processed"
+                    )
+                    report("processing", done, len(target_ids))
+                except Exception:
+                    pass  # Telemetry must not break the atomic build.
+                await asyncio.sleep(0.5)
+
+        report("processing", 0, len(target_ids))
+        monitor = asyncio.create_task(observe())
+        existing = await rag.doc_status.get_by_ids(ids)
+        pending = [
+            (group, value)
+            for group, value, status in zip(groups, ids, existing)
+            if not status or status.get("status") != "processed"
+        ]
+        if pending:
+            await rag.ainsert(
+                [g[0]["content"] for g, _ in pending],
+                ids=[value for _, value in pending],
+                file_paths=[f"{value}.txt" for _, value in pending],
+            )
         statuses = await rag.doc_status.get_by_ids(ids)
+        monitor.cancel()
+        with suppress(asyncio.CancelledError):
+            await monitor
+        monitor = None
         if len(statuses) != len(groups) or any(
             not item or item.get("status") != "processed" for item in statuses
         ):
             raise RuntimeError("部分片段未完成图谱构建，本次索引未发布")
+        report("publishing", len(target_ids), len(target_ids))
         mapping = {}
         for group, status in zip(groups, statuses):
             for key in status.get("chunks_list", []):
@@ -367,7 +503,7 @@ async def build_index(store):
         await rag.finalize_storages()
         rag = None
         manifest = {
-            "format_version": 2,
+            "format_version": 3,
             "version": LIGHTRAG_VERSION,
             "revision": revision,
             "profile": config.profile(),
@@ -396,6 +532,10 @@ async def build_index(store):
         published = True
         return index_status(store)
     finally:
+        if monitor is not None:
+            monitor.cancel()
+            with suppress(asyncio.CancelledError):
+                await monitor
         if rag is not None:
             await rag.finalize_storages()
         if not published:
@@ -497,13 +637,36 @@ def main():
     parser.add_argument("--db", required=True)
     parser.add_argument("--query")
     parser.add_argument("--context")
+    parser.add_argument("--progress-file")
+    parser.add_argument("--document-id", type=int)
+    parser.add_argument("--expected-revision", type=int)
     args = parser.parse_args()
     load_env(ROOT / ".env")
+
+    def report(phase, completed, total):
+        if not args.progress_file:
+            return
+        path = Path(args.progress_file)
+        try:
+            temp = path.with_suffix(".tmp")
+            temp.write_text(
+                json.dumps(
+                    {
+                        "phase": phase,
+                        "completed_chunks": completed,
+                        "total_chunks": total,
+                    }
+                )
+            )
+            temp.replace(path)
+        except OSError:
+            pass
+
     try:
         store = Store(args.db, readonly=args.operation == "query")
         with redirect_stdout(sys.stderr):
             result = asyncio.run(
-                build_index(store)
+                build_index(store, report, args.document_id, args.expected_revision)
                 if args.operation == "build"
                 else query_index(
                     store,

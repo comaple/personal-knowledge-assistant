@@ -1,0 +1,27 @@
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET /api/config HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET /api/tags HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET /api/documents?page=1&page_size=20 HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET /api/index HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET /api/sessions?page_size=100&page=1 HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "POST /api/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET /api/sessions?page_size=100&page=1 HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET /api/messages?session_id=1ea9093b-f20e-4ed5-a050-7ddfd05fd95d&page_size=100&page=1 HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "POST /api/documents HTTP/1.1" 201 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "POST /api/knowledge/search HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET /api/openapi.json HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET /api/index HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET /api/config HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET /api/tags HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET /api/documents?page=1&page_size=20 HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET /api/sessions?page_size=100&page=1 HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET /api/messages?session_id=1ea9093b-f20e-4ed5-a050-7ddfd05fd95d&page_size=100&page=1 HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET /api/config HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET /api/tags HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET /api/documents?page=1&page_size=20 HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET /api/sessions?page_size=100&page=1 HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:38:08] "GET /api/messages?session_id=1ea9093b-f20e-4ed5-a050-7ddfd05fd95d&page_size=100&page=1 HTTP/1.1" 200 -
+{"framework":"Real Chrome + isolated HTTP application; deterministic job-state responses for browser transition tests","checks":["API navigation, valid copyable multiline curl, actual agent write/search/OpenAPI without chat","Document-row action targets document_id; progress and elapsed survive reload/tab switch/390px","Polling failure keeps progress and retries; publishing is indeterminate rather than premature completion","Completion offers next actions; failure allows retry; all-built noop is explicit and starts no progress"],"status":"PASS"}

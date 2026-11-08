@@ -321,10 +321,11 @@ class LightRagTest(unittest.TestCase):
         self.environ.start()
         self.addCleanup(self.environ.stop)
 
-    def build(self):
+    def build(self, document_id=None):
         # Fresh process also proves persistence survives process exit.
         result = subprocess.run(
-            [sys.executable, "rag_backend.py", "build", "--db", str(self.store.path)],
+            [sys.executable, "rag_backend.py", "build", "--db", str(self.store.path)]
+            + (["--document-id", str(document_id)] if document_id is not None else []),
             text=True,
             capture_output=True,
             timeout=120,
@@ -332,6 +333,60 @@ class LightRagTest(unittest.TestCase):
         if result.returncode:
             self.fail(result.stdout + "\n" + result.stderr[-6000:])
         return json.loads(result.stdout)
+
+    def test_single_document_build_reuses_processed_sources_and_tracks_coverage(self):
+        first = self.build(self.doc1["document_id"])
+        self.assertEqual(first["coverage"], "partial")
+        self.assertEqual(first["indexed_document_ids"], [self.doc1["document_id"]])
+        before = len(
+            [r for r in MockProviders.requests if r[0].endswith("chat/completions")]
+        )
+        second = self.build(self.doc2["document_id"])
+        self.assertEqual(second["coverage"], "complete")
+        self.assertEqual(second["indexed_document_ids"], [1, 2])
+        legacy_path = index_root(self.store) / second["generation"] / "manifest.json"
+        legacy = json.loads(legacy_path.read_text())
+        legacy["format_version"] = 2
+        legacy_path.write_text(json.dumps(legacy))
+        self.assertEqual(index_status(self.store)["status"], "ready")
+        calls = [
+            r for r in MockProviders.requests if r[0].endswith("chat/completions")
+        ][before:]
+        extraction_prompts = [
+            r[1]["messages"][-1]["content"]
+            for r in calls
+            if "entity" in r[1]["messages"][0]["content"].lower()
+        ]
+        self.assertTrue(calls)
+        self.assertTrue(all("摄影课由林老师负责" not in p for p in extraction_prompts))
+        found = search_knowledge(self.store, "摄影课退出最迟什么时候办理？")
+        self.assertEqual(found["retrieval"]["mode"], "hybrid")
+        self.assertIn(2, {h["document_id"] for h in found["hits"]})
+        from index_jobs import IndexJobs
+
+        with patch(
+            "index_jobs.subprocess.Popen",
+            side_effect=AssertionError("noop spawned a process"),
+        ):
+            noop = IndexJobs(self.store).start()
+            self.assertTrue(noop["noop"])
+            self.assertIn("没有新文档", noop["message"])
+        self.store.edit_document(
+            1, 1, {"content": "摄影课负责人为林老师，事务联系青松教务。"}
+        )
+        old = {h["chunk_id"] for h in found["hits"] if h["document_id"] == 1}
+        updated = self.build(1)
+        self.assertEqual(updated["coverage"], "complete")
+        manifest = json.loads(
+            (
+                index_root(self.store) / updated["generation"] / "manifest.json"
+            ).read_text()
+        )
+        self.assertFalse(
+            old & {c for cs in manifest["source_map"].values() for c in cs}
+        )
+        self.store.delete_document(2, 1)
+        self.assertEqual(self.build(1)["indexed_document_ids"], [1])
 
     def test_real_graph_vector_recall_and_persistent_provenance(self):
         status = self.build()
@@ -564,6 +619,9 @@ class LightRagTest(unittest.TestCase):
                 self.assertEqual(response.status, 202)
                 job_id = json.load(response)["job_id"]
             self.assertTrue(entered.wait(8))
+            snapshot = app.index_jobs.snapshot()
+            self.assertEqual(snapshot["progress"]["total_chunks"], 2)
+            self.assertEqual(snapshot["progress"]["completed_chunks"], 0)
             with self.assertRaises(error.HTTPError) as caught:
                 start()
             self.assertEqual(caught.exception.code, 409)
@@ -578,6 +636,10 @@ class LightRagTest(unittest.TestCase):
             time.sleep(0.1)
         self.assertEqual(app.index_jobs.snapshot()["status"], "completed")
         self.assertEqual(app.index_jobs.snapshot()["job_id"], job_id)
+        self.assertEqual(
+            app.index_jobs.snapshot()["progress"],
+            {"phase": "completed", "completed_chunks": 2, "total_chunks": 2},
+        )
         with (
             patch.dict(os.environ, {"EMBEDDING_DIM": "9"}),
             patch(
@@ -653,6 +715,7 @@ class LightRagTest(unittest.TestCase):
 
         self.build()
         old_generation = self.store.rag_state()["generation"]
+        import_text(self.store, "待构建资料.md", "新增摄影课记录：事务联系青松教务。")
         build_entered, build_release = threading.Event(), threading.Event()
         turn_entered, turn_release = threading.Event(), threading.Event()
         MockProviders.mutate = lambda: (build_entered.set(), build_release.wait(10))
@@ -792,6 +855,7 @@ class LightRagTest(unittest.TestCase):
     def test_failed_rebuild_cannot_replace_published_generation(self):
         self.build()
         generation = self.store.rag_state()["generation"]
+        import_text(self.store, "待处理.md", "新的课程记录需要构建向量。")
         MockProviders.fail_embeddings = True
         failed = subprocess.run(
             [sys.executable, "rag_backend.py", "build", "--db", str(self.store.path)],

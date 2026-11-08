@@ -22,6 +22,7 @@ from retrieval import cancel_queries, search_knowledge
 from runtime import DatabaseLock
 from settings import load_env
 from store import Store
+from titling import name_import
 
 ROOT = Path(__file__).resolve().parent
 
@@ -146,6 +147,10 @@ def make_server(store, port=8501):
                                 "harness": "dsh",
                             }
                         )
+                    if path == "/api/openapi.json":
+                        return self.send(
+                            json.loads((ROOT / "doc/openapi.json").read_text())
+                        )
                     if path == "/api/documents":
                         tag = None
                         if "tag" in query:
@@ -208,6 +213,25 @@ def make_server(store, port=8501):
                                 self.wfile.write(part)
                         return
                 if method == "POST":
+                    title_match = re.fullmatch(
+                        r"/api/documents/([1-9][0-9]*)/title", path
+                    )
+                    if title_match:
+                        validate("Empty", data)
+                        doc = store.document(int(title_match[1]))
+                        return self.send(
+                            name_import(
+                                store,
+                                {
+                                    "document_id": doc["id"],
+                                    "created": False,
+                                    "chunk_count": doc["chunk_count"],
+                                    "version": doc["version"],
+                                },
+                                True,
+                                force=True,
+                            )
+                        )
                     if path in ("/api/documents", "/api/notes"):
                         validate(
                             "ImportRequest"
@@ -221,6 +245,10 @@ def make_server(store, port=8501):
                             data["content"],
                             "imported" if path.endswith("documents") else "note",
                         )
+                        if path == "/api/documents":
+                            result = name_import(
+                                store, result, data.get("auto_title", False)
+                            )
                         return self.send(result, 201 if result["created"] else 200)
                     if path == "/api/demo":
                         validate("Empty", data)
@@ -237,8 +265,18 @@ def make_server(store, port=8501):
                             raise
                         return self.send(completed)
                     if path == "/api/index":
-                        validate("Empty", data)
-                        return self.send(jobs.start(), 202)
+                        validate("BuildIndexRequest", data)
+                        job = jobs.start(data.get("document_id"))
+                        return self.send(job, 200 if job.get("noop") else 202)
+                    if path == "/api/knowledge/search":
+                        validate("AgentSearchRequest", data)
+                        return self.send(
+                            search_knowledge(
+                                store,
+                                text(data["query"], 1000, "查询"),
+                                lexical_only=data.get("mode", "retrieve") == "lexical",
+                            )
+                        )
                     if path == "/api/sessions":
                         validate("Empty", data)
                         return self.send({"session_id": store.new_session()}, 201)

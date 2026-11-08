@@ -1,0 +1,17 @@
+test_agent_add_search_and_openapi_without_session_or_key (test_acceptance.AgentAndNamingAcceptanceTest.test_agent_add_search_and_openapi_without_session_or_key) ... 127.0.0.1 - - [08/Nov/2026 13:29:10] "POST /api/documents HTTP/1.1" 201 -
+127.0.0.1 - - [08/Nov/2026 13:29:10] "POST /api/knowledge/search HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:29:10] "GET /api/openapi.json HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:29:10] "POST /api/knowledge/search HTTP/1.1" 400 -
+127.0.0.1 - - [08/Nov/2026 13:29:10] "POST /api/knowledge/search HTTP/1.1" 403 -
+ok
+test_http_naming_is_opt_in_and_existing_documents_can_be_renamed (test_acceptance.AgentAndNamingAcceptanceTest.test_http_naming_is_opt_in_and_existing_documents_can_be_renamed) ... 127.0.0.1 - - [08/Nov/2026 13:29:10] "POST /api/documents HTTP/1.1" 201 -
+127.0.0.1 - - [08/Nov/2026 13:29:10] "POST /api/documents/1/title HTTP/1.1" 200 -
+127.0.0.1 - - [08/Nov/2026 13:29:10] "POST /api/documents HTTP/1.1" 201 -
+ok
+test_title_excerpts_are_bounded_and_exclude_middle_paragraphs (test_acceptance.AgentAndNamingAcceptanceTest.test_title_excerpts_are_bounded_and_exclude_middle_paragraphs) ... ok
+test_title_success_dedup_failure_and_concurrent_edit_preserve_content (test_acceptance.AgentAndNamingAcceptanceTest.test_title_success_dedup_failure_and_concurrent_edit_preserve_content) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 2.177s
+
+OK

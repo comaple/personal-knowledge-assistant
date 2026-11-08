@@ -1,0 +1,10 @@
+{
+  "framework": "Real Chrome + isolated HTTP application; deterministic job-state responses for browser transition tests",
+  "checks": [
+    "API navigation, valid copyable multiline curl, actual agent write/search/OpenAPI without chat",
+    "Document-row action targets document_id; progress and elapsed survive reload/tab switch/390px",
+    "Polling failure keeps progress and retries; publishing is indeterminate rather than premature completion",
+    "Completion offers next actions; failure allows retry; all-built noop is explicit and starts no progress"
+  ],
+  "status": "PASS"
+}

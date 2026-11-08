@@ -1,0 +1,23 @@
+{
+  "base_commit": "b7f542ef65fbc4022ce3af0a7b95a4bd037ad3cf",
+  "source_sha256": {
+    "app.py": "795e61585867c1daf36bd662ea5cc7af9935fcd96b7848663b1f435adfa1d7a7",
+    "index.html": "f56c7106011d3313d9376d6bdbcf9c0d81682d9b175608db34b3d25d0c9761ad",
+    "index_jobs.py": "5af3c5fc4d44be3917d70b5da92f13f69ffd5d6b18dad4d65b1e0f8d0d6c3b30",
+    "rag_backend.py": "79abd8c036f1a41156e93a47268f3521c3690e443775453c672038d85e7e1257",
+    "titling.py": "add3a42544f486d48534b94029a8a018a436376618bde81854877826d61b5003",
+    "test_rag.py": "d47094d40d6ee161cde6b0d562ea774d60feef69aefff8aa2df66b506b4b08ac",
+    "test_acceptance.py": "952614952e543ac7289e8e9f98c18a6fccbdf5a94e846690bfeb717a2262a1b2",
+    "scripts/verify-build-ui.mjs": "cfd5de84b1e1e4983a7570716e7604fcfc5af9bee718c78937f9539bb22075d4"
+  },
+  "python_tests": 59,
+  "dsh_tests": 10,
+  "existing_browser_checks": 7,
+  "new_browser_checks": 4,
+  "real_service_smoke": "PASS",
+  "openapi_validation": "PASS",
+  "openspec_validation_items": 8,
+  "live_service": "http://127.0.0.1:8501",
+  "credentials_committed": false,
+  "legacy_v2_focused_recheck": "build-legacy-tests.txt"
+}
