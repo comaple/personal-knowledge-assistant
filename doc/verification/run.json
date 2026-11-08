@@ -28,10 +28,10 @@
     "specs_synced": true,
     "progress": {
       "total": 10,
-      "complete": 10,
-      "remaining": 0
+      "complete": 9,
+      "remaining": 1
     },
-    "state": "all_done"
+    "state": "ready"
   },
   "node_version": "v25.3.0",
   "browser": {
@@ -86,12 +86,17 @@
     "dsh-tests.txt": "ecc1ffbd7b538ddf4bbc00666ea031fa05f1d909dd62161bda9b4415f2583d71",
     "browser-check.txt": "a735645f5cb7a412ad6bc5ca3064976ee48ca5872132fd28fc2ba42f855a5246",
     "python-tests.txt": "ab46375fd6f7ac9e27406200c73cdbbaf9b1e6c060af6cfa6dfc129b771a1c0d",
-    "openspec-delivery.json": "7bc3a4788dd17c2a0ff4f3d09475c497658c3e52581a6875e42bb6f17bb21643",
+    "openspec-delivery.json": "ea736813c25b7063eb79c5e7420493619e1b07194f5454d2e5aa93391f1960b8",
     "python-install.txt": "07bd29ee4cd1385b38ae8c48c1c3ff3fa8cadbcd0eafd5b4bc3c01f8fb03575b",
     "npm-install.txt": "fb5575c8be502ffa3db84ccf00226aac4a2d9935a70cdea787088a47604874a3",
     "ui.json": "ee8390bd99c919351c0a09e6b844029bcb8aacb4ffcc783955decf8b3da71d0b",
     "openspec-validation.txt": "dbc8789e988abe00ef8a4f8315451c09876d7f2605f5eb3224dc0963d9c0fefc",
     "performance.json": "7930aae1846ab80825621014820befc28f83d47bba2a18de9512d4b78b3f7700",
     "lexical-evaluation.json": "2a7e52dcf377351bf369d834ebc1aff8b2a3e4a1a63edc82e666e6be33b7e8e9"
+  },
+  "ci": {
+    "status": "pending_retry",
+    "failed_commit": "e45a083",
+    "reason": "setup-python pip cache default could not find requirements.txt or pyproject.toml; lock paths now explicit"
   }
 }
