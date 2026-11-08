@@ -3,7 +3,7 @@
 | 项目 | 内容 |
 | --- | --- |
 | 版本 / 日期 | 1.0 / 2026-11-07 |
-| 状态 | RC 工程实现与干净检出测试完成；T01—T09 待完整验收结项，T10 缺真实服务配置 |
+| 状态 | 17项离线用例通过；T01—T06/T08/T09完成，T07/T10待真实模型验收 |
 | 依据 | [PRD](PRD.md) · [Spec](SPEC.md) · [Verify](VERIFY.md) · [OpenAPI](openapi.json) |
 
 ## 01｜任务执行规则
@@ -17,15 +17,15 @@
 | 任务 | 范围与受影响文件 | 依赖 | 需求 / 验收 | 完成产物 | 状态 |
 | --- | --- | --- | --- | --- | --- |
 | T00 工作区与基线 | 对照文档盘点全部既有改动；隔离保存原型，选择复用/重写；不丢用户数据 | 无 | 全部 / 文档一致性 | 可恢复原型快照、目标分支和复用清单；后续提交仅含对应任务 | DONE |
-| T01 数据与迁移 | store.py；schema 2、永久片段ID、文档version、catalog_revision、turn_id、迁移/文件锁 | T00 | FR-02；NFR-03、NFR-04 / AC-02、AC-14 | 新库DDL、旧库迁移及回滚、单实例保护和必要事务验证 | IN_PROGRESS |
-| T02 资料与笔记 | knowledge.py、store.py、app.py；导入/编辑/删除、容量与乐观锁 | T01 | FR-01、FR-10、FR-13 / AC-01、AC-10、AC-16 | API符合契约，重复/失败/并发行为可复现，旧来源不复用 | IN_PROGRESS |
-| T03 标签与列表 | store.py、app.py；标签原子替换、分页排序、精确筛选 | T02 | FR-14 / AC-17 | 字段、版本、边界及列表范围验证 | IN_PROGRESS |
-| T04 HTTP与本地检索 | app.py、retrieval.py、settings.py；lexical模式、结构化错误、请求/响应字段 | T02 | FR-03、FR-11 / AC-03、AC-11 | 不调用模型的本地路径、OpenAPI契约检查、业务状态不混淆 | IN_PROGRESS |
-| T05 索引与代发布 | rag_backend.py、index_jobs.py；profile、manifest校验、CAS、任务状态 | T01、T02 | FR-04；NFR-03、NFR-04 / AC-04、AC-14 | 真后端+模拟服务建图，坏代不发布、过期代不读、任务/重启行为明确 | IN_PROGRESS |
-| T06 多路与图计划 | retrieval.py、graph_tools.py；候选、正文重排、Source对象、schema和有界计划 | T04、T05 | FR-05、FR-06 / AC-05、AC-06 | 三路真实执行、来源合并、失败透明、完整路径/空结果可验证 | IN_PROGRESS |
-| T07 DSH与版本一致性 | harness/*、model_client.py、store.py、app.py；四工具、turn_id、最终事务、预算和进程树 | T04、T06 | FR-02、FR-06、FR-07、FR-09、FR-10、FR-11；NFR-01—04 / AC-02、AC-06、AC-07、AC-09—AC-14 | 真DSH链路、权限、空结果/冲突/非法引用、资料修改竞争与超时恢复证据 | IN_PROGRESS |
-| T08 产品界面 | index.html及必要前端资源；资料编辑/标签、搜索模式、图谱、快照、轨迹、错误 | T03、T04、T06、T07 | FR-08、FR-09；NFR-01、NFR-02、NFR-05、NFR-06 / AC-08、AC-09、AC-13、AC-15—AC-17 | 桌面/390px可操作，保存冲突保留输入，历史来源不读当前内容 | IN_PROGRESS |
-| T09 导出与维护 | app.py及导出模块、maintain.py；ZIP、backup/restore/clean-index | T01、T02、T03 | FR-12、FR-15 / AC-12、AC-18 | 一致快照、安全文件名、停服锁、备份校验、恢复和拒绝覆盖证据 | IN_PROGRESS |
+| T01 数据与迁移 | store.py；schema 2、永久片段ID、文档version、catalog_revision、turn_id、迁移/文件锁 | T00 | FR-02；NFR-03、NFR-04 / AC-02、AC-14 | 新库DDL、旧库迁移及回滚、单实例保护和必要事务验证 | DONE |
+| T02 资料与笔记 | knowledge.py、store.py、app.py；导入/编辑/删除、容量与乐观锁 | T01 | FR-01、FR-10、FR-13 / AC-01、AC-10、AC-16 | API符合契约，重复/失败/并发行为可复现，旧来源不复用 | DONE |
+| T03 标签与列表 | store.py、app.py；标签原子替换、分页排序、精确筛选 | T02 | FR-14 / AC-17 | 字段、版本、边界及列表范围验证 | DONE |
+| T04 HTTP与本地检索 | app.py、retrieval.py、settings.py；lexical模式、结构化错误、请求/响应字段 | T02 | FR-03、FR-11 / AC-03、AC-11 | 不调用模型的本地路径、OpenAPI契约检查、业务状态不混淆 | DONE |
+| T05 索引与代发布 | rag_backend.py、index_jobs.py；profile、manifest校验、CAS、任务状态 | T01、T02 | FR-04；NFR-03、NFR-04 / AC-04、AC-14 | 真后端+模拟服务建图，坏代不发布、过期代不读、任务/重启行为明确 | DONE |
+| T06 多路与图计划 | retrieval.py、graph_tools.py；候选、正文重排、Source对象、schema和有界计划 | T04、T05 | FR-05、FR-06 / AC-05、AC-06 | 三路真实执行、来源合并、失败透明、完整路径/空结果可验证 | DONE |
+| T07 DSH与版本一致性 | harness/*、model_client.py、store.py、app.py；四工具、turn_id、最终事务、预算和进程树 | T04、T06 | FR-02、FR-06、FR-07、FR-09、FR-10、FR-11；NFR-01—04 / AC-02、AC-06、AC-07、AC-09—AC-14 | 真DSH链路、权限、空结果/冲突/非法引用、资料修改竞争与超时恢复证据 | BLOCKED |
+| T08 产品界面 | index.html及必要前端资源；资料编辑/标签、搜索模式、图谱、快照、轨迹、错误 | T03、T04、T06、T07 | FR-08、FR-09；NFR-01、NFR-02、NFR-05、NFR-06 / AC-08、AC-09、AC-13、AC-15—AC-17 | 桌面/390px可操作，保存冲突保留输入，历史来源不读当前内容 | DONE |
+| T09 导出与维护 | app.py及导出模块、maintain.py；ZIP、backup/restore/clean-index | T01、T02、T03 | FR-12、FR-15 / AC-12、AC-18 | 一致快照、安全文件名、停服锁、备份校验、恢复和拒绝覆盖证据 | DONE |
 | T10 集成与交付 | 依赖锁、CI、README和使用维护说明、验收记录；固定题集L3/L4、性能与恢复 | T07、T08、T09 | 全部 / AC-01—AC-18 | 干净检出验证、真实服务及20题报告、延时/费用、最终GitHub提交；缺服务明确BLOCKED | BLOCKED |
 
 T03/T04/T05 在依赖满足后可分别实施；任务依赖不代表本轮启动并行代理。集成时统一版本上下文和接口字段，不能各模块独立发明命名。
@@ -74,7 +74,7 @@ T03/T04/T05 在依赖满足后可分别实施；任务依赖不代表本轮启�
 uvx --python 3.12 --from openapi-spec-validator openapi-spec-validator doc/openapi.json
 ```
 
-## 06｜代码实施记录
+## 06｜代码实施记录（2026-11-07，历史）
 
 - T00：实现分支为 main；既有35个原型文件在修改前已保存为外部tar.gz、逐文件摘要和Git二进制patch，没有使用reset/clean丢弃改动。
 - 本机快照：`/Users/data/proj/x/output/pka-prototype-20261107/prototype-before-sdd.tar.gz`。
@@ -82,3 +82,11 @@ uvx --python 3.12 --from openapi-spec-validator openapi-spec-validator doc/opena
 - doc/ 与 docs/ 已统一到 doc/，正式规格、教程、资产与验收记录共享同一目录；早期调研/运行记录另置 archive/，不作为开发依据。
 - 当前已实现资料/笔记/标签、schema2迁移、乐观锁、索引分代、三路检索、只读图计划、DSH、响应/引用验收、界面、导出和维护命令。干净检出已完成36项Python与5项DSH测试（无跳过）、Chrome及500片段性能验证，绑定提交f22e847；复合验收用例尚有未覆盖子场景，T01—T09暂不机械改为DONE，见验收报告。
 - T10：实际模型Key及真实Embedding服务未配置，L3/L4为BLOCKED；不能声称正式首版全部验收通过。
+
+## 07｜OpenSpec离线验收补齐（2026-11-08）
+
+- 开发变更使用OpenSpec1.16.1，当前change为close-offline-acceptance-gaps；正式产品/接口/验收文档保留在doc/。接入前已有开发按原基线执行，未伪造先后顺序。
+- 代码提交41738ca，独立干净检出、全新Python环境及npm ci；54项Python、9项DSH无失败/跳过，严格OpenSpec校验3项通过；Chrome与500片段性能复验通过。
+- 17项离线完整用例结项；T01—T06/T08/T09完成范围为工程实现及对应离线验收。
+- T07剩余实际模型事实支持、冲突/拒答质量；与T10的L3/L4一起因缺真实服务配置保持BLOCKED，不能把本轮完成等同正式首版全部验收通过。
+- 具体方法、缺陷修复及证据见[当前报告](verification/REPORT.md)，后续操作见[OpenSpec教程](openspec-workflow.md)。

@@ -1,50 +1,61 @@
 # 个人知识管理助手｜RC 实现验收记录
 
-代码已形成可运行的 RC；工程自动化通过，完整产品验收尚未结项。
+**17项离线完整用例通过，AC-07及真实模型L3/L4仍为BLOCKED。** 工程实现已形成可运行RC，尚不能宣称产品真实问答质量验收完成。
 
-- 测试代码：`f22e847cef3f5377883e1084c79c81c3a48f6fde`。本记录后续提交只更新文档、截图与证据，不变更应用实现。
-- 运行编号：`pka-sdd-clean-f22e847`，2026-11-07，Codex；独立 detached worktree，安装前工作树干净。
-- 环境：macOS26.3 Intel，12逻辑CPU、32GB、SSD；Python3.12.9 / SQLite3.47.1 / Node25.3.0；DSH0.2.2-rc.1 / LightRAG1.5.7。使用全新Python虚拟环境和 `npm ci`，依赖来自两份 requirements lock 和 package-lock。
-- [机器记录与证据摘要](run.json) · [Python安装](python-install.txt) · [npm安装](npm-install.txt)。测试全部使用临时数据库和虚构资料，未修改日常数据。
+- 目标代码：`41738caad9bcddeb7d352991c5d63cb8c9b78d34`。后续提交只更新文档、截图、任务状态及证据，不改变应用实现。
+- 运行编号：`pka-openspec-clean-41738ca`，2026-11-08，Codex；独立detached worktree，安装前工作树干净。
+- 环境：macOS26.3 Intel，12逻辑CPU、32GB、SSD；Python3.12.9 / SQLite3.47.1 / Node25.3.0；DSH0.2.2-rc.1 / LightRAG1.5.7 / OpenSpec1.16.1。
+- 使用该检出内全新Python虚拟环境、两份requirements锁与`npm ci`。全部数据库、资料及模型凭据均为隔离测试数据；未修改日常资料库。
+- [机器记录、用例状态及证据摘要](run.json) · [Python安装](python-install.txt) · [npm安装](npm-install.txt)。
 
-## 工程验证
+## 实际执行
 
-| 实际执行 | 结果 | 证据与范围 |
+| 执行 | 结果 | 证据 |
 | --- | --- | --- |
-| `python -m unittest -v test_project.py test_rag` | 36通过，0失败，0跳过 | [完整日志](python-tests.txt)；数据/迁移/事务/契约、版本竞态、进程树、真实LightRAG/向量/图后端及DSH接入 |
-| `npm run test:harness` | 5通过，0失败，0跳过 | [完整日志](dsh-tests.txt)；真实DSH、空结果改写、无证据、5次请求预算、拒绝第9次工具调用、HTTP→DSH→SQLite |
-| `python scripts/run_ui_check.py` | PASS | [浏览器记录](browser-check.txt)、[结果](ui.json)；真实Chrome，图谱原文、来源快照/轨迹、笔记/标签、冲突保留草稿、脚本文本不执行、390px布局 |
-| `python scripts/benchmark_local.py` | PASS | [500片段性能原始样本](performance.json)；每项预热5次、测100次，列表/原文/lexical的p95为21.230/20.935/30.381ms，均≤500ms |
-| `evaluate.py --mode lexical` | 20题执行完成 | [逐题原始结果](lexical-evaluation.json)；空库导入固定8份资料，不调用模型，不计为L3/L4 |
-| Ruff F/I、Git差异空白检查、本地Markdown链接 | PASS | 静态检查无错误，本地文档链接无失效目标；不作为模型效果证据 |
+| `python -m unittest -v test_project.py test_rag test_acceptance` | 54通过、0失败、0跳过 | [完整日志](python-tests.txt)，覆盖SQLite/迁移/契约/事务/并发及真实LightRAG/向量/图后端 |
+| `npm run test:harness` | 9通过、0失败、0跳过 | [完整日志](dsh-tests.txt)，真实DSH SDK、预算、独立轮次、越权拒绝、超时/超量输出及恢复 |
+| `npm run spec:validate` | 3通过、严格校验无问题 | [校验记录](openspec-validation.txt)，1个change与2份主规格 |
+| `python scripts/run_ui_check.py` | 7项检查PASS | [浏览器日志](browser-check.txt)、[结果](ui.json)；真实Chrome、1440/390px、图谱/轨迹/编辑/草稿/历史来源 |
+| `python scripts/benchmark_local.py` | PASS | [500片段全部原始样本](performance.json)，各预热5次、测100次，列表/原文/lexical p95为16.912/15.901/27.633ms，均≤500ms |
+| `evaluate.py --mode lexical` | 固定20题执行完成 | [逐题记录](lexical-evaluation.json)，固定8份虚构资料；仅证明本地检索执行，语义质量仍需人工判定 |
+| Ruff F/I、差异空白、本地文档链接 | PASS | 静态检查无错误，检查范围含新增OpenSpec接入说明 |
 
-模型服务在L2由本地脚本模拟，Embedding为8维测试向量。使用真实DSH/LightRAG并不意味着测试使用了真实模型权重。费用和语义质量未知项保持null，没有填0或伪造通过率。
+L2的模型服务由本地脚本提供，Embedding为8维测试向量；它们不能证明真实模型权重的检索、拒答、冲突处理或事实支持效果。超时回归通过可信内部测试入口缩短截止时间，实际创建并清理进程，另断言生产默认预算；没有声称所有测试都等待了150/75秒。
 
-## 完整用例的关闭范围
+## 用例对应
 
-自动测试通过数不等于18项复合用例全部通过。完整用例按Verify定义计数：7项PASS、10项NOT_RUN（部分子场景已验证）、1项BLOCKED。
-
-| 用例 | 当前完整状态 | 已有证据或尚缺部分 |
+| 用例 | 状态 | 关键证据 |
 | --- | --- | --- |
-| AC-01 | PASS | 导入/去重、无效正文、字节及片段边界、失败回滚 |
-| AC-02 | NOT_RUN | 已测事务、迁移及历史来源；跨重启后的标签/聊天/轨迹整体核对尚未单独闭合 |
-| AC-03 | PASS | 缺Key及ready+Key两种lexical均禁止模型/子进程调用；服务计数不变 |
-| AC-04 | NOT_RUN | 已测后台构建、失败/CAS拒绝、文件损坏；重复POST与配置维度变化的完整矩阵待补 |
-| AC-05 | NOT_RUN | 已测三路/去重/正文重排/假ID/降级；重排遗漏、重复及截断场景未全部覆盖 |
-| AC-06 | PASS | 真实DSH schema→错误计划empty→修正两跳completed、原文witness及越界拒绝 |
-| AC-07 | BLOCKED | 版本竞态保留轨迹并拒绝旧来源、无工具/假引用已测；真实事实支持、冲突与拒答待L3/L4 |
-| AC-08 | NOT_RUN | 已测图谱回查与历史快照；超过裁剪阈值的大图场景待补 |
-| AC-09 | NOT_RUN | 已测消息契约、运行中SESSION_BUSY；双会话/级联/旧历史不注入的专项矩阵待补 |
-| AC-10 | PASS | 删除失效、当前证据消失、历史保留、片段ID不复用、版本冲突/不存在ID |
-| AC-11 | NOT_RUN | 已测服务失败/预算/子孙进程清理；工具和整轮真实截止后的恢复场景待补 |
-| AC-12 | PASS | 干净检出安装、停服备份/恢复/清理、忙时拒绝、恢复拒绝覆盖、坏备份拒绝 |
-| AC-13 | NOT_RUN | 已测Host/Origin、存储脚本文本、只读数据库/工具范围；提示注入与脱敏专项矩阵待补 |
-| AC-14 | NOT_RUN | 已测容量、DSH预算、锁及CAS；所有边界与并发组合未逐项闭合 |
-| AC-15 | PASS | 干净环境无跳过、1440/390px浏览器、500片段性能证据 |
-| AC-16 | PASS | 笔记CRUD、版本冲突、标题/正文/no-op、重复正文、失败与冲突保留草稿 |
-| AC-17 | NOT_RUN | 已测标签原子性、41字符拒绝、20/21上限与筛选；精确大小写/40字符完整边界待补 |
-| AC-18 | NOT_RUN | 已测ZIP路径/正文/标签/摘要及排除聊天；并发导出与注入写失败待补 |
+| AC-01 | PASS | StoreTest：导入/去重、无效输入、字节/容量边界、失败回滚 |
+| AC-02 | PASS | PersistenceAcceptanceTest：跨进程重启保留资料/标签/来源/轨迹；第二消息和轨迹写入故障整轮回滚；MigrationTest保留旧库/历史 |
+| AC-03 | PASS | lexical在无Key及ready+Key下禁止模型/子进程调用，模拟服务请求数不变 |
+| AC-04 | PASS | 真后台构建202、重复POST409 INDEX_BUSY、job_id稳定；改维度stale/缺文件missing；失败与版本CAS不替换已发布代 |
+| AC-05 | PASS | 真后端单路故障保留另一通道；真实候选及正文重排；遗漏/重复/布尔/伪造ID/截断/非JSON拒绝并可见降级；池≤24、最终≤4 |
+| AC-06 | PASS | 真DSH schema→错误计划empty→修正两跳completed；完整路径与原文；参数范围及越权拒绝 |
+| AC-07 | BLOCKED | 无工具/假引用/版本变化的工程边界已测；真实模型事实支持、冲突与拒答仍需L3/L4 |
+| AC-08 | PASS | Chrome图谱点击回指原文、编辑/删除后历史快照仍显示且不请求当前chunk；151/301图API边界、UI24/50局部计数及手机布局 |
+| AC-09 | PASS | 两会话隔离、分页/级联、运行中SESSION_BUSY；真实DSH下一轮请求不含前轮标记且run_id不同；旧turn_id=null消息/轨迹迁移后可读 |
+| AC-10 | PASS | 删除使当前索引失效、历史快照保留、片段身份不复用、错误ID/版本拒绝 |
+| AC-11 | PASS | Key/服务失败分类、工具与整轮截止、查询截止、超量输出、实际子孙进程清理；故障后可继续调用/问答/删除会话 |
+| AC-12 | PASS | 干净检出安装；备份恢复/索引清理、忙时拒绝、拒绝覆盖、坏摘要拒绝及数据保留 |
+| AC-13 | PASS（L1/L2） | Host/Origin、存储脚本文本、SQL/路径/写入拒绝；真实DSH请求shell也不能执行；长/短Key在答案/历史/轨迹键值均移除。真实模型面对注入时的语义表现不在此结论内 |
+| AC-14 | PASS | 500/501、1000/1001、5次请求/8次工具/输出预算；真实并发写入与单实例锁；构建、编辑、问答并发时拒绝混版并保留运行记录 |
+| AC-15 | PASS | 干净环境无依赖跳过、Chrome1440/390px、500片段性能 |
+| AC-16 | PASS | 笔记增改删、并发版本冲突、标题/正文/no-op/重复正文、保存失败保留草稿 |
+| AC-17 | PASS | 40/41字符、20/21标签、精确大小写/去重/清空、失败原子回滚、资料过滤不限制问答范围、不改语料revision |
+| AC-18 | PASS | WAL一致快照：导出期间修改正文/标签仍得到同一旧快照；安全路径/摘要/排除聊天；写失败返回JSON错误，修复后重新导出成功 |
 
-这些缺口是尚未验证的行为，不代表已经发现对应功能故障；任务保持待验收，不能自动结为DONE。L3/L4另被真实模型Key和Embedding配置阻塞，20题的retrieve/generate质量、冲突/拒答、真实延时、API用量及费用均未完成。
+详细方法见[test_acceptance.py](../../test_acceptance.py)、[test_project.py](../../test_project.py)、[test_rag.py](../../test_rag.py)、[DSH回归](../../harness/integration.test.mjs)、[Chrome脚本](../../scripts/verify-ui.mjs)。
 
-[正式验收计划](../VERIFY.md) · [任务](../TASKS.md) · [安装教程](../tutorial.md)
+## 已修复的边界
+
+1. **模型结果脱敏不完整。** 故障注入重现答案和轨迹对象键泄漏测试Key；现对完整结果递归处理所有字符串与键，取消原8字符门槛。长Key及两字符Key均通过HTTP/历史/轨迹回归。
+2. **工具仅发终止信号可能留住进程。** 超时及stdout超限先终止，1秒后仍存活则按PID树强制清理；实际回归覆盖忽视SIGTERM、子孙另开session的情况及下一次调用恢复。
+
+## OpenSpec与尚需配置的部分
+
+[接入教程](../openspec-workflow.md)记录迁入时点；[当前change](../../openspec/changes/close-offline-acceptance-gaps/tasks.md)管理本轮任务，两份行为规格已同步到主规格。正式PRD/Spec/Verify仍在doc/，OpenSpec不替代DSH运行时。
+
+再次检查环境：没有`.env`，生成/图谱Key及Embedding地址均未配置。真实模型完整冒烟和固定20题retrieve/generate、人工事实支持/冲突/拒答复核、真实用量与费用均未执行；unknown字段保持null。补齐配置后按README使用隔离空库运行evaluate.py，达到Verify门槛后才能关闭AC-07与最终交付。
+
+[Verify](../VERIFY.md) · [Tasks](../TASKS.md) · [安装教程](../tutorial.md)

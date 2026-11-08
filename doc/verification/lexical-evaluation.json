@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-11-07T14:31:40.613919+00:00",
+  "created_at": "2026-11-08T01:24:14.776269+00:00",
   "corpus_sha256": "efb8193888dba8f4fc2ab2e325fbd41c6542ddf420a0d82dc218e8c9ecbeb2a2",
   "questions_sha256": "848ba8986c0d4c03ca304b03ff4f70ff8eac74520083f0386232a02f55281056",
   "index": {
@@ -29,7 +29,7 @@
     {
       "id": "Q01",
       "mode": "lexical",
-      "elapsed_seconds": 0.018,
+      "elapsed_seconds": 0.017,
       "expected_behavior": "answer",
       "expected_facts": [
         "林老师"
@@ -39,7 +39,7 @@
       ],
       "evidence_complete": true,
       "response": {
-        "turn_id": "a3352c3e-2928-4973-b52d-f51b5c79ecab",
+        "turn_id": "93f4ef21-238f-4885-9dcd-0c07e5e10a11",
         "answer": "找到以下原文候选，尚未生成回答：\n[S1] 摄影课说明.md · 片段 1\n[S2] 教务服务说明.md · 片段 1",
         "sources": [
           {
@@ -127,7 +127,7 @@
     {
       "id": "Q02",
       "mode": "lexical",
-      "elapsed_seconds": 0.018,
+      "elapsed_seconds": 0.017,
       "expected_behavior": "answer",
       "expected_facts": [
         "陈舟"
@@ -137,7 +137,7 @@
       ],
       "evidence_complete": true,
       "response": {
-        "turn_id": "da12c5b5-bfc2-4f43-837f-bfa0406978d1",
+        "turn_id": "c9e0f461-03c6-4be2-958e-d4c1e2c3360b",
         "answer": "找到以下原文候选，尚未生成回答：\n[S3] 蓝桥项目说明.md · 片段 1\n[S8] 个人整理规则.md · 片段 1",
         "sources": [
           {
@@ -236,7 +236,7 @@
       ],
       "evidence_complete": true,
       "response": {
-        "turn_id": "b0999152-f50f-4100-a994-2408dd968246",
+        "turn_id": "c74d7dff-066a-4b3b-a562-5fd0917b3553",
         "answer": "找到以下原文候选，尚未生成回答：\n[S4] 测试组服务说明.md · 片段 1\n[S3] 蓝桥项目说明.md · 片段 1",
         "sources": [
           {
@@ -324,7 +324,7 @@
     {
       "id": "Q04",
       "mode": "lexical",
-      "elapsed_seconds": 0.018,
+      "elapsed_seconds": 0.019,
       "expected_behavior": "answer",
       "expected_facts": [
         "光圈",
@@ -336,7 +336,7 @@
       ],
       "evidence_complete": true,
       "response": {
-        "turn_id": "760857cc-3e39-4744-9845-cbed359b8e8e",
+        "turn_id": "b50e9a50-e111-41ad-b97f-5b1b366cd53d",
         "answer": "找到以下原文候选，尚未生成回答：\n[S7] 摄影练习笔记.md · 片段 1",
         "sources": [
           {
@@ -415,7 +415,7 @@
       ],
       "evidence_complete": true,
       "response": {
-        "turn_id": "00c1ba7e-8ab0-4f6b-bc6e-20d3e377f73e",
+        "turn_id": "9ce7ab8c-ed1f-4afc-b9e8-7f66f4a0aef2",
         "answer": "找到以下原文候选，尚未生成回答：\n[S1] 摄影课说明.md · 片段 1\n[S2] 教务服务说明.md · 片段 1",
         "sources": [
           {
@@ -513,7 +513,7 @@
       ],
       "evidence_complete": true,
       "response": {
-        "turn_id": "53fdf80d-6d32-40cd-bbbd-b3cb871f3fed",
+        "turn_id": "120e7b71-44ab-4185-b010-7f8ddac0b473",
         "answer": "找到以下原文候选，尚未生成回答：\n[S4] 测试组服务说明.md · 片段 1\n[S3] 蓝桥项目说明.md · 片段 1",
         "sources": [
           {
@@ -611,7 +611,7 @@
       ],
       "evidence_complete": true,
       "response": {
-        "turn_id": "e12c58f8-12a2-4abc-acd3-6d1a63439d7d",
+        "turn_id": "f782b4ee-cd1d-4f1b-a700-60c72bb9794b",
         "answer": "找到以下原文候选，尚未生成回答：\n[S8] 个人整理规则.md · 片段 1\n[S3] 蓝桥项目说明.md · 片段 1",
         "sources": [
           {
@@ -699,7 +699,7 @@
     {
       "id": "Q08",
       "mode": "lexical",
-      "elapsed_seconds": 0.018,
+      "elapsed_seconds": 0.017,
       "expected_behavior": "answer",
       "expected_facts": [
         "青松教务"
@@ -709,7 +709,7 @@
       ],
       "evidence_complete": true,
       "response": {
-        "turn_id": "b6dec7ac-3a40-4ea1-afcb-fc837672f4bb",
+        "turn_id": "b40e0950-5562-446e-a80e-dbedb2f3b873",
         "answer": "找到以下原文候选，尚未生成回答：\n[S1] 摄影课说明.md · 片段 1\n[S2] 教务服务说明.md · 片段 1",
         "sources": [
           {
@@ -809,7 +809,7 @@
       ],
       "evidence_complete": true,
       "response": {
-        "turn_id": "639cf5c5-c41b-4b1b-8fa0-a6b658f7bc8b",
+        "turn_id": "791679a1-678a-4e6e-b95b-655609615833",
         "answer": "找到以下原文候选，尚未生成回答：\n[S1] 摄影课说明.md · 片段 1\n[S2] 教务服务说明.md · 片段 1",
         "sources": [
           {
@@ -897,7 +897,7 @@
     {
       "id": "Q10",
       "mode": "lexical",
-      "elapsed_seconds": 0.018,
+      "elapsed_seconds": 0.017,
       "expected_behavior": "answer",
       "expected_facts": [
         "星河测试组",
@@ -910,7 +910,7 @@
       ],
       "evidence_complete": true,
       "response": {
-        "turn_id": "1ad945d8-c6b2-4097-b1f7-7f89ad39f7d5",
+        "turn_id": "bb531c6b-5d66-4f3f-a360-5e85be5d5e32",
         "answer": "找到以下原文候选，尚未生成回答：\n[S3] 蓝桥项目说明.md · 片段 1\n[S4] 测试组服务说明.md · 片段 1\n[S8] 个人整理规则.md · 片段 1",
         "sources": [
           {
@@ -1017,7 +1017,7 @@
     {
       "id": "Q11",
       "mode": "lexical",
-      "elapsed_seconds": 0.019,
+      "elapsed_seconds": 0.021,
       "expected_behavior": "answer",
       "expected_facts": [
         "service@qingsong.example",
@@ -1029,7 +1029,7 @@
       ],
       "evidence_complete": true,
       "response": {
-        "turn_id": "0a5c8c13-4cb8-46f7-be77-c911b9b6d4f7",
+        "turn_id": "48504069-9689-4fc2-a634-e2cca19727fe",
         "answer": "找到以下原文候选，尚未生成回答：\n[S1] 摄影课说明.md · 片段 1\n[S2] 教务服务说明.md · 片段 1",
         "sources": [
           {
@@ -1117,7 +1117,7 @@
     {
       "id": "Q12",
       "mode": "lexical",
-      "elapsed_seconds": 0.018,
+      "elapsed_seconds": 0.02,
       "expected_behavior": "answer",
       "expected_facts": [
         "2026年11月20日18:00",
@@ -1129,7 +1129,7 @@
       ],
       "evidence_complete": true,
       "response": {
-        "turn_id": "a1b68f89-b534-4f7c-adb0-4e34728f21dc",
+        "turn_id": "c3685d1c-ba4d-47e0-8566-c4e83df35728",
         "answer": "找到以下原文候选，尚未生成回答：\n[S3] 蓝桥项目说明.md · 片段 1\n[S4] 测试组服务说明.md · 片段 1\n[S8] 个人整理规则.md · 片段 1\n[S2] 教务服务说明.md · 片段 1",
         "sources": [
           {
@@ -1255,7 +1255,7 @@
     {
       "id": "Q13",
       "mode": "lexical",
-      "elapsed_seconds": 0.018,
+      "elapsed_seconds": 0.021,
       "expected_behavior": "insufficient",
       "expected_facts": [
         "资料未提供学费"
@@ -1263,7 +1263,7 @@
       "required_documents": [],
       "evidence_complete": null,
       "response": {
-        "turn_id": "adf5030f-ea87-4de4-8498-913e93f50501",
+        "turn_id": "058c5015-a4bd-419a-aba5-9dfdf8192120",
         "answer": "找到以下原文候选，尚未生成回答：\n[S1] 摄影课说明.md · 片段 1\n[S2] 教务服务说明.md · 片段 1",
         "sources": [
           {
@@ -1351,7 +1351,7 @@
     {
       "id": "Q14",
       "mode": "lexical",
-      "elapsed_seconds": 0.019,
+      "elapsed_seconds": 0.018,
       "expected_behavior": "insufficient",
       "expected_facts": [
         "未规定退款金额或比例"
@@ -1359,7 +1359,7 @@
       "required_documents": [],
       "evidence_complete": null,
       "response": {
-        "turn_id": "eb29fd72-423a-43d5-8bff-292fa7e2666c",
+        "turn_id": "e858839c-c216-434d-8975-1d090237cc8e",
         "answer": "找到以下原文候选，尚未生成回答：\n[S2] 教务服务说明.md · 片段 1\n[S1] 摄影课说明.md · 片段 1",
         "sources": [
           {
@@ -1447,7 +1447,7 @@
     {
       "id": "Q15",
       "mode": "lexical",
-      "elapsed_seconds": 0.018,
+      "elapsed_seconds": 0.017,
       "expected_behavior": "insufficient",
       "expected_facts": [
         "资料未提供手机号码"
@@ -1455,7 +1455,7 @@
       "required_documents": [],
       "evidence_complete": null,
       "response": {
-        "turn_id": "1342d66c-aa76-45d3-8dd1-24dd47e06349",
+        "turn_id": "1299c472-a9f4-44ff-8295-51f93d8b4875",
         "answer": "找到以下原文候选，尚未生成回答：\n[S1] 摄影课说明.md · 片段 1",
         "sources": [
           {
@@ -1524,7 +1524,7 @@
     {
       "id": "Q16",
       "mode": "lexical",
-      "elapsed_seconds": 0.018,
+      "elapsed_seconds": 0.02,
       "expected_behavior": "insufficient",
       "expected_facts": [
         "资料未指定相机型号"
@@ -1532,7 +1532,7 @@
       "required_documents": [],
       "evidence_complete": null,
       "response": {
-        "turn_id": "7acd2ddc-266c-41ed-9f9a-625b142cc278",
+        "turn_id": "1645b6ef-d7cd-43af-817d-6d4b3995c84d",
         "answer": "找到以下原文候选，尚未生成回答：\n[S7] 摄影练习笔记.md · 片段 1\n[S1] 摄影课说明.md · 片段 1",
         "sources": [
           {
@@ -1620,7 +1620,7 @@
     {
       "id": "Q17",
       "mode": "lexical",
-      "elapsed_seconds": 0.017,
+      "elapsed_seconds": 0.022,
       "expected_behavior": "conflict",
       "expected_facts": [
         "2026年11月15日",
@@ -1633,7 +1633,7 @@
       ],
       "evidence_complete": true,
       "response": {
-        "turn_id": "094d8369-27ec-49b5-bd04-176f618d2c80",
+        "turn_id": "2a2306e4-ab99-41e9-b14d-c063bc20571d",
         "answer": "找到以下原文候选，尚未生成回答：\n[S5] 读书会报名说明.md · 片段 1\n[S6] 读书会活动通知.md · 片段 1\n[S8] 个人整理规则.md · 片段 1\n[S3] 蓝桥项目说明.md · 片段 1",
         "sources": [
           {
@@ -1759,7 +1759,7 @@
     {
       "id": "Q18",
       "mode": "lexical",
-      "elapsed_seconds": 0.017,
+      "elapsed_seconds": 0.019,
       "expected_behavior": "conflict",
       "expected_facts": [
         "松云书屋",
@@ -1772,7 +1772,7 @@
       ],
       "evidence_complete": true,
       "response": {
-        "turn_id": "42ad1c8d-ee67-4071-a725-767f11b64d07",
+        "turn_id": "de5fe8ea-f9bb-4e67-8797-8d83b9d5aa0b",
         "answer": "找到以下原文候选，尚未生成回答：\n[S5] 读书会报名说明.md · 片段 1\n[S6] 读书会活动通知.md · 片段 1",
         "sources": [
           {
@@ -1860,7 +1860,7 @@
     {
       "id": "Q19",
       "mode": "lexical",
-      "elapsed_seconds": 0.017,
+      "elapsed_seconds": 0.018,
       "expected_behavior": "conflict",
       "expected_facts": [
         "0元",
@@ -1873,7 +1873,7 @@
       ],
       "evidence_complete": true,
       "response": {
-        "turn_id": "acdfb3b5-9414-43b4-beef-a3905f2e70c7",
+        "turn_id": "625ee198-270e-4bc4-89df-4c74a88d83a6",
         "answer": "找到以下原文候选，尚未生成回答：\n[S5] 读书会报名说明.md · 片段 1\n[S6] 读书会活动通知.md · 片段 1",
         "sources": [
           {
@@ -1961,7 +1961,7 @@
     {
       "id": "Q20",
       "mode": "lexical",
-      "elapsed_seconds": 0.017,
+      "elapsed_seconds": 0.019,
       "expected_behavior": "conflict",
       "expected_facts": [
         "线上",
@@ -1974,7 +1974,7 @@
       ],
       "evidence_complete": true,
       "response": {
-        "turn_id": "bc9c96c9-5848-43b4-8331-73f97eeb5728",
+        "turn_id": "9bb44e89-99ce-49d1-84c1-4c34d22c0946",
         "answer": "找到以下原文候选，尚未生成回答：\n[S5] 读书会报名说明.md · 片段 1\n[S6] 读书会活动通知.md · 片段 1",
         "sources": [
           {

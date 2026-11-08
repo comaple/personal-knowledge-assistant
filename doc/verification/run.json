@@ -1,47 +1,90 @@
 {
-  "tested_commit": "f22e847cef3f5377883e1084c79c81c3a48f6fde",
-  "run_id": "pka-sdd-clean-f22e847",
-  "recorded_at": "2026-11-07T14:33:36.434747+00:00",
-  "checkout": "/tmp/pka-sdd-clean-f22e847",
+  "tested_commit": "41738caad9bcddeb7d352991c5d63cb8c9b78d34",
+  "run_id": "pka-openspec-clean-41738ca",
+  "recorded_at": "2026-11-08T01:26:56.469798+00:00",
+  "checkout": "/tmp/pka-openspec-41738ca",
   "checkout_clean_before_install": true,
-  "environment": "Fresh uv Python 3.12.9 venv; npm ci in detached checkout; no editable project install",
+  "environment": "Fresh uv Python 3.12.9 venv inside detached checkout; locked Python dependencies and npm ci; no editable project install",
   "python": {
-    "tests": 36,
-    "passed": 36,
+    "tests": 54,
+    "passed": 54,
     "skipped": 0,
-    "command": "python -m unittest -v test_project.py test_rag"
+    "command": "python -m unittest -v test_project.py test_rag test_acceptance"
   },
   "dsh": {
-    "tests": 5,
-    "passed": 5,
+    "tests": 9,
+    "passed": 9,
     "skipped": 0,
     "command": "npm run test:harness"
   },
-  "node_version": "v25.3.0",
-  "browser": "Real Chrome / Puppeteer; scripted local model and 8D embedding; no paid model requests",
-  "performance_p95_ms": {
-    "list": 21.23,
-    "read": 20.935,
-    "lexical": 30.381
+  "openspec": {
+    "version": "1.16.1",
+    "change": "close-offline-acceptance-gaps",
+    "validation": {
+      "passed": 3,
+      "failed": 0,
+      "strict": true
+    },
+    "specs_synced": true
   },
+  "node_version": "v25.3.0",
+  "browser": {
+    "checks": 7,
+    "status": "PASS",
+    "framework": "Real Chrome / Puppeteer; scripted local models and 8D embeddings",
+    "large_graph_fixture": true
+  },
+  "performance_p95_ms": {
+    "list": 16.912,
+    "read": 15.901,
+    "lexical": 27.633
+  },
+  "acceptance": {
+    "passed": 17,
+    "not_run": 0,
+    "blocked": 1,
+    "cases": {
+      "AC-01": "PASS",
+      "AC-02": "PASS",
+      "AC-03": "PASS",
+      "AC-04": "PASS",
+      "AC-05": "PASS",
+      "AC-06": "PASS",
+      "AC-07": "BLOCKED",
+      "AC-08": "PASS",
+      "AC-09": "PASS",
+      "AC-10": "PASS",
+      "AC-11": "PASS",
+      "AC-12": "PASS",
+      "AC-13": "PASS",
+      "AC-14": "PASS",
+      "AC-15": "PASS",
+      "AC-16": "PASS",
+      "AC-17": "PASS",
+      "AC-18": "PASS"
+    }
+  },
+  "deadline_testing": "Production defaults stay 150s whole turn / 75s tool / 45s query; internal trusted test parameters shorten deadlines to exercise actual process cleanup/recovery without waiting full production durations.",
   "real_services": {
     "L3": "BLOCKED",
     "L4": "BLOCKED",
-    "reason": "Real model credentials / Embedding service not configured",
-    "quality_passed": null
+    "reason": "No .env, model credentials or Embedding endpoint configured",
+    "quality_passed": null,
+    "cost": null
   },
   "fixtures_sha256": {
     "questions.json": "848ba8986c0d4c03ca304b03ff4f70ff8eac74520083f0386232a02f55281056",
     "knowledge.json": "efb8193888dba8f4fc2ab2e325fbd41c6542ddf420a0d82dc218e8c9ecbeb2a2"
   },
   "evidence_sha256": {
-    "dsh-tests.txt": "9ff8e850b78ab0ed9751452cd0c15d69855e3eff3ddafa4644583c7bcf232f6e",
-    "browser-check.txt": "b6195c1b983f35047632357fda727f4c3178f2929df4f12094f64686520f59cd",
-    "python-tests.txt": "01d66e1b793c6a55059fc872ae5871efda8dd885528f24e3924f86f5b37f90c7",
-    "python-install.txt": "7cca92f06c4f0642f59d7762d4c8f499ae1f17bdec288eef6a1057a3089ce130",
-    "npm-install.txt": "50d586ee443cad9203aa53b17cc5e056d1329926210cefa1eff0f1a19ccab797",
-    "ui.json": "c657874bdddbe3e6c94228891347323227046bdb7364d6364a325b6f985cbacd",
-    "performance.json": "4e681982bd1d56e034f72ea3f09a786ec9a87d3d8ac69c6468db2afe0892e69e",
-    "lexical-evaluation.json": "85f34406fdd533ce3666533840d833f99859bf5f5ab20e5d39e615794f1aa319"
+    "dsh-tests.txt": "ecc1ffbd7b538ddf4bbc00666ea031fa05f1d909dd62161bda9b4415f2583d71",
+    "browser-check.txt": "a735645f5cb7a412ad6bc5ca3064976ee48ca5872132fd28fc2ba42f855a5246",
+    "python-tests.txt": "ab46375fd6f7ac9e27406200c73cdbbaf9b1e6c060af6cfa6dfc129b771a1c0d",
+    "python-install.txt": "07bd29ee4cd1385b38ae8c48c1c3ff3fa8cadbcd0eafd5b4bc3c01f8fb03575b",
+    "npm-install.txt": "fb5575c8be502ffa3db84ccf00226aac4a2d9935a70cdea787088a47604874a3",
+    "ui.json": "ee8390bd99c919351c0a09e6b844029bcb8aacb4ffcc783955decf8b3da71d0b",
+    "openspec-validation.txt": "dbc8789e988abe00ef8a4f8315451c09876d7f2605f5eb3224dc0963d9c0fefc",
+    "performance.json": "7930aae1846ab80825621014820befc28f83d47bba2a18de9512d4b78b3f7700",
+    "lexical-evaluation.json": "2a7e52dcf377351bf369d834ebc1aff8b2a3e4a1a63edc82e666e6be33b7e8e9"
   }
 }

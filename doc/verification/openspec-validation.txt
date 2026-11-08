@@ -1,0 +1,8 @@
+
+> personal-knowledge-assistant@1.0.0-rc.1 spec:validate
+> openspec validate --all --strict --no-interactive
+
+✓ change/close-offline-acceptance-gaps
+✓ spec/model-output-safety
+✓ spec/tool-process-lifecycle
+Totals: 3 passed, 0 failed (3 items)
