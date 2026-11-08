@@ -11,8 +11,9 @@
 
 ## Capabilities
 ### New Capabilities
-无。配置、既有验收执行与报告，不引入新需求。
+无。沿用已有事实支持要求。
 ### Modified Capabilities
+- model-output-safety：明确最少必要事实、禁止由角色归属推断排他责任的提示与验收场景。
 - tool-process-lifecycle：隔离DSH进程启动目录，由Python显式加载并继承应用配置，避免SDK重新读取项目.env。
 
 ## Impact

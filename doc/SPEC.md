@@ -221,7 +221,7 @@ schema 返回实际 anchors≤8、entity_types≤40、relation_descriptors≤20�
 
 OpenAPI 的 x-dsh-tools 定义业务输入输出契约；插件按固定 SDK 的工具描述方式适配，不假设标准 JSON Schema 的 $ref 可以直接作为 SDK 参数传入。业务桥仍独立校验参数，不能只依赖模型或 SDK 校验。
 
-每问创建隔离临时 DSH home，实际processCwd也置于该home以避免DSH CLI重复解析应用.env；逻辑cwd和插件绝对路径保留项目根，模型配置由Python白名单加载后通过环境继承。使用 sdk-minimal 和官方 Messages 适配器；先 kb_search，复杂关联按需探索/执行/修正；同轮历史交 DSH，旧聊天不注入。SDK 结束后 close，再清理临时目录。最终返回不超过 64 个去重来源，工具调用和结果通过 callId/toolCallId 对应；turn_id 保存实际运行。
+DSH提示要求仅回答问题所需事实，不把未提及当作否定、不从职责归属推断排他性，计算结果标明推算；真实效果以固定题集核对。每问创建隔离临时 DSH home，实际processCwd也置于该home以避免DSH CLI重复解析应用.env；逻辑cwd和插件绝对路径保留项目根，模型配置由Python白名单加载后通过环境继承。使用 sdk-minimal 和官方 Messages 适配器；先 kb_search，复杂关联按需探索/执行/修正；同轮历史交 DSH，旧聊天不注入。SDK 结束后 close，再清理临时目录。最终返回不超过 64 个去重来源，工具调用和结果通过 callId/toolCallId 对应；turn_id 保存实际运行。
 
 生成响应的 retrieval 保留最后一次 kb_search 的结构化状态，message 同时汇总本轮此前通道/工具失败或降级；完整详情在同 turn_id 轨迹中。不能因最后一次调用成功而隐藏前面的失败。所有来源来自绑定 R/G/P 的本轮成功工具结果，按首次出现顺序合并 source_id，保留通道及路径并集；同一路 channel_ranks 取最小名次，rank_position 按最终输出位置重新编号。
 
