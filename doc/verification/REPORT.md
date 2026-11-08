@@ -54,7 +54,7 @@ L2的模型服务由本地脚本提供，Embedding为8维测试向量；它们�
 
 ## OpenSpec与尚需配置的部分
 
-[接入教程](../openspec-workflow.md)记录迁入时点；[当前change](../../openspec/changes/close-offline-acceptance-gaps/tasks.md)管理本轮任务，两份行为规格已同步到主规格。正式PRD/Spec/Verify仍在doc/，OpenSpec不替代DSH运行时。
+[接入教程](../openspec-workflow.md)记录迁入时点；[当前change](../../openspec/changes/close-offline-acceptance-gaps/tasks.md)的10项任务已全部完成（[交付状态](openspec-delivery.json)），管理本轮离线范围，两份行为规格已同步到主规格。正式PRD/Spec/Verify仍在doc/，OpenSpec不替代DSH运行时。
 
 再次检查环境：没有`.env`，生成/图谱Key及Embedding地址均未配置。真实模型完整冒烟和固定20题retrieve/generate、人工事实支持/冲突/拒答复核、真实用量与费用均未执行；unknown字段保持null。补齐配置后按README使用隔离空库运行evaluate.py，达到Verify门槛后才能关闭AC-07与最终交付。
 
