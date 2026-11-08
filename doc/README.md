@@ -12,6 +12,7 @@
 
 使用与接入记录：
 
+- [OpenSpec开发流程与接入记录](openspec-workflow.md)
 - [安装与使用教程](tutorial.md)
 - [DSH 接入记录](dsh-harness-tutorial.md)
 - [知识图谱与多路检索记录](hybrid-graph-rag.md)

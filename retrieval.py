@@ -15,6 +15,7 @@ from runtime import kill_tree
 ROOT = Path(__file__).resolve().parent
 ROUTE_LIMIT = 12
 POOL_LIMIT = 24
+QUERY_TIMEOUT_SECONDS = 45
 QUERIES = set()
 QUERY_LOCK = threading.Lock()
 
@@ -156,7 +157,7 @@ def search_knowledge(store, query, limit=4, context=None, lexical_only=False):
             with QUERY_LOCK:
                 QUERIES.add(process)
             try:
-                out, _ = process.communicate(timeout=45)
+                out, _ = process.communicate(timeout=QUERY_TIMEOUT_SECONDS)
             finally:
                 with QUERY_LOCK:
                     QUERIES.discard(process)

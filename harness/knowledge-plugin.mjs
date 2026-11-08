@@ -1,10 +1,12 @@
-import { spawn } from "node:child_process";
+import { spawn, execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { defineTool } from "@deepseek-ai/dsh-tools";
 
 export const name = "personal-knowledge-tools";
 export const inject = ["tools"];
+export const TOOL_TIMEOUT_MS = 75_000;
+export const TOOL_OUTPUT_MAX_BYTES = 100_000;
 const api = JSON.parse(
   readFileSync(
     fileURLToPath(new URL("../doc/openapi.json", import.meta.url)),
@@ -35,26 +37,79 @@ function sdkSchema(input) {
   return out;
 }
 
-function invoke(config, operation, args, signal) {
+// The deadline argument is for trusted callers/tests, never model tool parameters.
+export function invokeBridge(
+  config,
+  operation,
+  args,
+  signal,
+  timeoutMs = TOOL_TIMEOUT_MS,
+) {
   return new Promise((resolve, reject) => {
     const child = spawn(
       config.python,
       [config.bridge, config.database, operation],
-      { stdio: ["pipe", "pipe", "pipe"], signal },
+      {
+        stdio: ["pipe", "pipe", "pipe"],
+        signal,
+        detached: process.platform !== "win32",
+      },
     );
     let bytes = 0;
     const chunks = [];
-    const timer = setTimeout(() => child.kill("SIGTERM"), 75_000);
+    let hardTimer;
+    let stopped = false;
+    const forceStop = () => {
+      if (process.platform === "win32") {
+        try {
+          execFileSync("taskkill", ["/PID", String(child.pid), "/T", "/F"], {
+            stdio: "ignore",
+          });
+        } catch {}
+        return;
+      }
+      // Query subprocesses can create their own sessions; a process group alone
+      // is insufficient. Collect descendants before terminating the bridge.
+      try {
+        const children = new Map();
+        for (const row of execFileSync("ps", ["-eo", "pid=,ppid="], {
+          encoding: "utf8",
+        })
+          .trim()
+          .split("\n")) {
+          const [pid, parent] = row.trim().split(/\s+/).map(Number);
+          children.set(parent, [...(children.get(parent) || []), pid]);
+        }
+        const visit = (pid) => {
+          for (const descendant of children.get(pid) || []) visit(descendant);
+          try {
+            process.kill(pid, "SIGKILL");
+          } catch {}
+        };
+        visit(child.pid);
+      } catch {
+        child.kill("SIGKILL");
+      }
+    };
+    const terminate = () => {
+      stopped = true;
+      child.kill("SIGTERM");
+      hardTimer ??= setTimeout(forceStop, 1000);
+    };
+    const timer = setTimeout(terminate, timeoutMs);
+    signal?.addEventListener("abort", terminate, { once: true });
     child.stdout.on("data", (part) => {
       bytes += part.length;
-      if (bytes > 100_000) child.kill("SIGTERM");
+      if (bytes > TOOL_OUTPUT_MAX_BYTES) terminate();
       else chunks.push(part);
     });
     child.stderr.resume();
     child.on("error", reject);
     child.on("close", (code) => {
       clearTimeout(timer);
-      if (code !== 0 || bytes > 100_000)
+      clearTimeout(hardTimer);
+      signal?.removeEventListener("abort", terminate);
+      if (stopped || code !== 0 || bytes > TOOL_OUTPUT_MAX_BYTES)
         return reject(
           new Error("知识库工具执行失败；请检查资料版本或服务配置"),
         );
@@ -95,7 +150,7 @@ export function apply(ctx, config) {
         },
         execute: (args, exec) => {
           if (++toolCalls > 8) throw new Error("已达到8次工具调用预算");
-          return invoke(config, operation, args, exec.signal);
+          return invokeBridge(config, operation, args, exec.signal);
         },
       }),
     );

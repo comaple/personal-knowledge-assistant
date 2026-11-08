@@ -14,6 +14,7 @@ from rag_backend import query_context
 from runtime import kill_tree
 
 ROOT = Path(__file__).resolve().parent
+RUN_TIMEOUT_SECONDS = 150
 ACTIVE = set()
 ACTIVE_LOCK = threading.Lock()
 
@@ -138,7 +139,9 @@ def generate(question, store, context=None):
             with ACTIVE_LOCK:
                 ACTIVE.add(process)
             try:
-                output, _ = process.communicate(json.dumps(payload), timeout=150)
+                output, _ = process.communicate(
+                    json.dumps(payload), timeout=RUN_TIMEOUT_SECONDS
+                )
             except subprocess.TimeoutExpired:
                 kill_tree(process)
                 process.communicate()
@@ -152,9 +155,7 @@ def generate(question, store, context=None):
                 )
             result = json.loads(output)
             # SDK events may contain provider configuration. Redact exact configured secrets.
-            secrets = [
-                v for k, v in env.items() if k.endswith("API_KEY") and len(v) >= 8
-            ]
+            secrets = [v for k, v in env.items() if k.endswith("API_KEY") and v]
 
             def redact(value):
                 if isinstance(value, str):
@@ -164,10 +165,10 @@ def generate(question, store, context=None):
                 if isinstance(value, list):
                     return [redact(v) for v in value]
                 if isinstance(value, dict):
-                    return {k: redact(v) for k, v in value.items()}
+                    return {redact(k): redact(v) for k, v in value.items()}
                 return value
 
-            result["events"] = redact(result.get("events", []))
+            result = redact(result)
             if result.get("budget_exceeded"):
                 raise ModelError(
                     "已达到工具调用预算。", run=result, code="BUDGET_EXCEEDED"

@@ -5,6 +5,8 @@
     "DSH answer, source snapshots and real tool traces render",
     "Create note and tags, filter document list",
     "Concurrent edit preserves draft; document markup is inert",
+    "Large graph fixture shows 24/151 nodes and at most 50/301 edges; 390px layout remains usable",
+    "After editing and deleting a source, reloaded chat displays its saved snapshot without fetching current chunks",
     "390px library/search/graph have no horizontal overflow or page errors"
   ],
   "status": "PASS"

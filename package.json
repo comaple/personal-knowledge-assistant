@@ -7,11 +7,18 @@
     "node": ">=24.9.0"
   },
   "scripts": {
-    "test:harness": "node --test harness/integration.test.mjs"
+    "test:harness": "node --test harness/integration.test.mjs",
+    "test:python": "python -m unittest -v test_project.py test_rag test_acceptance",
+    "spec:status": "openspec list --json",
+    "spec:validate": "openspec validate --all --strict --no-interactive",
+    "spec:change": "openspec new change"
   },
   "dependencies": {
     "@deepseek-ai/dsh": "0.2.2-rc.1",
     "@deepseek-ai/dsh-sdk-client": "0.2.2-rc.1",
     "@deepseek-ai/dsh-tools": "0.2.2-rc.1"
+  },
+  "devDependencies": {
+    "@fission-ai/openspec": "1.16.1"
   }
 }

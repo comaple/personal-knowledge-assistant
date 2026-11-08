@@ -88,9 +88,11 @@ python app.py --db data/restored.db
 
 ## 开发与验收
 
+使用OpenSpec1.16.1管理变更：`npm ci` 后运行 `npm run spec:status`、`npm run spec:validate`。提案、增量规格、设计与任务位于 `openspec/`；正式PRD/Spec/Verify仍在 `doc/`。详见[OpenSpec接入教程](doc/openspec-workflow.md)。
+
 ```bash
 python -m pip install -r requirements-dev.lock
-python -m unittest -v test_project.py test_rag
+python -m unittest -v test_project.py test_rag test_acceptance
 npm run test:harness
 ```
 

@@ -45,6 +45,48 @@ class RetrievalUnitTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 select_evidence("退款", [{"chunk_id": 1, "content": "提前72小时"}])
 
+    def test_rerank_rejects_missing_duplicate_boolean_malformed_and_truncated_ids(self):
+        for value, finish in [
+            ({"ordered_ids": [1], "reason": "missing"}, "stop"),
+            ({"ordered_ids": [1, 1], "reason": "duplicate"}, "stop"),
+            ({"ordered_ids": [True, 2], "reason": "bool"}, "stop"),
+            ({"ordered_ids": [1, 2], "reason": "truncated"}, "length"),
+            ("not JSON", "stop"),
+        ]:
+            with self.subTest(value=value, finish=finish):
+                response = {
+                    "choices": [
+                        {
+                            "finish_reason": finish,
+                            "message": {
+                                "content": json.dumps(value)
+                                if isinstance(value, dict)
+                                else value
+                            },
+                        }
+                    ]
+                }
+                with (
+                    patch.dict(os.environ, {"RAG_LLM_API_KEY": "offline-test-key"}),
+                    patch("retrieval.post_json", return_value=response),
+                    self.assertRaises((ValueError, TypeError)),
+                ):
+                    select_evidence(
+                        "退款",
+                        [
+                            {"chunk_id": 1, "content": "甲"},
+                            {"chunk_id": 2, "content": "乙"},
+                        ],
+                    )
+        routes = {
+            name: list(range(offset, offset + 12))
+            for name, offset in [("bm25", 1), ("vector", 13), ("graph", 25)]
+        }
+        pool, _ = balanced_pool(routes)
+        self.assertEqual(len(pool), 24)
+        self.assertEqual(len(set(pool)), 24)
+        self.assertTrue({1, 13, 25} <= set(pool))
+
     def test_revision_guard_and_explicit_fallback(self):
         with (
             tempfile.TemporaryDirectory() as temp,
@@ -455,13 +497,6 @@ class LightRagTest(unittest.TestCase):
                 Path("doc/agentic-graph-run-example.json").write_text(
                     json.dumps(example, ensure_ascii=False, indent=2) + "\n"
                 )
-            if os.getenv("PKA_PUPPETEER_PATH"):
-                subprocess.run(
-                    ["node", "scripts/verify-rag-ui.mjs", address],
-                    env=os.environ.copy(),
-                    check=True,
-                    timeout=100,
-                )
 
     def test_http_background_build_and_graph_sources(self):
         import time
@@ -498,6 +533,252 @@ class LightRagTest(unittest.TestCase):
             request.urlopen(base + "/api/chunks?ids=1%20OR%201")
         self.assertEqual(bad.exception.code, 400)
         bad.exception.close()
+
+    def test_background_job_rejects_duplicate_and_stale_configuration_is_not_queried(
+        self,
+    ):
+        import time
+        from urllib import error, request
+
+        from app import make_server
+
+        entered, release = threading.Event(), threading.Event()
+        MockProviders.mutate = lambda: (entered.set(), release.wait(10))
+        app = make_server(self.store, 0)
+        threading.Thread(target=app.serve_forever, daemon=True).start()
+        self.addCleanup(app.server_close)
+        self.addCleanup(app.shutdown)
+        base = f"http://127.0.0.1:{app.server_port}"
+
+        def start():
+            return request.urlopen(
+                request.Request(
+                    base + "/api/index",
+                    data=b"{}",
+                    headers={"Content-Type": "application/json"},
+                )
+            )
+
+        try:
+            with start() as response:
+                self.assertEqual(response.status, 202)
+                job_id = json.load(response)["job_id"]
+            self.assertTrue(entered.wait(8))
+            with self.assertRaises(error.HTTPError) as caught:
+                start()
+            self.assertEqual(caught.exception.code, 409)
+            self.assertEqual(json.load(caught.exception)["error"]["code"], "INDEX_BUSY")
+        finally:
+            release.set()
+        deadline = time.monotonic() + 60
+        while (
+            time.monotonic() < deadline
+            and app.index_jobs.snapshot()["status"] == "running"
+        ):
+            time.sleep(0.1)
+        self.assertEqual(app.index_jobs.snapshot()["status"], "completed")
+        self.assertEqual(app.index_jobs.snapshot()["job_id"], job_id)
+        with (
+            patch.dict(os.environ, {"EMBEDDING_DIM": "9"}),
+            patch(
+                "retrieval.subprocess.Popen",
+                side_effect=AssertionError("stale index queried"),
+            ),
+        ):
+            self.assertEqual(index_status(self.store)["status"], "stale")
+            self.assertEqual(
+                search_knowledge(self.store, "摄影课")["retrieval"]["mode"],
+                "lexical_fallback",
+            )
+        directory = index_root(self.store) / self.store.rag_state()["generation"]
+        (directory / "graph.json").unlink()
+        self.assertEqual(index_status(self.store)["status"], "missing")
+
+    def test_bad_rerank_is_visible_and_keeps_real_candidate_sources(self):
+        self.build()
+        with patch(
+            "retrieval.select_evidence", side_effect=ValueError("invalid permutation")
+        ):
+            result = search_knowledge(self.store, "摄影课退款")
+        self.assertEqual(result["retrieval"]["ranking"]["status"], "error")
+        self.assertLessEqual(len(result["hits"]), 4)
+        self.assertTrue(
+            all(r["candidates"] <= 12 for r in result["retrieval"]["routes"])
+        )
+        self.assertEqual(
+            len({h["chunk_id"] for h in result["hits"]}), len(result["hits"])
+        )
+        self.assertTrue(any(len(h["channels"]) > 1 for h in result["hits"]))
+
+    def test_one_real_backend_route_fails_without_losing_other_evidence(self):
+        import asyncio
+
+        import rag_backend
+
+        self.build()
+        original = rag_backend.create_rag
+
+        async def partial(*args):
+            rag = await original(*args)
+            query = rag.aquery_data
+
+            async def fail_graph(text, params):
+                if params.mode == "hybrid":
+                    raise RuntimeError("injected graph-only failure")
+                return await query(text, params)
+
+            rag.aquery_data = fail_graph
+            return rag
+
+        with patch.object(rag_backend, "create_rag", side_effect=partial):
+            bundle = asyncio.run(rag_backend.query_index(self.store, "摄影课"))
+        self.assertEqual(bundle["vector"]["status"], "ok")
+        self.assertTrue(bundle["vector"]["ids"])
+        self.assertEqual(bundle["graph"], {"status": "error", "ids": []})
+        with patch("retrieval.subprocess.Popen") as spawn:
+            process = spawn.return_value
+            process.returncode = 0
+            process.communicate.return_value = (json.dumps(bundle), "")
+            result = search_knowledge(self.store, "摄影课")
+        self.assertEqual(result["retrieval"]["mode"], "partial")
+        self.assertEqual(result["retrieval"]["routes"][2]["status"], "error")
+        self.assertTrue(result["hits"])
+        self.assertTrue(any("vector" in h["channels"] for h in result["hits"]))
+
+    def test_concurrent_build_edit_and_ask_cannot_publish_mixed_versions(self):
+        import time
+        from urllib import request
+
+        from app import make_server
+
+        self.build()
+        old_generation = self.store.rag_state()["generation"]
+        build_entered, build_release = threading.Event(), threading.Event()
+        turn_entered, turn_release = threading.Event(), threading.Event()
+        MockProviders.mutate = lambda: (build_entered.set(), build_release.wait(10))
+        app = make_server(self.store, 0)
+        threading.Thread(target=app.serve_forever, daemon=True).start()
+        self.addCleanup(app.server_close)
+        self.addCleanup(app.shutdown)
+        base = f"http://127.0.0.1:{app.server_port}"
+
+        def call(path, data, method="POST"):
+            with request.urlopen(
+                request.Request(
+                    base + path,
+                    data=json.dumps(data).encode(),
+                    method=method,
+                    headers={"Content-Type": "application/json"},
+                ),
+                timeout=15,
+            ) as response:
+                return json.load(response)
+
+        sources = search_knowledge(self.store, "摄影课", lexical_only=True)["hits"]
+
+        def generate(*args):
+            turn_entered.set()
+            if not turn_release.wait(10):
+                raise RuntimeError("turn barrier timeout")
+            return {
+                "answer": "旧答案[S1]",
+                "sources": sources,
+                "status": "generated",
+                "harness_session_id": "concurrent-build-run",
+                "finish_reason": "completed",
+                "events": [],
+            }
+
+        sid = call("/api/sessions", {})["session_id"]
+        results = []
+        with patch("app.generate", side_effect=generate):
+            call("/api/index", {})
+            self.assertTrue(build_entered.wait(8))
+            worker = threading.Thread(
+                target=lambda: results.append(
+                    call(
+                        "/api/ask",
+                        {"session_id": sid, "question": "摄影课", "mode": "generate"},
+                    )
+                )
+            )
+            worker.start()
+            try:
+                self.assertTrue(turn_entered.wait(5))
+                call(
+                    "/api/documents/" + str(self.doc1["document_id"]),
+                    {"expected_version": 1, "content": "摄影课现已变更"},
+                    "PATCH",
+                )
+            finally:
+                turn_release.set()
+                build_release.set()
+                worker.join(15)
+        deadline = time.monotonic() + 60
+        while (
+            time.monotonic() < deadline
+            and app.index_jobs.snapshot()["status"] == "running"
+        ):
+            time.sleep(0.1)
+        self.assertEqual(results[0]["error"]["code"], "CORPUS_CHANGED")
+        self.assertEqual(results[0]["sources"], [])
+        self.assertEqual(
+            self.store.runs(sid)[0]["harness_session_id"], "concurrent-build-run"
+        )
+        self.assertEqual(app.index_jobs.snapshot()["status"], "error")
+        self.assertEqual(self.store.rag_state()["generation"], old_generation)
+        self.assertEqual(index_status(self.store)["status"], "stale")
+
+    def test_query_deadline_falls_back_without_leaving_processes(self):
+        import retrieval
+
+        self.build()
+        with patch.object(retrieval, "QUERY_TIMEOUT_SECONDS", 0.01):
+            result = search_knowledge(self.store, "摄影课")
+        self.assertEqual(result["retrieval"]["routes"][1]["status"], "error")
+        self.assertFalse(retrieval.QUERIES)
+        self.assertTrue(
+            search_knowledge(self.store, "摄影课", lexical_only=True)["hits"]
+        )
+
+    def test_large_graph_reports_full_totals_and_bounded_view(self):
+        self.build()
+        directory = index_root(self.store) / self.store.rag_state()["generation"]
+        graph = json.loads((directory / "graph.json").read_text())
+        cid = self.store.corpus_snapshot()[1][0]["chunk_id"]
+        graph["nodes"] = [
+            {
+                "id": f"N{i}",
+                "type": "concept",
+                "description": "测试大图",
+                "chunk_ids": [cid],
+            }
+            for i in range(151)
+        ]
+        graph["edges"] = [
+            {
+                "source": f"N{i % 150}",
+                "target": f"N{(i + 1) % 151}",
+                "relation": f"关系{i}",
+                "description": "来源回指",
+                "chunk_ids": [cid],
+            }
+            for i in range(301)
+        ]
+        raw = json.dumps(graph, ensure_ascii=False).encode()
+        (directory / "graph.json").write_bytes(raw)
+        import hashlib
+
+        manifest = json.loads((directory / "manifest.json").read_text())
+        manifest["files"]["graph.json"] = hashlib.sha256(raw).hexdigest()
+        (directory / "manifest.json").write_text(json.dumps(manifest))
+        result = graph_view(self.store)
+        self.assertTrue(result["truncated"])
+        self.assertEqual((result["total_nodes"], result["total_edges"]), (151, 301))
+        self.assertEqual((len(result["nodes"]), len(result["edges"])), (150, 300))
+        self.assertTrue(
+            all(set(r["chunk_ids"]) <= {cid} for r in result["nodes"] + result["edges"])
+        )
 
     def test_delete_invalidates_both_graph_and_vectors(self):
         self.build()
@@ -555,6 +836,10 @@ class LightRagTest(unittest.TestCase):
         self.assertEqual(result["retrieval"]["mode"], "lexical_fallback")
         self.assertEqual(result["retrieval"]["routes"][1]["status"], "error")
         self.assertEqual(result["hits"][0]["channels"], ["bm25"])
+        MockProviders.fail_embeddings = False
+        self.assertEqual(
+            search_knowledge(self.store, "摄影课")["retrieval"]["mode"], "hybrid"
+        )
 
     def test_edit_during_build_cannot_publish_a_stale_graph(self):
         MockProviders.mutate = lambda: import_text(self.store, "新.md", "资料已变更")

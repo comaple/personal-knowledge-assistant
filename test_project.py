@@ -284,9 +284,15 @@ class MigrationTest(unittest.TestCase):
                     "2026-01-01 00:00:00",
                 ),
             )
+            db.execute(
+                "INSERT INTO harness_runs VALUES(1,'s','legacy-harness','completed','[]','2026-01-01 00:00:00')"
+            )
             db.commit()
             db.close()
             store = Store(p)
+            self.assertIsNone(store.messages("s")[0]["turn_id"])
+            self.assertIsNone(store.runs("s")[0]["turn_id"])
+            self.assertEqual(store.runs("s")[0]["harness_session_id"], "legacy-harness")
             self.assertEqual(store.document(1)["kind"], "imported")
             self.assertTrue(store.messages("s")[0]["sources"][0]["legacy"])
             import_text(store, "新.md", "新正文")

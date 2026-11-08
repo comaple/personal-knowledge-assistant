@@ -1,0 +1,33 @@
+schema: spec-driven
+
+context: |
+  项目：个人知识管理助手 / Personal Knowledge Assistant，本地单人知识管理应用。
+  使用中文描述，保留 OpenSpec 的 English structural headings、SHALL/MUST、WHEN/THEN。
+  技术栈：Python标准库HTTP与SQLite FTS5、LightRAG 1.5.7、DSH 0.2.2-rc.1、原生HTML/JS。
+  产品和接口基线：doc/PRD.md、doc/SPEC.md、doc/openapi.json；验收基线：doc/VERIFY.md。
+  现有文档留在doc/；openspec/记录本次增量及后续演进，不整体复制PRD，不恢复docs/。
+  行为改变须先写增量需求/场景并同步相关doc契约，再实施；已有授权开发中的工作应如实记录迁入时点，不伪造先后顺序。
+  SQLite是事实源，知识工具只读，默认lexical不访问模型；资料revision、来源快照和乐观锁不得削弱。
+  测试用临时数据库与虚构资料，L1/L2模拟服务不等于L3/L4真实模型质量。
+  不将未配置的真实服务、未执行用例或未知费用标为通过；禁止把Key写入仓库/证据。
+  所有变更应可追溯至AC用例、实际测试命令、提交及脱敏证据。
+
+rules:
+  proposal:
+    - 写明本次实际变更、沿用的既有需求、迁入OpenSpec前已做的工作和明确不包含的工作。
+  specs:
+    - 使用Requirement和Scenario结构，每条需求包含SHALL/MUST及可验证WHEN/THEN。
+    - 列出相关FR/NFR/AC编号；真实模型质量另列，不能用模拟结果闭合。
+  design:
+    - 说明失败回滚、超时清理、凭据边界、兼容性和验证办法。
+  tasks:
+    - 每项任务包含可执行的完成证据；未完成、部分完成和缺服务的项目保持未勾选。
+
+operations:
+  apply:
+    guidance:
+      - 先跑本轮受影响的测试，修复后再跑完整工程检查；证据保存在doc/verification/中。
+      - 同步doc/VERIFY.md与doc/TASKS.md的真实状态，不能仅依据OpenSpec artifact文件存在判为通过。
+  archive:
+    guidance:
+      - 归档前确认任务、规格与实现证据一致，真实服务验证若不在本change中则明确引用后续待办。

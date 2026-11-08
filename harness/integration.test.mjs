@@ -2,7 +2,13 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { spawn, execFileSync } from "node:child_process";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, rm, writeFile, readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import {
+  invokeBridge,
+  TOOL_TIMEOUT_MS,
+  TOOL_OUTPUT_MAX_BYTES,
+} from "./knowledge-plugin.mjs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -74,7 +80,7 @@ function sse(content, count) {
         ? {
             type: "tool_use",
             id: `call_${count}`,
-            name: "kb_search",
+            name: content.__tool || "kb_search",
             input: {},
           }
         : { type: "text", text: "" },
@@ -83,7 +89,10 @@ function sse(content, count) {
       type: "content_block_delta",
       index: 0,
       delta: tool
-        ? { type: "input_json_delta", partial_json: JSON.stringify(content) }
+        ? {
+            type: "input_json_delta",
+            partial_json: JSON.stringify(content.__args || content),
+          }
         : { type: "text_delta", text: content },
     },
     { type: "content_block_stop", index: 0 },
@@ -121,11 +130,24 @@ async function scenario(t, mode) {
     assert.equal(req.url, "/v1/messages");
     const count = requests.length;
     let response;
-    if (mode === "tool_limit")
+    if (mode === "injection")
+      response =
+        count === 1
+          ? { query: "退款" }
+          : count === 2
+            ? {
+                __tool: "bash",
+                __args: {
+                  command: `touch ${path.join(dir, "forbidden-marker")}`,
+                },
+              }
+            : "退款需提前72小时。[S1]";
+    else if (mode === "tool_limit")
       response =
         count === 1
           ? Array.from({ length: 9 }, () => ({ query: "退款" }))
           : "已找到退款资料。[S1]";
+    else if (mode === "token_limit") response = "因输出预算被截断的回答";
     else if (mode === "limit") response = { query: "退款" };
     else if (count === 1) response = { query: "量子隧穿" };
     else if (mode === "miss") response = "这份资料没有相关内容。";
@@ -144,7 +166,12 @@ async function scenario(t, mode) {
       response = `${hits[0].content}[${hits[0].source_id}]`;
     }
     res.writeHead(200, { "Content-Type": "text/event-stream" });
-    res.end(sse(response, count));
+    const stream = sse(response, count);
+    res.end(
+      mode === "token_limit"
+        ? stream.replace('"end_turn"', '"max_tokens"')
+        : stream,
+    );
   });
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   t.after(() => new Promise((resolve) => server.close(resolve)));
@@ -189,7 +216,7 @@ async function scenario(t, mode) {
     let response;
     response = await post("/api/ask", {
       session_id,
-      question: "摄影课退款需要提前多久？",
+      question: "摄影课退款需要提前多久？ PRIVATE_OLD_TURN_123",
       mode: "generate",
     });
     assert.equal(response.status, "generated");
@@ -207,6 +234,24 @@ async function scenario(t, mode) {
       runs.items[0].events.filter((e) => e.type === "tool/call").length,
       2,
     );
+    const oldRunId = runs.items[0].harness_session_id;
+    requests.length = 0;
+    const next = await post("/api/ask", {
+      session_id,
+      question: "重新询问退款时间",
+      mode: "generate",
+    });
+    assert.equal(next.status, "generated");
+    assert.equal(requests.length, 3);
+    assert.ok(
+      !JSON.stringify(requests).includes("PRIVATE_OLD_TURN_123"),
+      "prior turn must not enter a fresh DSH prompt",
+    );
+    const nextRuns = await (
+      await fetch(address + "/api/runs?session_id=" + session_id)
+    ).json();
+    assert.equal(nextRuns.items.length, 2);
+    assert.notEqual(nextRuns.items[1].harness_session_id, oldRunId);
     return;
   }
   const run = await new Promise((resolve, reject) => {
@@ -244,6 +289,8 @@ async function scenario(t, mode) {
     "kb_search",
   ]);
   assert.equal(requests[0].thinking.type, "disabled");
+  if (mode === "injection")
+    assert.equal(existsSync(path.join(dir, "forbidden-marker")), false);
   return { run, requests };
 }
 
@@ -313,5 +360,121 @@ test(
     const results = run.events.filter((e) => e.type === "tool/result");
     assert.equal(results.filter((e) => !e.data.message.isError).length, 8);
     assert.ok(results.some((e) => e.data.message.isError));
+  },
+);
+
+test(
+  "real DSH: model request for a forbidden shell tool cannot execute",
+  { timeout: 90_000 },
+  async (t) => {
+    const { run, requests } = await scenario(t, "injection");
+    assert.ok(requests.length >= 2);
+    assert.ok(
+      run.events.some(
+        (e) => e.type === "tool/result" && e.data.message.isError,
+      ) || run.finish_reason !== "completed",
+    );
+  },
+);
+
+test(
+  "tool bridge: timeout cleans even TERM-ignoring descendants in other sessions",
+  { timeout: 15_000 },
+  async (t) => {
+    if (process.platform === "win32")
+      return t.skip("POSIX signal fixture; Windows uses taskkill /T");
+    const dir = await mkdtemp(path.join(tmpdir(), "pka-tool-timeout-"));
+    t.after(() => rm(dir, { recursive: true, force: true }));
+    const bridge = path.join(dir, "stubborn.py"),
+      database = path.join(dir, "pids.json");
+    await writeFile(
+      bridge,
+      `import signal,subprocess,sys,time,json,os
+signal.signal(signal.SIGTERM,signal.SIG_IGN)
+child=subprocess.Popen([sys.executable,'-c','import time; time.sleep(60)'],start_new_session=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+open(sys.argv[1],'w').write(json.dumps([os.getpid(),child.pid]))
+time.sleep(60)
+`,
+    );
+    await assert.rejects(
+      invokeBridge(
+        { python, bridge, database },
+        "kb_search",
+        { query: "退款" },
+        undefined,
+        500,
+      ),
+      /知识库工具执行失败/,
+    );
+    for (const pid of JSON.parse(await readFile(database, "utf8"))) {
+      let state = "";
+      try {
+        state = execFileSync("ps", ["-o", "stat=", "-p", String(pid)], {
+          encoding: "utf8",
+        }).trim();
+      } catch {}
+      assert.ok(
+        !state || state.startsWith("Z"),
+        `process ${pid} still running: ${state}`,
+      );
+    }
+    const good = path.join(dir, "good.py");
+    await writeFile(good, 'print("{}")');
+    assert.deepEqual(
+      await invokeBridge(
+        { python, bridge: good, database },
+        "kb_list_documents",
+        {},
+        undefined,
+        500,
+      ),
+      {},
+    );
+  },
+);
+
+test(
+  "tool bridge: oversized stdout fails and subsequent calls recover",
+  { timeout: 15_000 },
+  async (t) => {
+    const dir = await mkdtemp(path.join(tmpdir(), "pka-tool-size-"));
+    t.after(() => rm(dir, { recursive: true, force: true }));
+    const bridge = path.join(dir, "large.py"),
+      database = path.join(dir, "unused.db");
+    await writeFile(bridge, 'print("x"*100001)');
+    await assert.rejects(
+      invokeBridge(
+        { python, bridge, database },
+        "kb_search",
+        { query: "x" },
+        undefined,
+        2000,
+      ),
+      /知识库工具执行失败/,
+    );
+    await writeFile(bridge, 'print("[]")');
+    assert.deepEqual(
+      await invokeBridge(
+        { python, bridge, database },
+        "kb_list_documents",
+        {},
+        undefined,
+        2000,
+      ),
+      [],
+    );
+  },
+);
+
+test(
+  "real DSH: provider output-token limit is a failed budgeted turn",
+  { timeout: 90_000 },
+  async (t) => {
+    const { run, requests } = await scenario(t, "token_limit");
+    assert.equal(requests.length, 1);
+    assert.equal(run.finish_reason, "max-tokens");
+    assert.equal(run.budget_exceeded, true);
+    assert.equal(TOOL_TIMEOUT_MS, 75000);
+    assert.equal(TOOL_OUTPUT_MAX_BYTES, 100000);
   },
 );
